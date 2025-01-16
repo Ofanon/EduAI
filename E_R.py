@@ -17,10 +17,12 @@ prompt = "Crée une fiche de revision le plus précisement possible, en parlant 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale")
 
 if prompt_user:
-    st.write("Analyse de l'image en cours...")
     time.sleep(3)
     with st.spinner("L'ia réfléchit"):
         response = model.generate_content([prompt_user, prompt])
-        st.write(response.text)
+        placehorder = st.empty()
+        for i, char in enumerate(response):
+            placehorder.text(char)
+            time.sleep(0.05)
 
 
