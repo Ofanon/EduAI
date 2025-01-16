@@ -6,7 +6,7 @@ import E_API_Key
 
 st.title("EtudIAnt : Aide aux devoirs")
 
-genai.configure(api_key={E_API_Key.api_key})
+genai.configure(api_key=st.session_state["api_key"])
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 

@@ -5,7 +5,7 @@ import E_API_Key
 
 st.title("EtudIAnt : fiche de révision")
 
-genai.configure(api_key={E_API_Key.api_key})
+genai.configure(api_key=st.session_state["api_key"])
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
