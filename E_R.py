@@ -8,7 +8,7 @@ if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
 
 else:
-    st.error("Clée API non enregistrée, veuillez vous rendre dans l'onglet 'Configuration de la clée API' pour l'enregistrer.")
+    st.error("Clée API non sauvegardée, veuillez la sauvegarder pour pouvoir utiliser l'application.")
 
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
@@ -17,12 +17,10 @@ prompt = "Crée une fiche de revision le plus précisement possible, en parlant 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale")
 
 if prompt_user:
+    st.write("Analyse de l'image en cours...")
     time.sleep(3)
     with st.spinner("L'ia réfléchit"):
         response = model.generate_content([prompt_user, prompt])
-        placehorder = st.empty()
-        for i, char in enumerate(response):
-            placehorder.text(char)
-            time.sleep(0.05)
+        st.write(response.text)
 
 
