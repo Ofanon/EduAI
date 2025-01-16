@@ -13,7 +13,7 @@ else:
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
-prompt = "Crée une fiche de revision le plus précisement possible, en parlant en francais"
+prompt = "Crée une fiche de revision le plus précisement possible, en parlant en francais, jamais en anglais"
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale")
 
 if prompt_user:
