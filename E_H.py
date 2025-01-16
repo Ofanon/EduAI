@@ -5,7 +5,7 @@ import streamlit as st
 
 st.title("EtudIAnt : Aide aux devoirs")
 
-genai.configure(api_key=st.text_area("Ta clée API.", height=20))
+genai.configure(api_key=st.text_area("Ta clée API."))
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
