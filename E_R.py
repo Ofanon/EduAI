@@ -1,10 +1,11 @@
 import google.generativeai as genai
 import streamlit as st
 import time
+import E_API_Key
 
 st.title("EtudIAnt : fiche de révision")
 
-genai.configure(api_key=st.text_input("Ta clée API."))
+genai.configure(api_key={E_API_Key.api_key})
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
