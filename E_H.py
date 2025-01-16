@@ -5,7 +5,7 @@ import streamlit as st
 
 st.title("EtudIAnt : Aide aux devoirs")
 
-genai.configure(api_key=st.text_area("Ta clée API."))
+genai.configure(api_key=st.text_input("Ta clée API."))
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
@@ -45,6 +45,6 @@ if "image_analyzed" in st.session_state:
 if "chat_history" in st.session_state:
     for message in st.session_state["chat_history"]:
         if message["role"] == "user":
-            st.chat_message(f"**Vous** : {message['content']}")
+            st.chat_message(f"**Vous** : {message['content']}", avatar="user")
         elif message["role"] == "assistant":
-            st.chat_message(f"**IA** : {message['content']}")
+            st.chat_message(f"**IA** : {message['content']}", avatar="assistant")
