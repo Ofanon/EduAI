@@ -1,6 +1,11 @@
 import streamlit as st
 
-pg = st.navigation([st.Page("E_H.py", title = "Aide aux devoirs"), st.Page("E_R.py", title = "Créateur de fiches de révision"), st.Page("E_API_Key.py", title ="Configuration de la clée API")])
+page = st.sidebar.selectbox("Choisir une page", ("Aide aux devoirs", "Créateur de fiche de révision","Configuration de la clée API"))
 
-pg.run()
-st.sidebar("Aide au devoirs", "Créateur de fiches de révision", "Configuration de la clée API")
+if page == "Aide aux devoirs":
+    import E_H
+elif page == "Créateur de fiche de révision":
+    import E_R
+
+elif page == "Configuration de la clée API":
+    import E_API_Key
