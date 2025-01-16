@@ -1,12 +1,14 @@
 import google.generativeai as genai
 import PIL.Image
 import streamlit as st
-import E_API_Key
 
 
 st.title("EtudIAnt : Aide aux devoirs")
+if "api_key" in st.session_state:
+    genai.configure(api_key=st.session_state["api_key"])
 
-genai.configure(api_key=st.session_state["api_key"])
+else:
+    st.error("Clée API non sauvegardée, veuillez la sauvegarder pour pouvoir utiliser l'application.")
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
