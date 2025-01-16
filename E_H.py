@@ -1,11 +1,12 @@
 import google.generativeai as genai
 import PIL.Image
 import streamlit as st
+import E_API_Key
 
 
 st.title("EtudIAnt : Aide aux devoirs")
 
-genai.configure(api_key=st.text_input("Ta clée API."))
+genai.configure(api_key={E_API_Key.api_key})
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
