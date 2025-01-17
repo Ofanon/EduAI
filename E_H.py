@@ -26,7 +26,7 @@ if uploaded_file:
 
     if "image_analyzed" not in st.session_state:
         st.write("Analyse en cours...")
-        prompt = "Répond à cette exercice le plus précisement possible, en parlant en francais, jamais en anglais"
+        prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
         response_ai = model.generate_content([prompt, image])
         response_ai_user = response_ai.text
         st.session_state["response_ai"] = response_ai_user
