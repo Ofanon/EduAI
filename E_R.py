@@ -26,9 +26,9 @@ if "created" not in st.session_state:
         with st.spinner("L'EtudIAnt reflechit..."):
             response_ai = model.generate_content([prompt_user, prompt])
             response_ai_user = response_ai.text
-            st.session_state["response_ai_revision"] = response_ai.text
-            st.session_state["chat_add"].append({"role":"assistant", "content":response_ai_user})
-            st.session_state["created"] = True
+        st.session_state["response_ai_revision"] = response_ai.text
+        st.session_state["chat_add"].append({"role":"assistant", "content":response_ai_user})
+        st.session_state["created"] = True
 
 
 if "created" in st.session_state:
