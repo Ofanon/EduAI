@@ -38,7 +38,7 @@ if "created" in st.session_state:
         st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
         history.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
         chat = model.start_chat(history=history)
-        response_chat = chat.send_message([prompt_user, prompt_chat])
+        response_chat = chat.send_message([prompt_user])
         st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
         history.append({"role":"user", "parts":prompt_user})
         history.append({"role":"model", "parts":response_chat.text})
