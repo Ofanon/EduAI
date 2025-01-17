@@ -9,7 +9,7 @@ if "api_key" in st.session_state:
 
 if "chat_add" not in st.session_state:
     st.session_state["chat_add"] = []
-if "response_ai" not in st.session_state:
+if "response_ai_revision" not in st.session_state:
     st.session_state["response_ai_user"] = None
 
 else:
