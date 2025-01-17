@@ -38,19 +38,18 @@ if "image_analyzed" in st.session_state:
     if user_input:
         history = []
         st.session_state["chat_history"].append({"role":"user","content":user_input})
-        for message in st.session_state["chat_history"]:
-            if message["role"] == "user":
-                message_user = st.chat_message('user')
-                message_user.write(f"**Vous** : {message['content']}")
         history.append({"role":"model", "parts":st.session_state["response_ai"]})
         chat = model.start_chat(history = history)
+        history.append({"role":"user", "parts":user_input})
         response = chat.send_message(user_input)
         st.session_state["chat_history"].append({"role":"assistant","content":response.text})
-        history.append({"role":"user", "parts":user_input})
         history.append({"role":"model", "parts":response.text})
 
 if "chat_history" in st.session_state:
     for message in st.session_state["chat_history"]:
-        if message["role"] == "assistant":
+        if message["role"] == "user": 
+            message_user = st.chat_message('user')
+            message_user.write(f"**Vous** : {message['content']}")
+        elif message["role"] == "assistant":
             message_ai = st.chat_message('assistant')
             message_ai.write(f"**IA** : {message['content']}")
