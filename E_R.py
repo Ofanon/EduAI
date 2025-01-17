@@ -27,20 +27,18 @@ if "created" not in st.session_state:
             st.session_state["response_ai"] = response_ai
             st.session_state["chat_add"].append({"role":"assistant", "content":response_ai.text})
             st.session_state["created"] = True
-history = []
-first_time = True
+
 
 if "created" in st.session_state:
+    history = []
     if prompt_user:
-        if first_time == True:
-            history.append[{"role":"model", "parts":st.session_state["response_ai"]}]
+        history.append[{"role":"model", "parts":st.session_state["response_ai"]}]
         chat = model.start_chat(history=history)
         response_chat = chat.send_message([prompt_user])
         st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
         st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
         history.append({"role":"user", "parts":prompt_user})
         history.append({"role":"model", "parts":response_chat.text})
-        first_time = False
 
 if "chat_add" in st.session_state:
     for message in st.session_state["chat_add"]:
