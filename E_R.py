@@ -24,8 +24,6 @@ if "created" not in st.session_state["create"]:
         time.sleep(3)
         with st.spinner("L'EtudIAnt reflechit..."):
             response = model.generate_content([prompt_user, prompt])
-            response_ai = st.chat_message("ai")
-            response_ai.write(response.text)
             st.session_state["chat_add"].append["role":"assistant", "content":response.text]
             st.session_state["created"] = True
 history = []
