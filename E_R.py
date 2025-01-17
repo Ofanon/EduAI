@@ -43,15 +43,14 @@ if "created" in st.session_state:
         history.append({"role":"user", "parts":prompt_user})
         history.append({"role":"model", "parts":response_chat.text})
         
-if "created" in st.session_state:
-    if "chat_add" in st.session_state:
-        for message in st.session_state["chat_add"]:
-            if message["role"] == "user":
-                message_user = st.chat_message('user')
-                message_user.write(f"**Vous** : {message['content']}")
-            elif message["role"] == "assistant":
-                message_ai = st.chat_message('assistant')
-                message_ai.write(f"**AI** : {message['content']}")
+if "chat_add" in st.session_state:
+    for message in st.session_state["chat_add"]:
+        if message["role"] == "user":
+            message_user = st.chat_message('user')
+            message_user.write(f"**Vous** : {message['content']}")
+        elif message["role"] == "assistant":
+            message_ai = st.chat_message('assistant')
+            message_ai.write(f"**AI** : {message['content']}")
         
     
 
