@@ -39,7 +39,7 @@ if "image_analyzed" in st.session_state:
     if user_input:
         st.session_state["chat_history"].append({"role":"user","content":user_input})
         history.append({"role":"model", "parts":st.session_state["response_ai"]})
-        if "chat_history" in st.session_state
+        if "chat_history" in st.session_state:
             for message in st.session_state["chat_history"]:
                 if message["role"] == "user": 
                     message_user = st.chat_message('user')
