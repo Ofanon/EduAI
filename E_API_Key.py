@@ -1,5 +1,8 @@
 import streamlit as st
+import secrets
+import json
 
+api_key_file = "api_key.json"
 api_key = st.text_input("Clée API")
 
 if st.button("Enregistrer la clé API"):
