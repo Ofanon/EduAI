@@ -33,7 +33,7 @@ if "created" not in st.session_state:
 
 
 if "created" in st.session_state:
-    st.write("salut")
+
     history = []
     if prompt_user:
         prompt_chat = "Répond à cette question en francais."
