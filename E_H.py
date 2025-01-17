@@ -2,8 +2,6 @@ import google.generativeai as genai
 import PIL.Image
 import streamlit as st
 
-
-
 st.title("EtudIAnt : Aide aux devoirs")
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
@@ -49,6 +47,6 @@ if "image_analyzed" in st.session_state:
 if "chat_history" in st.session_state:
     for message in st.session_state["chat_history"]:
         if message["role"] == "user": 
-            st.write(f"**Vous** : {message['content']}")
+            st.chat_message('ai', message['content'])
         elif message["role"] == "assistant":
             st.write(f"**IA** : {message['content']}")
