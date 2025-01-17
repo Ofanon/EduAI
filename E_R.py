@@ -20,6 +20,7 @@ if prompt_user:
     time.sleep(3)
     with st.spinner("L'EtudIAnt reflechit..."):
         response = model.generate_content([prompt_user, prompt])
-        st.write(response.text)
+        message_ai = st.chat_message("ai")
+        message_ai.write(response.text)
 
 
