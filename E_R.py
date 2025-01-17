@@ -20,7 +20,7 @@ st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
 prompt = "Crée une fiche de revision le plus précisement possible. En parlant francais, jamais en anglais"
 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
-prompt_user_chat = prompt_user
+
 if prompt_user:
     if "created" not in st.session_state:
         time.sleep(3)
@@ -35,7 +35,7 @@ if prompt_user:
 if "created" in st.session_state:
 
     history = []
-    if prompt_user and prompt_user != prompt_user_chat:
+    if prompt_user:
         prompt_chat = "Répond à cette question en francais."
         st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
         history.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
