@@ -5,8 +5,8 @@ import json
 api_key_file = "api_key.json"
 
 def generate_api_key():
-    st.text_input("Entre ta clée API ici.")
-    return secrets.token_hex(32)
+    api_key = st.text_input("Entre ta clée API ici.")
+    return api_key
 
 def save_api_key(user_id, api_key):
     try:
