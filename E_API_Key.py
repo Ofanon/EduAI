@@ -37,4 +37,3 @@ if user_id:
     else:
         api_key = generate_api_key()
         save_api_key(user_id, api_key)
-        st.success(f"Une nouvelle clé API a été générée pour vous : {api_key}")
