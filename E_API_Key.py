@@ -7,7 +7,7 @@ api_key_file = "api_key.json"
 def generate_api_key():
     api_key = st.text_input("Entre ta clée API ici.")
     if st.button("Enregistrer la clée API"):
-        if api_key:
+        if not api_key == "":
             return api_key
         else:
             st.error("Veuillez remplir le champ.")
