@@ -6,6 +6,8 @@ api_key_file = "api_key.json"
 
 def generate_api_key():
     api_key = st.text_input("Entre ta clée API ici.")
+    text = st.text("Si tu ne sais pas comment faire clique ici :")
+    text.link_button("Avoir une clée API", "https://aistudio.google.com/app/u/2/apikey")
     if st.button("Enregistrer la clée API"):
         if not api_key == "":
             return api_key
