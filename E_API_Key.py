@@ -38,6 +38,7 @@ if user_id:
     api_key = get_api_key(user_id)
     if api_key:
         st.success(f"Votre clé API existante : {api_key}")
+        st.session_state["api_key"] = api_key
     else:
         api_key = generate_api_key()
         save_api_key(user_id, api_key)
