@@ -1,12 +1,11 @@
 import streamlit as st
-import secrets
 import json
 
 api_key_file = "api_key.json"
 
 def generate_api_key():
     api_key = st.text_input("Entre ta clée API ici.")
-    st.text("Si tu ne sais pas comment faire clique ici :")
+    st.text("Si tu ne sais pas comment faire, clique ici sur 'Obtenir une clée API':")
     st.link_button("Obtenir une clée API", "https://aistudio.google.com/app/u/2/apikey",)
     if st.button("Enregistrer la clée API"):
         if not api_key == "":
