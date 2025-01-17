@@ -19,8 +19,9 @@ model = genai.GenerativeModel("gemini-1.5-flash-002")
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
 prompt = "Crée une fiche de revision le plus précisement possible. En parlant francais, jamais en anglais"
 
+prompt_user = st.chat_input("ex : rajoute l'entre deux guerres")
+
 if "created" not in st.session_state:
-    prompt_user = st.chat_input("ex : sur la seconde guerre mondiale")
     if prompt_user:
         time.sleep(3)
         with st.spinner("L'EtudIAnt reflechit..."):
@@ -33,8 +34,7 @@ if "created" not in st.session_state:
 
 if "created" in st.session_state:
     history = []
-    prompt_user = st.chat_input("ex : rajoute l'entre deux guerres")
-    if prompt_user:
+    if prompt_user and st.session_state["response_ai_revision"]:
         prompt_chat = "Répond à cette question en francais."
         st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
         history.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
