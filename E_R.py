@@ -18,7 +18,7 @@ else:
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
-prompt = "Crée une fiche de revision le plus précisement possible, en parlant en francais, jamais en anglais"
+prompt = "Crée une fiche de revision le plus précisement possible. En parlant francais, jamais en anglais"
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale")
 
 if "created" not in st.session_state:
@@ -35,9 +35,10 @@ if "created" not in st.session_state:
 if "created" in st.session_state:
     history = []
     if prompt_user:
+        prompt_chat = "Répond à cette question en francais."
         history.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
         chat = model.start_chat(history=history)
-        response_chat = chat.send_message([prompt_user])
+        response_chat = chat.send_message([prompt_user, prompt_chat])
         st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
         st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
         history.append({"role":"user", "parts":prompt_user})
