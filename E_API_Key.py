@@ -35,14 +35,14 @@ def get_api_key(user_id):
         return data.get(user_id)
     except FileNotFoundError:
         return None
-    
+
 user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
 password = st.text_input("Entrez votre mot de passe.",type="password")
 
 st.session_state["user_id"] = user_id
 st.session_state["password"] = password
 
-if user_id and password:
+if user_id:
 
     api_key = get_api_key(user_id)
     if api_key:
