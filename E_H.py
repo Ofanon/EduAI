@@ -3,6 +3,7 @@ import PIL.Image
 import streamlit as st
 
 st.title("EtudIAnt : Aide aux devoirs")
+
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
 else:
@@ -14,8 +15,11 @@ if "chat_history" not in st.session_state:
     st.session_state["chat_history"]=[]
 if "response_ai" not in st.session_state:
     st.session_state["response_ai"] = None
+if "uploaded_file" not in st.session_state:
+    st.session_state["uploaded_file"] = None
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
+st.session_state["uploaded_file"] = uploaded_file
 
 if uploaded_file:
 

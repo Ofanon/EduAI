@@ -2,6 +2,10 @@ import streamlit as st
 import json
 
 api_key_file = "api_key.json"
+if "user_id" not in st.session_state:
+    st.session_state["user_id"] = None
+if "password" not in st.session_state:
+    st.session_state["password"] = None
 
 def generate_api_key():
     api_key = st.text_input("Entre ta clée API ici.")
@@ -34,6 +38,10 @@ def get_api_key(user_id):
     
 user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
 password = st.text_input("Entrez votre mot de passe.",type="password")
+
+st.session_state["user_id"] = user_id
+st.session_state["password"] = password
+
 if user_id and password:
 
     api_key = get_api_key(user_id)
