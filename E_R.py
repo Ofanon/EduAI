@@ -35,7 +35,7 @@ if prompt_user:
 if "created" in st.session_state:
 
     history = []
-    if prompt_user != prompt_user_chat:
+    if prompt_user and prompt_user != prompt_user_chat:
         prompt_chat = "Répond à cette question en francais."
         st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
         history.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
