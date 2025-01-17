@@ -1,6 +1,7 @@
 import google.generativeai as genai
 import PIL.Image
 import streamlit as st
+import time
 
 st.title("EtudIAnt : Aide aux devoirs")
 if "api_key" in st.session_state:
@@ -36,13 +37,15 @@ if "image_analyzed" in st.session_state:
     user_input = st.chat_input("ex : je n'ai pas compris ta réponse dans l'exercice B")
     if user_input:
         history = []
-        history.append({"role":"model", "parts":st.session_state["response_ai"]})
         st.session_state["chat_history"].append({"role":"user","content":user_input})
+        history.append({"role":"model", "parts":st.session_state["response_ai"]})
         chat = model.start_chat(history = history)
-        response = chat.send_message(user_input)
-        st.session_state["chat_history"].append({"role":"assistant","content":response.text})
-        history.append({"role":"user", "parts":user_input})
-        history.append({"role":"model", "parts":response.text})
+        time.sleep(3)
+        with st.spinner("L'EtudIAnt réfléchit..."):
+            response = chat.send_message(user_input)
+            st.session_state["chat_history"].append({"role":"assistant","content":response.text})
+            history.append({"role":"user", "parts":user_input})
+            history.append({"role":"model", "parts":response.text})
 
 if "chat_history" in st.session_state:
     for message in st.session_state["chat_history"]:

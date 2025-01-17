@@ -18,7 +18,7 @@ prompt_user = st.chat_input("ex : sur la seconde guerre mondiale")
 
 if prompt_user:
     time.sleep(3)
-    with st.spinner("L'ia réfléchit"):
+    with st.spinner("L'EtudIAnt reflechit..."):
         response = model.generate_content([prompt_user, prompt])
         st.write(response.text)
 
