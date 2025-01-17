@@ -9,6 +9,8 @@ if "api_key" in st.session_state:
 
 if "chat_add" not in st.session_state:
     st.session_state["chat_add"] = []
+if "response_ai" not in st.session_state:
+    st.session_state["response_ai_user"] = None
 
 else:
     st.error("Clée API non enregistrée, veuillez vous rendre dans l'onglet 'Configuration de la clée API' pour l'enregistrer.")
