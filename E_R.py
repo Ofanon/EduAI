@@ -19,7 +19,7 @@ st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
 prompt = "Crée une fiche de revision le plus précisement possible, en parlant en francais, jamais en anglais"
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale")
 
-if "created" not in st.session_state["create"]:
+if "created" not in st.session_state:
     if prompt_user:
         time.sleep(3)
         with st.spinner("L'EtudIAnt reflechit..."):
