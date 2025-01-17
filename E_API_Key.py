@@ -33,7 +33,7 @@ def get_api_key(user_id):
     
 user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
 password = st.text_input("Entrez votre mot de passe.",type="password")
-if user_id:
+if user_id and password:
 
     api_key = get_api_key(user_id)
     if api_key:
@@ -43,4 +43,7 @@ if user_id:
         api_key = generate_api_key()
         save_api_key(user_id, api_key)
         st.session_state["api_key"] = api_key
+
+else:
+    st.error("Veuillez remplir les deux champs.")
 
