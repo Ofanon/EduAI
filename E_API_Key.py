@@ -74,7 +74,7 @@ elif action == "Se connecter":
     password = st.text_input("Entrez votre mot de passe.",type="password")
     if st.button("Me connecter"):
         if authenticate(user_id, password):
-            st.success(f"Bienvenue, {user_id}!")
+            st.success(f"Bienvenue, {user_id} !")
             st.session_state["authenticated"] = True
         else:
             st.error("Identifiant ou mot de passe incorrect.")
