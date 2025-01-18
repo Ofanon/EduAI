@@ -1,6 +1,7 @@
 import google.generativeai as genai
 import streamlit as st
 import time
+import random
 
 st.title("EtudIAnt : fiche de révision")
 
@@ -43,7 +44,7 @@ if "created" in st.session_state:
         st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
         history_chat.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
         chat = model.start_chat(history=history_chat)
-        time.sleep(1)
+        time.sleep(2)
         with st.spinner("L'EtudIAnt reflechit..."):
             response_chat = chat.send_message([prompt_user, prompt_chat])
             st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
@@ -53,11 +54,16 @@ if "created" in st.session_state:
 if "chat_add" in st.session_state:
     for message in st.session_state["chat_add"]:
         if message["role"] == "user":
-            message_user = st.chat_message('user')
-            message_user.write(f"**Vous** : {message['content']}")
+            st.chat_message('user').message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
-            message_ai = st.chat_message('assistant')
-            message_ai.write(f"**AI** : {message['content']}")
+            message_ai = st.chat_message('assistant').message_ai.write(f"**AI** : {message['content']}")
+            displayed_text = ""
+            message_container = st.empty()
+            for word in message_ai:
+                displayed_text += char
+                message_container.markdown(f"**AI**: {displayed_text}")
+                time.sleep(0.05)
+
         
     
 
