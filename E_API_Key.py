@@ -59,10 +59,10 @@ if action == "Créer un compte":
     st.session_state["authenticated"] = False
     user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Créez votre mot de passe.",type="password")
-    if st.button("Valider"):
+    if st.button("Créer mon compte"):
         if user_id and password:
             if user_id in load_users():
-                st.error("L'utilisateur existe déjà")
+                st.error("L'utilisateur existe déjà.")
             else:
                 save_user(user_id, password)
                 st.success("Compte créé avec succès. Veuillez vous connecter maintenant.")
@@ -72,7 +72,7 @@ if action == "Créer un compte":
 elif action == "Se connecter":
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Entrez votre mot de passe.",type="password")
-    if st.button("Valider"):
+    if st.button("Me connecter"):
         if authenticate(user_id, password):
             st.success(f"Bienvenue, {user_id}!")
             st.session_state["authenticated"] = True
