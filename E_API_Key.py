@@ -65,7 +65,10 @@ if action == "Créer un compte":
                 st.error("L'utilisateur existe déjà.")
             else:
                 save_user(user_id, password)
-                st.success("Compte créé avec succès. Veuillez vous connecter maintenant.")
+                st.success("Compte créé avec succès.")
+                if authenticate(user_id, password):
+                    st.success(f"Bienvenue, {user_id} !")
+                    st.session_state["authenticated"] = True
     else:
             st.error("Veuillez remplir tous les champs.")
 
