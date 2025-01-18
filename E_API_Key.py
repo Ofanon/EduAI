@@ -73,7 +73,7 @@ if st.button("Valider"):
         else:
             st.error("Identifiant ou mot de passe incorrect.")
 
-if st.session_state.get("authenticated"):
+if st.session_state["authenticated"] == True:
     st.subheader("Votre clé API")
     api_key = get_api_key(user_id)
     if api_key:
