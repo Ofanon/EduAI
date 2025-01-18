@@ -55,7 +55,7 @@ st.title("Connexion à l'EtudIAnt")
 
 user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
 password = st.text_input("Entrez votre mot de passe.",type="password")
-action = st.radio("Action", ["Se connecter", "Créer un compte"])
+action = st.sidebar("Action", ["Se connecter", "Créer un compte"])
 
 if st.button("Valider"):
     if action == "Créer un compte":
