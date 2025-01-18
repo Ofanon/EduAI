@@ -68,3 +68,4 @@ if "chat_history" in st.session_state:
             message_ai_placeholder = st.empty()
             for i in range(len(message_ai) + 1):
                 message_ai_placeholder.write(f"**IA** : {message['content']}")
+                time.sleep(0.05)
