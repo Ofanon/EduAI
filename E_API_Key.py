@@ -31,6 +31,7 @@ def save_user(user_id, password):
 def authenticate(user_id, password):
     users = load_users()
     users[user_id] = hash_password(password)
+    return users.get(user_id) == hash_password(password)
 
 def save_api_key(user_id, api_key):
     try:
