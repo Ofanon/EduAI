@@ -9,6 +9,7 @@ if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
 else:
     st.error("Clée API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
+st.write(st.session_state["api_key"])
 
 if "chat_add" not in st.session_state:
     st.session_state["chat_add"] = []
