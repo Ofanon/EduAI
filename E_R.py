@@ -50,6 +50,7 @@ if "created" in st.session_state:
             st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
             history_chat.append({"role":"user", "parts":prompt_user})
             history_chat.append({"role":"model", "parts":response_chat.text})
+            st.session_state["last_prompt"] = prompt_user
         
 if "chat_add" in st.session_state:
     for message in st.session_state["chat_add"]:
