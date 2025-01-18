@@ -11,6 +11,8 @@ if "password" not in st.session_state:
     st.session_state["password"] = None
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
+if "action" not in st.session_state:
+    st.session_state["action"] = "Créer un compte"
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -53,12 +55,12 @@ def get_api_key(user_id):
 
 st.title("Connexion à l'EtudIAnt")
 
-action = st.sidebar.selectbox("Selectionnez :", ["Se connecter", "Créer un compte"])
-
-if action == "Créer un compte":
+if st.session_state["action"] == "Créer un compte":
     st.session_state["authenticated"] = False
     user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Créez votre mot de passe.",type="password")
+    if st.button("Déjà un compte, connectez-vous"):
+        st.session_state["action"] = "Se connecter"
     if st.button("Créer mon compte"):
         if user_id and password:
             if user_id in load_users():
@@ -72,9 +74,11 @@ if action == "Créer un compte":
     else:
             st.error("Veuillez remplir tous les champs.")
 
-elif action == "Se connecter":
+elif st.session_state["action"] == "Se connecter":
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Entrez votre mot de passe.",type="password")
+    if st.button("Pas de compte ? En créer un"):
+        st.session_state["Créer un compte"]
     if st.button("Me connecter"):
         if authenticate(user_id, password):
             st.success(f"Bienvenue, {user_id} !")
