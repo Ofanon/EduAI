@@ -118,7 +118,6 @@ if st.session_state["authenticated"] == True:
         st.subheader("Votre clé API")
         api_key = st.text_input("Entrez une nouvelle clé API")
         if st.button("Enregistrer la clée"):
-            st.rerun()
             if api_key:
                 if verify_api_key(api_key):
                     save_api_key(user_id, api_key)
@@ -128,6 +127,7 @@ if st.session_state["authenticated"] == True:
                     st.error("Veuillez entrer un clé API valide.")
             else:
                 st.error("Veuillez entrer une clé API.")
+        st.rerun()
 
 
 
