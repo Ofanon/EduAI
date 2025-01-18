@@ -13,6 +13,8 @@ if "chat_add" not in st.session_state:
     st.session_state["chat_add"] = []
 if "response_ai_revision" not in st.session_state:
     st.session_state["response_ai_revision"] = None
+if "last_prompt" not in st.session_state:
+    st.session_state["last_prompt"] = None
 
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
@@ -21,8 +23,9 @@ prompt = "Crée une fiche de revision le plus précisement possible. En parlant 
 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
-if prompt_user:
+if prompt_user and prompt_user != st.session_state["last_prompt"]:
     if "created" not in st.session_state:
+        st.session_state["last_prompt"] = prompt_user
         time.sleep(3)
         with st.spinner("L'EtudIAnt reflechit..."):
             response_ai = model.generate_content([prompt_user, prompt])
@@ -34,7 +37,7 @@ if prompt_user:
             st.session_state["created"] = True
 
 if "created" in st.session_state:
-    if prompt_user:
+    if prompt_user and prompt_user != st.session_state["last_prompt"]: 
         history = []
         prompt_chat = "Répond à cette question en francais."
         st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
