@@ -7,7 +7,7 @@ st.title("EtudIAnt : Aide aux devoirs")
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
 else:
-    st.error("Clée API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
+    st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
