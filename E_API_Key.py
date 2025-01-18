@@ -89,7 +89,7 @@ elif st.session_state["action"] == "Se connecter":
         st.rerun()
     if placehorder2.button("Me connecter"):
         if authenticate(user_id, password):
-            st.success(f"Bienvenue, {user_id} !")
+            st.subheader(f"Bienvenue, {user_id} !")
             st.session_state["authenticated"] = True
             placehorder.empty()
             placehorder2.empty()
