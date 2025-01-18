@@ -27,7 +27,6 @@ if uploaded_file:
     st.image(image, use_container_width=True)
 
     if "image_analyzed" not in st.session_state:
-        st.write("Analyse en cours...")
         prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
         with st.spinner("L'EtudIAnt reflechit..."):
             response_ai = model.generate_content([prompt, image])
