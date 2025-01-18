@@ -16,7 +16,7 @@ def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def load_users():
-    try:
+    try: 
         with open(users_file, "r") as f:
             return json.load(f)
     except FileNotFoundError:
@@ -30,8 +30,8 @@ def save_user(user_id, password):
 
 def authenticate(user_id, password):
     users = load_users()
-    users[user_id] = hash_password(password)
-    return users.get(user_id) == hash_password(password)
+    hashed_password = users.get(user_id)
+    return hashed_password == hash_password(password)
 
 def save_api_key(user_id, api_key):
     try:
