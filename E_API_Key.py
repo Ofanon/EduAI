@@ -67,7 +67,10 @@ if st.session_state["action"] == "Créer un compte":
             else:
                 save_user(user_id, password)
                 st.success("Compte créé avec succès.")
-                placehorder.empty()
+                if authenticate(user_id, password):
+                    st.success(f"Bienvenue, {user_id} ! Vous êtes connecté")
+                    st.session_state["authenticated"] = True
+                    placehorder.empty()
         else:
             st.error("Veuillez remplir tous les champs.")
 
@@ -89,6 +92,7 @@ elif st.session_state["action"] == "Se connecter":
     if placehorder.button("Pas de compte ? En créer un"):
         st.session_state["action"] = "Créer un compte"
         st.rerun()
+        
 if st.session_state["authenticated"] == True:
     st.subheader("Votre clé API")
     api_key = get_api_key(user_id)
