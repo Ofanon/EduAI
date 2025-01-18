@@ -24,7 +24,7 @@ if st.button("Créer un contrôle sur ce cours"):
             image = Image.open(file)
             st.image(image, use_container_width=True)
             images.append(image)
-        if st.session_state["analyze_image_finished"]:
+        if not st.session_state["analyze_image_finished"]:
             prompt = "Crée un contrôle sur ces images. Le contrôle doit contenir differents types de questions."
             with st.spinner("L'EtudIAnt reflechit..."):
                 response = model.generate_content([images, prompt])
