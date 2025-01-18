@@ -15,7 +15,7 @@ st.title("EtudIAnt : Créateur de contrôles")
 if "analyze_image_finished" not in st.session_state:
     st.session_state["analyze_image_finished"] = False
 
-uploaded_file = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp", accept_multiple_files=True])
+uploaded_file = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp"], accept_multiple_files=True)
 
 if st.button("Créer un contrôle sur ce cours"):
     if "api_key" in st.session_state:
