@@ -19,7 +19,7 @@ uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=
 
 if st.button("Créer un contrôle sur ce cours"):
     if "api_key" in st.session_state:
-        images = None
+        images = []
         for file in uploaded_files:
             image = Image.open(file)
             st.image(image, use_container_width=True)
