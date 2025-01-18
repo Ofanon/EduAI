@@ -51,7 +51,6 @@ if "image_analyzed" in st.session_state:
             st.session_state["chat_history"].append({"role":"user","content":user_input})
             history.append({"role":"model", "parts":st.session_state["response_ai"]})
             chat = model.start_chat(history = history)
-            @st.cache
             with st.spinner("L'EtudIAnt reflechit..."):
                 response = chat.send_message(user_input)
                 st.session_state["chat_history"].append({"role":"assistant","content":response.text})
