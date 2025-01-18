@@ -74,7 +74,7 @@ if st.session_state["action"] == "Créer un compte":
     else:
             st.error("Veuillez remplir tous les champs.")
 
-if st.session_state["action"] == "Se connecter":
+elif st.session_state["action"] == "Se connecter":
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Entrez votre mot de passe.",type="password")
     if st.button("Pas de compte ? En créer un"):
