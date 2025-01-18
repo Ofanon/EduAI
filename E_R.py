@@ -23,7 +23,7 @@ prompt = "Crée une fiche de revision le plus précisement possible. En parlant 
 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
-if prompt_user and prompt_user != st.session_state["last_prompt"]:
+if prompt_user:
     if "created" not in st.session_state:
         st.session_state["last_prompt"] = prompt_user
         time.sleep(3)
