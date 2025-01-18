@@ -106,7 +106,7 @@ elif st.session_state["action"] == "Se connecter":
             st.session_state["authenticated"] = True
         else:
             st.error("Identifiant ou mot de passe incorrect.")
-        if st.session_state["authenticate"]:
+        if st.session_state["authenticate"] == True:
             placehorder.empty()
             placehorder2.empty()
 
