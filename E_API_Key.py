@@ -104,10 +104,11 @@ elif st.session_state["action"] == "Se connecter":
         if authenticate(user_id, password):
             st.subheader(f"Bienvenue, {user_id} !")
             st.session_state["authenticated"] = True
-            placehorder.empty()
-            placehorder2.empty()
         else:
             st.error("Identifiant ou mot de passe incorrect.")
+        if st.session_state["authenticate"]:
+            placehorder.empty()
+            placehorder2.empty()
 
 if st.session_state["authenticated"] == True:
     api_key = get_api_key(user_id)
