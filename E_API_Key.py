@@ -80,6 +80,7 @@ if st.session_state["action"] == "Créer un compte":
         if user_id and password:
             if user_id in load_users():
                 st.error("L'utilisateur existe déjà.")
+                st.rerun()
             else:
                 save_user(user_id, password)
                 st.success("Compte créé avec succès.")
@@ -88,8 +89,10 @@ if st.session_state["action"] == "Créer un compte":
                     st.session_state["authenticated"] = True
                     placehorder.empty()
                     placehorder2.empty()
+                    st.rerun()
         else:
             st.error("Veuillez remplir tous les champs.")
+            st.rerun()
 
 elif st.session_state["action"] == "Se connecter":
     st.title("Se connecter à l'EtudIAnt")
@@ -123,10 +126,13 @@ if st.session_state["authenticated"] == True:
                     save_api_key(user_id, api_key)
                     st.success("Clé API enregistrée avec succès.")
                     st.session_state["api_key"] = api_key
+                    st.rerun()
                 else:
                     st.error("Veuillez entrer un clé API valide.")
+                    st.rerun()
             else:
                 st.error("Veuillez entrer une clé API.")
+                st.rerun()
 
 
 
