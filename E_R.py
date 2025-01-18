@@ -43,10 +43,12 @@ if "created" in st.session_state:
         st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
         history_chat.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
         chat = model.start_chat(history=history_chat)
-        response_chat = chat.send_message([prompt_user, prompt_chat])
-        st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
-        history_chat.append({"role":"user", "parts":prompt_user})
-        history_chat.append({"role":"model", "parts":response_chat.text})
+        time.sleep(1)
+        with st.spinner("L'EtudIAnt reflechit..."):
+            response_chat = chat.send_message([prompt_user, prompt_chat])
+            st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
+            history_chat.append({"role":"user", "parts":prompt_user})
+            history_chat.append({"role":"model", "parts":response_chat.text})
         
 if "chat_add" in st.session_state:
     for message in st.session_state["chat_add"]:
