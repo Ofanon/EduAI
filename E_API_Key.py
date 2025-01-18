@@ -53,10 +53,9 @@ def get_api_key(user_id):
     except FileNotFoundError:
         return None
 
-st.title("Connexion à l'EtudIAnt")
-
 if st.session_state["action"] == "Créer un compte":
     st.session_state["authenticated"] = False
+    st.title("Créer un compte EtudIAnt")
     user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Créez votre mot de passe.",type="password")
     placehorder = st.empty()
@@ -72,7 +71,7 @@ if st.session_state["action"] == "Créer un compte":
                 save_user(user_id, password)
                 st.success("Compte créé avec succès.")
                 if authenticate(user_id, password):
-                    st.subheader(f"Bienvenue, {user_id} ! Vous êtes connecté")
+                    st.write(f"Bienvenue, {user_id} ! Vous êtes connecté.")
                     st.session_state["authenticated"] = True
                     placehorder.empty()
                     placehorder2.empty()
@@ -80,6 +79,7 @@ if st.session_state["action"] == "Créer un compte":
             st.error("Veuillez remplir tous les champs.")
 
 elif st.session_state["action"] == "Se connecter":
+    st.title("Se connecter à l'EtudIAnt")
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Entrez votre mot de passe.",type="password")
     placehorder = st.empty()
@@ -89,7 +89,7 @@ elif st.session_state["action"] == "Se connecter":
         st.rerun()
     if placehorder2.button("Me connecter"):
         if authenticate(user_id, password):
-            st.subheader(f"Bienvenue, {user_id} !")
+            st.write(f"Bienvenue, {user_id} !")
             st.session_state["authenticated"] = True
             placehorder.empty()
             placehorder2.empty()
