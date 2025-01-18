@@ -66,7 +66,6 @@ if action == "Créer un compte":
             else:
                 save_user(user_id, password)
                 st.success("Compte créé avec succès. Veuillez vous connecter maintenant.")
-                action = "Se connecter"
     else:
             st.error("Veuillez remplir tous les champs.")
 
