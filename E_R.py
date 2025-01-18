@@ -9,7 +9,6 @@ if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
 else:
     st.error("Clée API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
-st.write(st.session_state["api_key"])
 
 if "chat_add" not in st.session_state:
     st.session_state["chat_add"] = []
@@ -26,7 +25,7 @@ prompt = "Crée une fiche de revision le plus précisement possible. En parlant 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
 if prompt_user:
-    if "created" not in st.session_state:
+    if "created" not in st.session_state and "api_key" in st.session_state:
         st.session_state["last_prompt"] = prompt_user
         time.sleep(3)
         with st.spinner("L'EtudIAnt reflechit..."):
