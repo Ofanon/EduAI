@@ -103,12 +103,12 @@ if st.session_state["authenticated"] == True:
         st.success(f"Clée API existante : {api_key}")
         st.session_state["api_key"] = api_key
     else:
-        new_api_key = st.text_input("Entrez une nouvelle clé API")
+        api_key = st.text_input("Entrez une nouvelle clé API")
         if st.button("Enregistrer la clée"):
             if new_api_key:
                 save_api_key(user_id, new_api_key)
                 st.success("Clé API enregistrée avec succès.")
-                st.session_state["api_key"] = new_api_key
+                st.session_state["api_key"] = api_key
             else:
                 st.error("Veuillez entrer une clé API.")
 
