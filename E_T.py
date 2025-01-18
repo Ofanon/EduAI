@@ -22,7 +22,7 @@ if st.button("Créer un contrôle sur ce cours"):
         images = None
         if uploaded_file:
             for file in uploaded_file:
-                st.image(file, use_column_width=True)
                 image = PIL.Image.open(file)
+                st.image(image, use_column_width=True)
                 images.append[image]
 
