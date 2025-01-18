@@ -93,7 +93,7 @@ if st.session_state["action"] == "Créer un compte":
 
 elif st.session_state["action"] == "Se connecter":
     st.title("Se connecter à l'EtudIAnt")
-    if st.session_state["authenticated"] == True:
+    if st.session_state["authenticated"] == False:
         user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
         password = st.text_input("Entrez votre mot de passe.",type="password")
         placehorder = st.empty()
