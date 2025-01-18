@@ -23,7 +23,7 @@ if st.button("Créer un contrôle sur ce cours"):
         for file in uploaded_files:
             image = Image.open(file)
             st.image(image, use_container_width=True)
-            images.append({image})
+            images.append(image)
         if not st.session_state["analyze_image_finished"]:
             prompt = "Crée un contrôle sur ces images. Le contrôle doit contenir differents types de questions."
             with st.spinner("L'EtudIAnt reflechit..."):
