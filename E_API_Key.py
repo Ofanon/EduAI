@@ -127,7 +127,5 @@ if st.session_state["authenticated"] == True:
                     st.error("Veuillez entrer un clé API valide.")
             else:
                 st.error("Veuillez entrer une clé API.")
-        st.rerun()
-
 
 
