@@ -59,6 +59,7 @@ action = st.radio("Action", ["Se connecter", "Créer un compte"])
 
 if st.button("Valider"):
     if action == "Créer un compte":
+        st.session_state["authenticated"] = False
         if user_id and password:
             if user_id in load_users():
                 st.error("L'utilisateur existe déjà")
