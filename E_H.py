@@ -29,11 +29,12 @@ if uploaded_file:
     if "image_analyzed" not in st.session_state:
         st.write("Analyse en cours...")
         prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
-        response_ai = model.generate_content([prompt, image])
-        response_ai_user = response_ai.text
-        st.session_state["response_ai"] = response_ai_user
-        st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
-        st.session_state["image_analyzed"] = True
+        with st.spinner("L'EtudIAnt reflechit..."):
+            response_ai = model.generate_content([prompt, image])
+            response_ai_user = response_ai.text
+            st.session_state["response_ai"] = response_ai_user
+            st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
+            st.session_state["image_analyzed"] = True
 
 if "image_analyzed" in st.session_state:
     history = []
@@ -42,10 +43,11 @@ if "image_analyzed" in st.session_state:
         st.session_state["chat_history"].append({"role":"user","content":user_input})
         history.append({"role":"model", "parts":st.session_state["response_ai"]})
         chat = model.start_chat(history = history)
-        response = chat.send_message(user_input)
-        st.session_state["chat_history"].append({"role":"assistant","content":response.text})
-        history.append({"role":"user", "parts":user_input})
-        history.append({"role":"model", "parts":response.text})
+        with st.spinner("L'EtudIAnt reflechit..."):
+            response = chat.send_message(user_input)
+            st.session_state["chat_history"].append({"role":"assistant","content":response.text})
+            history.append({"role":"user", "parts":user_input})
+            history.append({"role":"model", "parts":response.text})
 
 if "chat_history" in st.session_state:
     for message in st.session_state["chat_history"]:
