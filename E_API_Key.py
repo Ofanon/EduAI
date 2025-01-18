@@ -86,8 +86,8 @@ if st.session_state["action"] == "Créer un compte":
                 if authenticate(user_id, password):
                     st.subheader(f"Bienvenue, {user_id} ! Vous êtes connecté.")
                     st.session_state["authenticated"] = True
-                    placehorder.empty()
-                    placehorder2.empty()
+                placehorder.empty()
+                placehorder2.empty()
         else:
             st.error("Veuillez remplir tous les champs.")
 
