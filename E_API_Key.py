@@ -72,7 +72,7 @@ if st.session_state["action"] == "Créer un compte":
                 save_user(user_id, password)
                 st.success("Compte créé avec succès.")
                 if authenticate(user_id, password):
-                    st.success(f"Bienvenue, {user_id} ! Vous êtes connecté")
+                    st.subheader(f"Bienvenue, {user_id} ! Vous êtes connecté")
                     st.session_state["authenticated"] = True
                     placehorder.empty()
                     placehorder2.empty()
