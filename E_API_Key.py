@@ -17,7 +17,7 @@ def hash_password(password):
 
 def load_users():
     try:
-        with open(user_file, "r") as f:
+        with open(users_file, "r") as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
@@ -25,7 +25,7 @@ def load_users():
 def save_user(user_id, password):
     users = load_users()
     users[user_id] = hash_password(password)
-    with open(user_file, "w") as f:
+    with open(users_file, "w") as f:
         json.dump(users, f, indent=4)
 
 def authenticate(user_id, password):
