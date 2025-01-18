@@ -59,8 +59,6 @@ if st.session_state["action"] == "Créer un compte":
     st.session_state["authenticated"] = False
     user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Créez votre mot de passe.",type="password")
-    if st.button("Déjà un compte, connectez-vous"):
-        st.session_state["action"] = "Se connecter"
     if st.button("Créer mon compte"):
         if user_id and password:
             if user_id in load_users():
@@ -71,6 +69,8 @@ if st.session_state["action"] == "Créer un compte":
                 if authenticate(user_id, password):
                     st.success(f"Bienvenue, {user_id} !")
                     st.session_state["authenticated"] = True
+    if st.button("Déjà un compte, connectez-vous"):
+        st.session_state["action"] = "Se connecter"
     else:
             st.error("Veuillez remplir tous les champs.")
 
