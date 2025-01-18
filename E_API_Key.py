@@ -53,22 +53,24 @@ def get_api_key(user_id):
 
 st.title("Connexion à l'EtudIAnt")
 
-user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
-password = st.text_input("Entrez votre mot de passe.",type="password")
 action = st.sidebar.selectbox("Selectionnez :", ["Se connecter", "Créer un compte"])
 
 if st.button("Valider"):
     if action == "Créer un compte":
         st.session_state["authenticated"] = False
+        user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
+        password = st.text_input("Créez votre mot de passe.",type="password")
         if user_id and password:
             if user_id in load_users():
                 st.error("L'utilisateur existe déjà")
             else:
                 save_user(user_id, password)
-                st.success("Compte créé avec succès.")
+                st.success("Compte créé avec succès. Veuillez vous connecter maintenant")
         else:
             st.error("Veuillez remplir tous les champs.")
     elif action == "Se connecter":
+        user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
+        password = st.text_input("Entrez votre mot de passe.",type="password")
         if authenticate(user_id, password):
             st.success(f"Bienvenue, {user_id}!")
             st.session_state["authenticated"] = True
