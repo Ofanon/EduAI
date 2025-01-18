@@ -24,11 +24,12 @@ uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg",
 st.session_state["uploaded_file"] = uploaded_file
 
 if uploaded_file:
-    placeholder = st.empty()
-    if placeholder.button("Résoudre le devoir"):
-        image = PIL.Image.open(uploaded_file)
-        image_st = st.image(image, use_container_width=True)
-        st.session_state["image"] = image_st
+    if "api_key" in st.session_state:
+        placeholder = st.empty()
+        if placeholder.button("Résoudre le devoir"):
+            image = PIL.Image.open(uploaded_file)
+            image_st = st.image(image, use_container_width=True)
+            st.session_state["image"] = image_st
 
         if "image_analyzed" not in st.session_state:
             prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
@@ -39,19 +40,24 @@ if uploaded_file:
                 st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                 st.session_state["image_analyzed"] = True
                 placeholder.empty()
+    else:
+        st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
 
 if "image_analyzed" in st.session_state:
-    history = []
-    user_input = st.chat_input("ex : je n'ai pas compris ta réponse dans l'exercice B")
-    if user_input:
-        st.session_state["chat_history"].append({"role":"user","content":user_input})
-        history.append({"role":"model", "parts":st.session_state["response_ai"]})
-        chat = model.start_chat(history = history)
-        with st.spinner("L'EtudIAnt reflechit..."):
-            response = chat.send_message(user_input)
-            st.session_state["chat_history"].append({"role":"assistant","content":response.text})
-            history.append({"role":"user", "parts":user_input})
-            history.append({"role":"model", "parts":response.text})
+    if "api_key" in st.session_state:
+        history = []
+        user_input = st.chat_input("ex : je n'ai pas compris ta réponse dans l'exercice B")
+        if user_input:
+            st.session_state["chat_history"].append({"role":"user","content":user_input})
+            history.append({"role":"model", "parts":st.session_state["response_ai"]})
+            chat = model.start_chat(history = history)
+            with st.spinner("L'EtudIAnt reflechit..."):
+                response = chat.send_message(user_input)
+                st.session_state["chat_history"].append({"role":"assistant","content":response.text})
+                history.append({"role":"user", "parts":user_input})
+                history.append({"role":"model", "parts":response.text})
+    else:
+        st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
 
 if "chat_history" in st.session_state:
     for message in st.session_state["chat_history"]:
