@@ -24,7 +24,7 @@ uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg",
 st.session_state["uploaded_file"] = uploaded_file
 
 if uploaded_file:
-    with st.button("Résoudre le devoir"):
+    if st.button("Résoudre le devoir"):
         image = PIL.Image.open(uploaded_file)
         image_st = st.image(image, use_container_width=True)
         st.session_state["image"] = image_st
