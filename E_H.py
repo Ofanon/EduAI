@@ -23,23 +23,23 @@ if "image" not in st.session_state:
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 
-if uploaded_file:
-    if "api_key" in st.session_state:
-        placeholder = st.empty()
-        if placeholder.button("Résoudre le devoir"):
-            image = PIL.Image.open(uploaded_file)
-            image_st = st.image(image, use_container_width=True)
-            st.session_state["image"] = image_st
+    if uploaded_file:
+        if "api_key" in st.session_state:
+            placeholder = st.empty()
+            if placeholder.button("Résoudre le devoir"):
+                image = PIL.Image.open(uploaded_file)
+                image_st = st.image(image, use_container_width=True)
+                st.session_state["image"] = image_st
 
-        if "image_analyzed" not in st.session_state:
-            prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
-            with st.spinner("L'EtudIAnt reflechit..."):
-                response_ai = model.generate_content([prompt, image])
-                response_ai_user = response_ai.text
-                st.session_state["response_ai"] = response_ai_user
-                st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
-                st.session_state["image_analyzed"] = True
-                placeholder.empty()
+            if "image_analyzed" not in st.session_state:
+                prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
+                with st.spinner("L'EtudIAnt reflechit..."):
+                    response_ai = model.generate_content([prompt, image])
+                    response_ai_user = response_ai.text
+                    st.session_state["response_ai"] = response_ai_user
+                    st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
+                    st.session_state["image_analyzed"] = True
+                    placeholder.empty()
     else:
         st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
 
