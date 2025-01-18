@@ -1,7 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 import time
-import PIL.Image
+from PIL import Image
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
@@ -19,7 +19,7 @@ uploaded_file = st.file_uploader("Télécharge les photos de tes cours.", type=[
 
 if st.button("Créer un contrôle sur ce cours"):
     if "api_key" in st.session_state:
-        image = PIL.Image.open(file)
-        st.image(image, use_column_width=True)
-        images.append[image]
+        for file in uploaded_file:
+            image = Image.open(file)
+            st.image(image, use_column_width=True)
 
