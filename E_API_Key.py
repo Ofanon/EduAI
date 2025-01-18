@@ -96,12 +96,12 @@ elif st.session_state["action"] == "Se connecter":
             st.error("Identifiant ou mot de passe incorrect.")
 
 if st.session_state["authenticated"] == True:
-    st.subheader("Votre clé API")
     api_key = get_api_key(user_id)
     if api_key:
         st.success(f"Clée API existante : {api_key}")
         st.session_state["api_key"] = api_key
     else:
+        st.subheader("Votre clé API")
         api_key = st.text_input("Entrez une nouvelle clé API")
         if st.button("Enregistrer la clée"):
             if api_key:
