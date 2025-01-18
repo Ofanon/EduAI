@@ -91,7 +91,7 @@ if st.session_state["action"] == "Créer un compte":
             else:
                 st.error("Veuillez remplir tous les champs.")
 
-elif st.session_state["action"] == "Se connecter":
+if st.session_state["action"] == "Se connecter":
     st.title("Se connecter à l'EtudIAnt")
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Entrez votre mot de passe.",type="password")
