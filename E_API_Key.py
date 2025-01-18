@@ -72,8 +72,8 @@ if st.session_state["action"] == "Créer un compte":
     if st.session_state["authenticated"] == False:
         user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
         password = st.text_input("Créez votre mot de passe.",type="password")
-        placehorder = st.empty()
-    placehorder2 = st.empty()
+    placehorder = st.empty()
+        placehorder2 = st.empty()
     if placehorder.button("Déjà un compte, connectez-vous"):
         st.session_state["action"] = "Se connecter"
         st.rerun()
