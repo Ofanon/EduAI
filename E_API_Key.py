@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import hashlib
+import requests
 
 users_file = "users.json"
 api_key_file = "api_key.json"
@@ -52,6 +53,19 @@ def get_api_key(user_id):
         return data.get(user_id)
     except FileNotFoundError:
         return None
+
+def verify_api_key(api_key):
+    url = "https://generativelanguage.googleapis.com/v1beta/models"
+    params = {"key": api_key}
+    try:
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except requests.exceptions.RequestException as e:
+        return False
+
 
 if st.session_state["action"] == "Créer un compte":
     st.title("Créer un compte EtudIAnt")
@@ -105,9 +119,12 @@ if st.session_state["authenticated"] == True:
         api_key = st.text_input("Entrez une nouvelle clé API")
         if st.button("Enregistrer la clée"):
             if api_key:
-                save_api_key(user_id, api_key)
-                st.success("Clé API enregistrée avec succès.")
-                st.session_state["api_key"] = api_key
+                if verify_api_key(api_key):
+                    save_api_key(user_id, api_key)
+                    st.success("Clé API enregistrée avec succès.")
+                    st.session_state["api_key"] = api_key
+                else:
+                    st.error("Veuillez entrer un clé API valide.")
             else:
                 st.error("Veuillez entrer une clé API.")
 
