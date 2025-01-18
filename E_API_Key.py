@@ -62,7 +62,7 @@ if st.button("Valider"):
             if user_id in load_users():
                 st.error("L'utilisateur existe déjà")
             else:
-                save_user(user_id, passwword)
+                save_user(user_id, password)
                 st.success("Compte créé avec succès.")
         else:
             st.error("Veuillez remplir tous les champs.")
