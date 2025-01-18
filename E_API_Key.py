@@ -74,6 +74,7 @@ if st.session_state["action"] == "Créer un compte":
 
     if st.button("Déjà un compte, connectez-vous"):
         st.session_state["action"] = "Se connecter"
+        st.rerun()
 
 elif st.session_state["action"] == "Se connecter":
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
