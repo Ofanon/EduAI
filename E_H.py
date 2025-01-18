@@ -17,6 +17,8 @@ if "response_ai" not in st.session_state:
     st.session_state["response_ai"] = None
 if "uploaded_file" not in st.session_state:
     st.session_state["uploaded_file"] = None
+if "image" not in st.session_state:
+    st.session_state["image"] = None
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
@@ -24,7 +26,8 @@ st.session_state["uploaded_file"] = uploaded_file
 if uploaded_file:
 
     image = PIL.Image.open(uploaded_file)
-    st.image(image, use_container_width=True)
+    image_st = st.image(image, use_container_width=True)
+    st.session_state["image"] = image_st
 
     if "image_analyzed" not in st.session_state:
         prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
