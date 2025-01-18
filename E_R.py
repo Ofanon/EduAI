@@ -25,31 +25,37 @@ prompt = "Crée une fiche de revision le plus précisement possible. En parlant 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
 if prompt_user:
-    if "created" not in st.session_state and "api_key" in st.session_state:
-        st.session_state["last_prompt"] = prompt_user
-        time.sleep(3)
-        with st.spinner("L'EtudIAnt reflechit..."):
-            response_ai = model.generate_content([prompt_user, prompt])
-            response_ai_user = response_ai.text
-            st.session_state["response_ai_revision"] = response_ai.text
-            st.session_state["chat_add"].append({"role":"assistant", "content":response_ai_user})
-            if response_ai_user:
-                time.sleep(2)
-                st.session_state["created"] = True
+    if "created" not in st.session_state:
+        if "api_key" in st.session_state:
+            st.session_state["last_prompt"] = prompt_user
+            time.sleep(3)
+            with st.spinner("L'EtudIAnt reflechit..."):
+                response_ai = model.generate_content([prompt_user, prompt])
+                response_ai_user = response_ai.text
+                st.session_state["response_ai_revision"] = response_ai.text
+                st.session_state["chat_add"].append({"role":"assistant", "content":response_ai_user})
+                if response_ai_user:
+                    time.sleep(2)
+                    st.session_state["created"] = True
+        else:
+            st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
 
 if "created" in st.session_state:
-    if prompt_user and prompt_user != st.session_state["last_prompt"]: 
-        history_chat = []
-        prompt_chat = "Répond à cette question en francais."
-        st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
-        history_chat.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
-        chat = model.start_chat(history=history_chat)
-        with st.spinner("L'EtudIAnt reflechit..."):
-            response_chat = chat.send_message([prompt_user, prompt_chat])
-            st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
-            history_chat.append({"role":"user", "parts":prompt_user})
-            history_chat.append({"role":"model", "parts":response_chat.text})
-            st.session_state["last_prompt"] = prompt_user
+    if prompt_user and prompt_user != st.session_state["last_prompt"]:
+        if "api_key" in st.session_state:
+            history_chat = []
+            prompt_chat = "Répond à cette question en francais."
+            st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
+            history_chat.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
+            chat = model.start_chat(history=history_chat)
+            with st.spinner("L'EtudIAnt reflechit..."):
+                response_chat = chat.send_message([prompt_user, prompt_chat])
+                st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
+                history_chat.append({"role":"user", "parts":prompt_user})
+                history_chat.append({"role":"model", "parts":response_chat.text})
+                st.session_state["last_prompt"] = prompt_user
+        else:
+            st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
         
 if "chat_add" in st.session_state:
     for message in st.session_state["chat_add"]:
