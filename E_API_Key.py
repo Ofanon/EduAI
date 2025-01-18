@@ -80,7 +80,6 @@ if st.session_state["action"] == "Créer un compte":
         if user_id and password:
             if user_id in load_users():
                 st.error("L'utilisateur existe déjà.")
-                st.rerun()
             else:
                 save_user(user_id, password)
                 st.success("Compte créé avec succès.")
@@ -89,10 +88,8 @@ if st.session_state["action"] == "Créer un compte":
                     st.session_state["authenticated"] = True
                     placehorder.empty()
                     placehorder2.empty()
-                    st.rerun()
         else:
             st.error("Veuillez remplir tous les champs.")
-            st.rerun()
 
 elif st.session_state["action"] == "Se connecter":
     st.title("Se connecter à l'EtudIAnt")
