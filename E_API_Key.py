@@ -59,6 +59,7 @@ if st.session_state["action"] == "Créer un compte":
     st.session_state["authenticated"] = False
     user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Créez votre mot de passe.",type="password")
+    placehorder = st.empty()
     if st.button("Créer mon compte"):
         if user_id and password:
             if user_id in load_users():
@@ -66,26 +67,26 @@ if st.session_state["action"] == "Créer un compte":
             else:
                 save_user(user_id, password)
                 st.success("Compte créé avec succès.")
-                if authenticate(user_id, password):
-                    st.success(f"Bienvenue, {user_id} !")
-                    st.session_state["authenticated"] = True
+                placehorder.empty()
         else:
             st.error("Veuillez remplir tous les champs.")
 
-    if st.button("Déjà un compte, connectez-vous"):
+    if placehorder.button("Déjà un compte, connectez-vous"):
         st.session_state["action"] = "Se connecter"
         st.rerun()
 
 elif st.session_state["action"] == "Se connecter":
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Entrez votre mot de passe.",type="password")
+    placehorder = st.empty()
     if st.button("Me connecter"):
         if authenticate(user_id, password):
             st.success(f"Bienvenue, {user_id} !")
             st.session_state["authenticated"] = True
+            placehorder.empty()
         else:
             st.error("Identifiant ou mot de passe incorrect.")
-    if st.button("Pas de compte ? En créer un"):
+    if placehorder.button("Pas de compte ? En créer un"):
         st.session_state["action"] = "Créer un compte"
         st.rerun()
 if st.session_state["authenticated"] == True:
