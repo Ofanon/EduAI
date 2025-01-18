@@ -38,7 +38,7 @@ if uploaded_file:
                 st.session_state["response_ai"] = response_ai_user
                 st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                 st.session_state["image_analyzed"] = True
-                placeholder = st.empty()
+                placeholder.empty()
 
 if "image_analyzed" in st.session_state:
     history = []
