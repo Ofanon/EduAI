@@ -86,8 +86,7 @@ elif st.session_state["action"] == "Se connecter":
             st.error("Identifiant ou mot de passe incorrect.")
     if st.button("Pas de compte ? En créer un"):
         st.session_state["action"] = "Créer un compte"
-        st.experimental_rerun()
-
+        st.rerun()
 if st.session_state["authenticated"] == True:
     st.subheader("Votre clé API")
     api_key = get_api_key(user_id)
