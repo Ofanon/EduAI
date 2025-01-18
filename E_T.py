@@ -19,10 +19,7 @@ uploaded_file = st.file_uploader("Télécharge les photos de tes cours.", type=[
 
 if st.button("Créer un contrôle sur ce cours"):
     if "api_key" in st.session_state:
-        images = None
-        if uploaded_file:
-            for file in uploaded_file:
-                image = PIL.Image.open(file)
-                st.image(image, use_column_width=True)
-                images.append[image]
+        image = PIL.Image.open(file)
+        st.image(image, use_column_width=True)
+        images.append[image]
 
