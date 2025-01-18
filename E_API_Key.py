@@ -69,9 +69,8 @@ def verify_api_key(api_key):
 
 if st.session_state["action"] == "Créer un compte":
     st.title("Créer un compte EtudIAnt")
-    if st.session_state["authenticated"] == False:
-        user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
-        password = st.text_input("Créez votre mot de passe.",type="password")
+    user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
+    password = st.text_input("Créez votre mot de passe.",type="password")
     placehorder2 = st.empty()
     placehorder = st.empty()
     if placehorder.button("Déjà un compte, connectez-vous"):
