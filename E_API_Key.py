@@ -78,14 +78,14 @@ if st.session_state["action"] == "Créer un compte":
 elif st.session_state["action"] == "Se connecter":
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Entrez votre mot de passe.",type="password")
-    if st.button("Pas de compte ? En créer un"):
-        st.session_state["Créer un compte"]
     if st.button("Me connecter"):
         if authenticate(user_id, password):
             st.success(f"Bienvenue, {user_id} !")
             st.session_state["authenticated"] = True
         else:
             st.error("Identifiant ou mot de passe incorrect.")
+    if st.button("Pas de compte ? En créer un"):
+        st.session_state["Créer un compte"] = "Créer un compte"
 
 if st.session_state["authenticated"] == True:
     st.subheader("Votre clé API")
