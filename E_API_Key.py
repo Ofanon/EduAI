@@ -10,7 +10,7 @@ if "user_id" not in st.session_state:
 if "password" not in st.session_state:
     st.session_state["password"] = None
 if "authenticated" not in st.session_state:
-    st.session_state["authenticated"]
+    st.session_state["authenticated"] = False
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
