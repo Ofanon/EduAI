@@ -69,10 +69,11 @@ if st.session_state["action"] == "Créer un compte":
                 if authenticate(user_id, password):
                     st.success(f"Bienvenue, {user_id} !")
                     st.session_state["authenticated"] = True
+        else:
+            st.error("Veuillez remplir tous les champs.")
+
     if st.button("Déjà un compte, connectez-vous"):
         st.session_state["action"] = "Se connecter"
-    else:
-            st.error("Veuillez remplir tous les champs.")
 
 elif st.session_state["action"] == "Se connecter":
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
