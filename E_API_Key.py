@@ -14,6 +14,8 @@ if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 if "action" not in st.session_state:
     st.session_state["action"] = "Créer un compte"
+if "hide_buttons" not in st.session_state:
+    st.session_state["hide_buttons"] = False
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -71,47 +73,39 @@ if st.session_state["action"] == "Créer un compte":
     st.title("Créer un compte EtudIAnt")
     user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Créez votre mot de passe.",type="password")
-    placehorder2 = st.empty()
-    placehorder = st.empty()
-    if placehorder.button("Déjà un compte, connectez-vous"):
-        st.session_state["action"] = "Se connecter"
-        st.rerun()
-    if placehorder2.button("Créer mon compte"):
-        if user_id and password:
-            if user_id in load_users():
-                st.error("L'utilisateur existe déjà.")
-            else:
-                save_user(user_id, password)
-                st.success("Compte créé avec succès.")
-                if authenticate(user_id, password):
-                    st.subheader(f"Bienvenue, {user_id} ! Vous êtes connecté.")
-                    st.session_state["authenticated"] = True
-                    placehorder.empty()
-                    placehorder2.empty()
+    if st.session_state["hide_buttons"]:
+        if not st.button("Déjà un compte, connectez-vous"):
+            st.session_state["action"] = "Se connecter"
+            st.rerun()
+        if st.button("Créer mon compte"):
+            if user_id and password:
+                if user_id in load_users():
+                    st.error("L'utilisateur existe déjà.")
                 else:
-                    placehorder.empty()
-                    placehorder2.empty()
-        else:
-            st.error("Veuillez remplir tous les champs.")
+                    save_user(user_id, password)
+                    st.success("Compte créé avec succès.")
+                    if authenticate(user_id, password):
+                        st.subheader(f"Bienvenue, {user_id} ! Vous êtes connecté.")
+                        st.session_state["authenticated"] = True
+                    st.session_state["hide_buttons"] = True
+            else:
+                st.error("Veuillez remplir tous les champs.")
 
 elif st.session_state["action"] == "Se connecter":
     st.title("Se connecter à l'EtudIAnt")
     user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
     password = st.text_input("Entrez votre mot de passe.",type="password")
-    placehorder = st.empty()
-    placehorder2 = st.empty()
-    if placehorder.button("Pas de compte ? En créer un"):
-        st.session_state["action"] = "Créer un compte"
-        st.rerun()
-    if placehorder2.button("Me connecter"):
-        if authenticate(user_id, password):
-            st.subheader(f"Bienvenue, {user_id} !")
-            st.session_state["authenticated"] = True
-        else:
-            st.error("Identifiant ou mot de passe incorrect.")
-        if st.session_state["authenticated"] == True:
-            placehorder.empty()
-            placehorder2.empty()
+    if st.session_state["hide_buttons"]:
+        if st.button("Pas de compte ? En créer un"):
+            st.session_state["action"] = "Créer un compte"
+            st.rerun()
+        if st.button("Me connecter"):
+            if authenticate(user_id, password):
+                st.subheader(f"Bienvenue, {user_id} !")
+                st.session_state["authenticated"] = True
+                st.session_state["hide_buttons"] = True
+            else:
+                st.error("Identifiant ou mot de passe incorrect.")
 
 if st.session_state["authenticated"] == True:
     api_key = get_api_key(user_id)
