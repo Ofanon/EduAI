@@ -29,8 +29,8 @@ def response_generator(message, placeholder):
     displayed_text = ""
     for i in message:
         displayed_text += i
-        chat_message = placeholder.chat_message('assistant')
-        chat_message.write("**IA** : {displayed_text}")
+        placeholder = st.chat_message('assistant')
+        placeholder.write("**IA** : {displayed_text}")
         time.sleep(0.005)
 
 if uploaded_file:
