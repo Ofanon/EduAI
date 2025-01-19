@@ -27,7 +27,7 @@ def response_generator(message, placeholder):
     displayed_text = ""
     for i in message.split:
         displayed_text =+ i
-        placeholder.text(f"**IA** : {displayed_text})
+        placeholder.text(f"**IA** : {displayed_text}")
         time.sleep(0.05)
 
 if uploaded_file:
