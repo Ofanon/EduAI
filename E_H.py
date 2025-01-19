@@ -25,7 +25,7 @@ st.session_state["uploaded_file"] = uploaded_file
 
 def response_generator(message, placeholder):
     displayed_text = ""
-    for i in message.split:
+    for i in message:
         displayed_text =+ i
         placeholder.text(f"**IA** : {displayed_text}")
         time.sleep(0.05)
