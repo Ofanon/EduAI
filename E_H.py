@@ -25,7 +25,7 @@ st.session_state["uploaded_file"] = uploaded_file
 
 def response_generator(message):
     for i in message.split():
-        yield i + ""
+        yield i + " "
         time.sleep(0.05)
 
 if uploaded_file:
