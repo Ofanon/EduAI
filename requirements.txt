@@ -5,4 +5,4 @@ google-auth-httplib2
 requests
 streamlit
 Pillow
-fpdf==1.7.2
+fpdf2
