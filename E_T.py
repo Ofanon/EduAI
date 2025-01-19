@@ -22,9 +22,10 @@ def display_images(files):
     images = []
     for file in files:
         image = Image.open(file)
-        images.append(image)
         st.image(image, caption=file.name, use_container_width=True)
-    return images
+        images.append(image)
+        
+return images
 
 place_holder_button = st.empty()
 if uploaded_files:
@@ -40,20 +41,22 @@ if uploaded_files:
                     response = model.generate_content([prompt]+ images)
                     st.write(response.text)
 
-            pdf = FPDF()
-            pdf.set_auto_page_break(auto=True, margin=15)
-            pdf.add_page()
-            pdf.add_font('DejaVu', '', 'DejaVuSans.ttf', uni=True)
-            pdf.set_font('DejaVu', size=12)
-            pdf.multi_cell(0, 10, response.text)
-            pdf_output_path = "controle_genere.pdf"
-            pdf.output(pdf_output_path)
-
-            with open(pdf_output_path, "rb") as pdf_file:
-                st.download_button(
+                pdf = FPDF()
+                pdf.set_auto_page_break(auto=True, margin=15)
+                pdf.add_page()
+                pdf.set_font("Arial", size=12)
+                pdf.multi_cell(0, 10, response.text)
+                pdf_output_path = "controle.pdf"
+                pdf.output(pdf_output_path)
+                with open(pdf_output_path, "rb") as pdf_file:
+                    st.download_button(
                     label="Télécharger le contrôle en PDF",
                     data=pdf_file,
                     file_name=pdf_output_path,
                     mime="application/pdf"
+<<<<<<< HEAD
                 )
+=======
+                    )
+>>>>>>> 4b0a409e5e54f1974d0a65f11bf3247ba0828f00
 
