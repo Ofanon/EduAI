@@ -29,7 +29,7 @@ if st.button("Créer un contrôle sur ce cours"):
             prompt = "Crée un contrôle sur ces images. Le contrôle doit contenir differents types de questions."
             with st.spinner("L'EtudIAnt reflechit..."):
                 response = model.generate_content([
-                    images_data,
+                    images_data["image_bytes"],
                     "Voici un groupe d'images d'un cours. Crée un contrôle basé sur les images"
                 ])
                 st.write(response.text)
