@@ -24,9 +24,7 @@ uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg",
 st.session_state["uploaded_file"] = uploaded_file
 
 def response_generator(message, chat_msg):
-    displayed_text = ""
     for i in message:
-        displayed_text += i
         chat_msg.write(f"**IA** : {displayed_text}")
         time.sleep(0.005)
 
@@ -72,4 +70,4 @@ if "chat_history" in st.session_state:
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
             message_ai = st.chat_message('assistant')
-            message_ai.write(f"**AI** : {message['content']}")
+            message_ai.write_stream(f"**AI** : {message['content']}")
