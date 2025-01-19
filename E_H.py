@@ -45,12 +45,12 @@ if uploaded_file:
                 with st.spinner("L'EtudIAnt reflechit..."):
                     st.session_state["response_ai"] = response_ai_user
                     st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
-                    placeholder_button.empty()
                     st.session_state["image_analyzed"] = True
     else:
         st.error("Veuillez enregistrer dans l'onglet 'Connexion à l'EtudIAnt' pour utiliser l'EtudIAnt.")
 
 if "image_analyzed" in st.session_state:
+    placeholder_button.empty()
     history = []
     user_input = st.chat_input("ex : je n'ai pas compris ta réponse dans l'exercice B")
     if user_input:
