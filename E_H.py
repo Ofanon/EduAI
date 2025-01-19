@@ -25,7 +25,7 @@ def response_typing(message):
     chat_msg = st.chat_message('assistant')
     for i in message.split():
         displayed_text += i
-        chat_msg.write(f"**IA** : {displayed_text}")
+        chat_msg.text(f"**IA** : {displayed_text}")
         time.sleep(0.01)
 
         
