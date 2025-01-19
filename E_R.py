@@ -21,7 +21,7 @@ model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
 level = st.selectbox('Séléctionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
-prompt = "Crée une fiche de revision le plus précisement possible. La fiche de revision doit être niveau : {level} .En parlant francais, jamais en anglais"
+prompt = "Crée une fiche de revision le plus précisement possible. La fiche de revision doit être niveau :" + level + "En parlant francais, jamais en anglais"
 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
