@@ -28,8 +28,8 @@ def display_images(files):
     for file in files:
         image = Image.open(file)
         st.image(image, caption=file.name, use_container_width=True)
-        image = image.resize((1024,1024))
-        images.append(image)
+        image_resized = image.resize((1024,1024))
+        images.append(image_resized)
         
     return images
 
