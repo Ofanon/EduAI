@@ -23,8 +23,11 @@ if "image" not in st.session_state:
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 
-def response_generator(message, chat_msg):
-    for i in message:
+def response_generator(message):
+    displayed_text = ""
+    chat_msg = st.chat_message("assistant")
+    for char in message:
+        displayed_text += char
         chat_msg.write(f"**IA** : {displayed_text}")
         time.sleep(0.005)
 
@@ -61,12 +64,15 @@ if "image_analyzed" in st.session_state:
             history.append({"role":"model", "parts":response.text})
     else:
         st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
-        
+
 if "chat_history" in st.session_state:
-    for message in st.session_state["chat_history"]:
+    for i,message in enumerate(st.session_state["chat_history"]):
         if message["role"] == "user": 
-            message_user = st.chat_message('user')
-            message_user.write(f"**Vous** : {message['content']}")
+            with st.chat_message('user')
+                st.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
-            message_ai = st.chat_message('assistant')
-            message_ai.write(f"**AI** : {message['content']}")
+            if i == len(st.session_state["chat_history"]) - 1:
+                response_generator(message['content'])
+            else:
+                with st.chat_message("assistant"):
+                    st.write(f"**AI** : {message['content']}")
