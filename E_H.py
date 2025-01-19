@@ -19,8 +19,6 @@ if "uploaded_file" not in st.session_state:
     st.session_state["uploaded_file"] = None
 if "image" not in st.session_state:
     st.session_state["image"] = None
-if "placeholders" not in st.session_state:
-    st.session_state["placeholders"] = []
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
