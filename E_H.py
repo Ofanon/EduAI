@@ -29,8 +29,6 @@ def response_generator(message, placeholder):
         displayed_text += i
         placeholder.text(f"**IA** : {displayed_text}")
         time.sleep(0.005)
-    if displayed_text == message
-        displayed_text = ""
 
 if uploaded_file:
     if "api_key" in st.session_state:
