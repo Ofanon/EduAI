@@ -37,7 +37,7 @@ if uploaded_file:
         if placeholder_button.button("Résoudre le devoir"):
             image = PIL.Image.open(uploaded_file)
             st_image = st.image(image, use_container_width=True)
-            st.session_state["st_image"] = st.image
+            st.session_state["st_image"] = st_image
             if "image_analyzed" not in st.session_state:
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
                 response_ai = model.generate_content([prompt, image])
