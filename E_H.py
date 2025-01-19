@@ -25,7 +25,6 @@ st.session_state["uploaded_file"] = uploaded_file
 
 def response_generator(message, chat_msg):
     displayed_text = ""
-    chat_msg = st.chat_message('assistant')
     for i in message:
         displayed_text += i
         chat_msg.write(f"**IA** : {displayed_text}")
@@ -72,6 +71,7 @@ if "chat_history" in st.session_state:
             message_user = st.chat_message('user')
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
+            chat_msg = st.chat_message('assistant')
             with st.chat_message("assistant") as chat_msg:
                 if message == st.session_state["chat_history"][-1]:
                     response_generator(message['content'], chat_msg)
