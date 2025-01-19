@@ -74,6 +74,6 @@ if "chat_history" in st.session_state:
             message_user = st.chat_message('user')
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
-            placeholder = st.session_state("placeholders").append(st.empty())
+            placeholder = st.session_state["placeholders"].append(st.empty())
             message_ai_user = message['content']
             response_generator(message_ai_user, placeholder)
