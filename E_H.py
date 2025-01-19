@@ -25,9 +25,10 @@ st.session_state["uploaded_file"] = uploaded_file
 
 def response_generator(message, chat_msg):
     displayed_text = ""
+    placeholder = st.empty()
     for char in message:
         displayed_text += char
-        st.write(f"**IA** : {displayed_text}")
+        placeholder.write(f"**IA** : {displayed_text}")
         time.sleep(0.005)
 
 if uploaded_file:
