@@ -21,10 +21,9 @@ uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=
 def display_images(files):
     images = []
     for file in files:
-        image_pil = Image.open(file)
-        st.image(image_pil, caption=file.name, use_container_width=True)
-        image_resized = image_pil.resize((1024, 1024))
-        images.append(image_resized)
+        image = Image.open(file)
+        st.image(image, caption=file.name, use_container_width=True)
+        images.append(image)
     return images
 
 place_holder_button = st.empty()
