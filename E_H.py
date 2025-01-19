@@ -1,7 +1,7 @@
 import google.generativeai as genai
 import PIL.Image
 import streamlit as st
-
+import time
 st.title("EtudIAnt : Aide aux devoirs")
 
 if "api_key" in st.session_state:
@@ -24,8 +24,10 @@ def response_typing(message):
     displayed_text = ""
     chat_msg = st.chat_message('assistant')
     for i in message:
-        displayed_text += ""
+        displayed_text += i
         chat_msg.write(f"**IA** : {displayed_text}")
+        time.sleep(0.01)
+
         
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
