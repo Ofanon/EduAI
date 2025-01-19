@@ -26,7 +26,7 @@ def display_images(files):
         image.save(output_path, "JPEG", quality=85)
         st.image(image, caption=file.name, use_container_width=True)
         images.append(image)
-    return images
+return images
 
 place_holder_button = st.empty()
 if uploaded_files:
