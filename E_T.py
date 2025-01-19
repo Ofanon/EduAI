@@ -3,6 +3,7 @@ import google.generativeai as genai
 import time
 from PIL import Image
 import io
+import tempfile
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
@@ -24,9 +25,10 @@ if st.button("Créer un contrôle sur ce cours"):
         for file in uploaded_files:
             image = Image.open(file)
             st.image(image, use_container_width=True)
-            buffer = io.BytesIO()
-            buffer.seek(0)
-            images_data.append(buffer)
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
+                image.save(tmpfile, format="PNG")
+                tmpfile_path = tmpfile.name
+                images_data.append(tmpfile_path)
 
         if not st.session_state["analyze_image_finished"]:
             prompt = "Crée un contrôle sur ces images. Le contrôle doit contenir differents types de questions."
