@@ -2,6 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 import time
 from PIL import Image
+import io
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
@@ -23,7 +24,10 @@ if st.button("Créer un contrôle sur ce cours"):
         for file in uploaded_files:
             image = Image.open(file)
             st.image(image, use_container_width=True)
-            images_data.append(image)
+            buffer = io.BytesIO()
+            image.save(buffer, format="PNG")
+            buffer.seek(0)
+            images_data.append(buffer)
 
         if not st.session_state["analyze_image_finished"]:
             prompt = "Crée un contrôle sur ces images. Le contrôle doit contenir differents types de questions."
