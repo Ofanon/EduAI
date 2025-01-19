@@ -2,7 +2,6 @@ import streamlit as st
 import google.generativeai as genai
 import time
 from PIL import Image
-from fpdf import FPDF
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
@@ -21,9 +20,9 @@ uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=
 def display_images(files):
     images = []
     for file in files:
-        image = Image.open(file)
-        st.image(image, caption=file.name, use_container_width=True)
-        images.append(image)
+        image_pil = Image.open(file)
+        st.image(image_pil, caption=file.name, use_container_width=True)
+        images.append(image_pil)
     return images
 
 place_holder_button = st.empty()
