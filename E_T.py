@@ -22,7 +22,7 @@ def display_images(files):
     images = []
     for file in files:
         image = Image.open(file)
-        st.image(image=image, caption=file.name, use_container_width=True)
+        st.image(image, caption=file.name, use_container_width=True)
         images.append(image)
     return images
 
