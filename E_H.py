@@ -17,6 +17,8 @@ if "response_ai" not in st.session_state:
     st.session_state["response_ai"] = None
 if "uploaded_file" not in st.session_state:
     st.session_state["uploaded_file"] = None
+if "st_image" not in st.session_state:
+    st.session_state["st_image"] = None
 
 def response_typing(message):
     displayed_text = ""
@@ -32,7 +34,8 @@ st.session_state["uploaded_file"] = uploaded_file
 if uploaded_file:
 
     image = PIL.Image.open(uploaded_file)
-    st.image(image, use_container_width=True)
+    st_image = st.image(image, use_container_width=True)
+    st.session_state["st_image"] = st.image
 
     if "image_analyzed" not in st.session_state:
         st.write("Analyse en cours...")
