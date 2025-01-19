@@ -25,7 +25,7 @@ def display_images(files):
         st.image(image, caption=file.name, use_container_width=True)
         images.append(image)
         
-return images
+    return images
 
 place_holder_button = st.empty()
 if uploaded_files:
@@ -54,9 +54,4 @@ if uploaded_files:
                     data=pdf_file,
                     file_name=pdf_output_path,
                     mime="application/pdf"
-<<<<<<< HEAD
-                )
-=======
-                    )
->>>>>>> 4b0a409e5e54f1974d0a65f11bf3247ba0828f00
 
