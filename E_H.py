@@ -38,15 +38,15 @@ if uploaded_file:
     image = PIL.Image.open(uploaded_file)
     st_image = st.image(image, use_container_width=True)
     st.session_state["st_image"] = st.image
-
+    placeholder = st.empty()
     if "image_analyzed" not in st.session_state:
-        st.write("Analyse en cours...")
-        prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
-        response_ai = model.generate_content([prompt, image])
-        response_ai_user = response_ai.text
-        st.session_state["response_ai"] = response_ai_user
-        st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
-        st.session_state["image_analyzed"] = True
+        if placeholder.button("Resoudre cet exercice"):
+            prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
+            response_ai = model.generate_content([prompt, image])
+            response_ai_user = response_ai.text
+            st.session_state["response_ai"] = response_ai_user
+            st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
+            st.session_state["image_analyzed"] = True
 
 if "image_analyzed" in st.session_state:
     history = []
