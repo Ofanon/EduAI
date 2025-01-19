@@ -68,7 +68,7 @@ if "image_analyzed" in st.session_state:
 if "chat_history" in st.session_state:
     for i,message in enumerate(st.session_state["chat_history"]):
         if message["role"] == "user": 
-            with st.chat_message('user')
+            with st.chat_message('user'):
                 st.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
             if i == len(st.session_state["chat_history"]) - 1:
