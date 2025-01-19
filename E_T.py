@@ -25,7 +25,6 @@ def display_images(files):
     return images
 
 place_holder_button = st.empty()
-
 if uploaded_files:
     if place_holder_button.button("Créer un contrôle sur ce cours"):
         if "api_key" in st.session_state:
@@ -38,5 +37,17 @@ if uploaded_files:
                     place_holder_button.empty()
                     response = model.generate_content([prompt]+ images)
                     st.write(response.text)
+
+                file_name = "test_etudIAnt.txt"
+
+            with open(file_name, "w") as f:
+                f.write(response.text)
+            with open(file_name, "r") as f:
+                st.download_button(
+                    label="Télécharger le contrôle",
+                    data=f,
+                    file_name=file_name,
+                    mime="text/plain"
+                )
             
 
