@@ -8,6 +8,7 @@ if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
 else:
     st.error("Clée API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
+
 if "analyze_image_finished" not in st.session_state:
     st.session_state["analyze_image_finished"] = False
 
@@ -55,12 +56,4 @@ if uploaded_files:
                     file_name=pdf_output_path,
                     mime="application/pdf"
                 )
-
-                with open(pdf_output_path, "rb") as pdf_file:
-                    st.download_button(
-                        label="Télécharger le contrôle en PDF",
-                        data=pdf_file,
-                        file_name=pdf_output_path,
-                        mime="application/pdf"
-                    )
 
