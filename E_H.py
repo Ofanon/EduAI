@@ -27,7 +27,7 @@ def response_generator(message, chat_msg):
     displayed_text = ""
     for char in message:
         displayed_text += char
-        chat_msg.write(f"**IA** : {displayed_text}")
+        chat_msg.markdown(f"**IA** : {displayed_text}")
         time.sleep(0.005)
 
 if uploaded_file:
