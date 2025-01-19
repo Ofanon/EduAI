@@ -4,7 +4,6 @@ import time
 from PIL import Image
 import io
 import base64
-import httpx
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
@@ -37,7 +36,7 @@ if st.button("Créer un contrôle sur ce cours"):
         for file in uploaded_files:
             image = Image.open(file)
             st.image(image, use_container_width=True)
-            images_data.append(httpx.get(file))
+            images_data.append(image)
 
 
         if not st.session_state["analyze_image_finished"]:
