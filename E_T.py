@@ -47,7 +47,7 @@ if uploaded_files:
                 pdf.add_page()
                 pdf.set_font("Arial", size=12)
                 pdf.multi_cell(0, 10, response.text)
-                pdf_output_path = "controle_genere.pdf"
+                pdf_output_path = "controle.pdf"
                 pdf.output(pdf_output_path)
                 with open(pdf_output_path, "rb") as pdf_file:
                     st.download_button(
