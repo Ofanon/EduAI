@@ -64,7 +64,6 @@ if "image_analyzed" in st.session_state:
                 history.append({"role":"model", "parts":response.text})
     else:
         st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
-placeholders = []
 
 if "chat_history" in st.session_state:
     for message in st.session_state["chat_history"]:
@@ -73,6 +72,6 @@ if "chat_history" in st.session_state:
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
             message_ai = st.chat_message('assistant')
-            placeholder = st.empty()
-            message_ai.write_stream(response_generator(message['content']", placeholder))
+            placeholder_chat = st.empty()
+            message_ai.write_stream(response_generator(message['content']", placeholder_chat))
 
