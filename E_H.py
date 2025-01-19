@@ -23,10 +23,10 @@ if "image" not in st.session_state:
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 
-def response_generator(message, chat_msg):
+def response_generator(message_to_display, chat_msg):
     displayed_text = ""
     placeholder = st.empty()
-    for char in message:
+    for char in message_to_display:
         displayed_text += char
         placeholder.write(f"**IA** : {displayed_text}")
         time.sleep(0.005)
