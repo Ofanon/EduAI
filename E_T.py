@@ -42,9 +42,9 @@ if uploaded_files:
             pdf = FPDF()
             pdf.set_auto_page_break(auto=True, margin=15)
             pdf.add_page()
-            pdf.set_font("Arial", size=12)
-            utf8_text = response.text.encode('utf-8')
-            pdf.multi_cell(0, 10, utf8_text.decode('utf-8'))
+            pdf.add_font('DejaVu', '', 'DejaVuSans.ttf', uni=True)
+            pdf.set_font('DejaVu', size=12)
+            pdf.multi_cell(0, 10, response.text)
             pdf_output_path = "controle_genere.pdf"
             pdf.output(pdf_output_path)
 
