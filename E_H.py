@@ -33,7 +33,7 @@ st.session_state["uploaded_file"] = uploaded_file
 placeholder_button = st.empty()
 
 if uploaded_file:
-    if "api_key" in st.session_state["api_key"]:
+    if "api_key" in st.session_state:
         if placeholder_button.button("Résoudre le devoir"):
             image = PIL.Image.open(uploaded_file)
             st_image = st.image(image, use_container_width=True)
