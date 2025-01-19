@@ -73,6 +73,4 @@ if "chat_history" in st.session_state:
             if i == len(st.session_state["chat_history"]) - 1:
                 with st.chat_message('assistant') as chat_msg:
                     response_generator(message['content'], chat_msg)
-            else:
-                with st.chat_message("assistant"):
-                    st.write(f"**AI** : {message['content']}")
+            
