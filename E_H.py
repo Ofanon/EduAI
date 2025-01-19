@@ -23,7 +23,7 @@ if "st_image" not in st.session_state:
 def response_typing(message):
     displayed_text = ""
     chat_msg = st.chat_message('assistant')
-    for i in message:
+    for i in message.split():
         displayed_text += i
         chat_msg.write(f"**IA** : {displayed_text}")
         time.sleep(0.01)
