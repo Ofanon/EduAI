@@ -18,6 +18,14 @@ if "response_ai" not in st.session_state:
 if "uploaded_file" not in st.session_state:
     st.session_state["uploaded_file"] = None
 
+def response_typing(message):
+    displayed_text = ""
+    chat_msg = st.chat_message('assistant')
+    for i in message:
+        displayed_text += ""
+        chat_msg.write(f"**IA** : {displayed_text}")
+        
+
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 
@@ -53,5 +61,4 @@ if "chat_history" in st.session_state:
             message_user = st.chat_message('user')
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
-            message_ai = st.chat_message('assistant')
-            message_ai.write(f"**IA** : {message['content']}")
+            response_typing(message['content'])
