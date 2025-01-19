@@ -25,7 +25,7 @@ prompt = ["Crée une fiche de revision le plus précisement possible. La fiche d
 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
-if prompt_user and level:
+if prompt_user:
     if "created" not in st.session_state:
         if "api_key" in st.session_state:
             st.session_state["last_prompt"] = prompt_user
