@@ -53,5 +53,4 @@ if uploaded_files:
                     label="Télécharger le contrôle en PDF",
                     data=pdf_file,
                     file_name=pdf_output_path,
-                    mime="application/pdf"
-
+                    mime="application/pdf")
