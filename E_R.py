@@ -20,11 +20,12 @@ if "last_prompt" not in st.session_state:
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
-prompt = "Crée une fiche de revision le plus précisement possible. En parlant francais, jamais en anglais"
+level = st.selectbox('Séléctionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
+prompt = ["Crée une fiche de revision le plus précisement possible. La fiche de revision doit être niveau : {level} .En parlant francais, jamais en anglais"]
 
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
-if prompt_user:
+if prompt_user and level:
     if "created" not in st.session_state:
         if "api_key" in st.session_state:
             st.session_state["last_prompt"] = prompt_user
@@ -39,6 +40,8 @@ if prompt_user:
                     st.session_state["created"] = True
         else:
             st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
+else:
+    st.error("Renseigne ton niveau pour continuer.")
 
 if "created" in st.session_state:
     if prompt_user and prompt_user != st.session_state["last_prompt"]:

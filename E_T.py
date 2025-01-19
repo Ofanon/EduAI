@@ -18,6 +18,11 @@ st.title("EtudIAnt : Créateur de contrôles")
 
 uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp"], accept_multiple_files=True)
 
+def convert_to_jpeg(image, output_path):
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+    image.save(output_path, "JPEG", quality=85)
+
 def display_images(files):
     images = []
     for file in files:
