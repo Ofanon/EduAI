@@ -23,9 +23,11 @@ if "image" not in st.session_state:
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 
-def response_generator(message):
-    for i in message.split():
-        yield i + " "
+def response_generator(message, placeholder):
+    displayed_text = ""
+    for i in message.split:
+        displayed_text =+ i
+        placeholder.text(f"**IA** : {displayed_text})
         time.sleep(0.05)
 
 if uploaded_file:
@@ -71,5 +73,6 @@ if "chat_history" in st.session_state:
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
             message_ai = st.chat_message('assistant')
-            message_ai.write_stream(response_generator(f"**IA** : {message['content']}"))
+            placeholder = st.empty()
+            message_ai.write_stream(response_generator(message['content']", placeholder))
 
