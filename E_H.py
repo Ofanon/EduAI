@@ -72,5 +72,5 @@ if "chat_history" in st.session_state:
         elif message["role"] == "assistant":
             if i == len(st.session_state["chat_history"]) - 1:
                 with st.chat_message('assistant') as chat_msg:
-                    response_generator(message=message['content'], chat_msg)
+                    response_generator(message=message['content'], chat_msg=chat_msg)
             
