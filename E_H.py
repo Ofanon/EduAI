@@ -27,7 +27,7 @@ def response_generator(message, chat_msg):
     displayed_text = ""
     for char in message:
         displayed_text += char
-        chat_msg.markdown(f"**IA** : {displayed_text}")
+        st.write(f"**IA** : {displayed_text}")
         time.sleep(0.005)
 
 if uploaded_file:
@@ -72,5 +72,5 @@ if "chat_history" in st.session_state:
         elif message["role"] == "assistant":
             if i == len(st.session_state["chat_history"]) - 1:
                 with st.chat_message('assistant') as chat_msg:
-                    response_generator(message=message['content'], chat_msg=chat_msg)
+                    response_generator(message['content'], chat_msg)
             
