@@ -73,5 +73,5 @@ if "chat_history" in st.session_state:
         elif message["role"] == "assistant":
             message_ai = st.chat_message('assistant')
             placeholder_chat = st.empty()
-            message_ai.write_stream(response_generator(message['content'], placeholder_chat))
+            message_ai.write(response_generator(message['content'], placeholder_chat))
 
