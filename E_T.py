@@ -23,17 +23,20 @@ def display_images(files):
         images.append(image)
         st.image(image, caption=file.name, use_container_width=True)
     return images
-        
 
-if st.button("Créer un contrôle sur ce cours"):
-    if "api_key" in st.session_state:
-        images = display_images(uploaded_files)
-        if not st.session_state["analyze_image_finished"]:
-            prompt = "Voici un groupe d'images d'un cours. Crée un contrôle basé sur ces images. \
-                      Le contrôle doit contenir différents types de questions (QCM, questions ouvertes, etc.)."
+place_holder_button = st.empty()
 
-            with st.spinner("L'EtudIAnt reflechit..."):
-                response = model.generate_content([prompt]+ images)
-                st.write(response.text)
+if uploaded_files:
+    if place_holder_button.button("Créer un contrôle sur ce cours"):
+        if "api_key" in st.session_state:
+            images = display_images(uploaded_files)
+            if not st.session_state["analyze_image_finished"]:
+                prompt = "Voici un groupe d'images d'un cours. Crée un contrôle basé sur ces images. \
+                        Le contrôle doit contenir différents types de questions (QCM, questions ouvertes, etc.)."
+
+                with st.spinner("L'EtudIAnt reflechit..."):
+                    place_holder_button.empty()
+                    response = model.generate_content([prompt]+ images)
+                    st.write(response.text)
             
 
