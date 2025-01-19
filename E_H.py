@@ -25,12 +25,11 @@ if "placeholders" not in st.session_state:
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 
-def response_generator(message, placeholder):
+def response_generator(message, chat_msg):
     displayed_text = ""
     for i in message:
         displayed_text += i
-        placeholder = st.chat_message('assistant')
-        placeholder.write("**IA** : {displayed_text}")
+        chat_msg.write("**IA** : {displayed_text}")
         time.sleep(0.005)
 
 if uploaded_file:
@@ -74,6 +73,6 @@ if "chat_history" in st.session_state:
             message_user = st.chat_message('user')
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
-            placeholder = st.session_state["placeholders"].append(st.empty())
+            message_ai = st.chat_message('assistant')
             message_ai_user = message['content']
-            response_generator(message_ai_user, placeholder)
+            response_generator(message_ai_user, message_ai)
