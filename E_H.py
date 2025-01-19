@@ -25,7 +25,7 @@ def response_typing(message):
     displayed_text = ""
     for i in message.split():
         displayed_text += i
-        placeholder_message.write_stream(f"**IA** : {displayed_text}")
+        placeholder_message.write(f"**IA** : {displayed_text}")
         time.sleep(0.01)
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
