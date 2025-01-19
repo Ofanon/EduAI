@@ -16,19 +16,22 @@ if "analyze_image_finished" not in st.session_state:
     st.session_state["analyze_image_finished"] = False
 
 uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp"], accept_multiple_files=True)
+images_data = []
 
 if st.button("Créer un contrôle sur ce cours"):
     if "api_key" in st.session_state:
-        images = []
         for file in uploaded_files:
             image = Image.open(file)
             st.image(image, use_container_width=True)
-            images.append(image)
+            images_data.append({"image_bytes": image})
+
         if not st.session_state["analyze_image_finished"]:
             prompt = "Crée un contrôle sur ces images. Le contrôle doit contenir differents types de questions."
             with st.spinner("L'EtudIAnt reflechit..."):
-                response = model.generate_content([images, prompt])
-                response_user = response.text
-                st.write(response_user)
+                response = model.generate_content(
+                    images_data,
+                    "Voici un groupe d'images d'un cours. Crée un contrôle basé sur les images"
+                )
+                st.write(response.text)
             
 
