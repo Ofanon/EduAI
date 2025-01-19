@@ -25,7 +25,6 @@ if st.button("Créer un contrôle sur ce cours"):
             image = Image.open(file)
             st.image(image, use_container_width=True)
             buffer = io.BytesIO()
-            file.save(buffer, format="PNG")
             buffer.seek(0)
             images_data.append(buffer)
 
