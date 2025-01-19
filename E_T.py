@@ -28,10 +28,10 @@ if st.button("Créer un contrôle sur ce cours"):
         if not st.session_state["analyze_image_finished"]:
             prompt = "Crée un contrôle sur ces images. Le contrôle doit contenir differents types de questions."
             with st.spinner("L'EtudIAnt reflechit..."):
-                response = model.generate_content(
+                response = model.generate_content([
                     images_data,
                     "Voici un groupe d'images d'un cours. Crée un contrôle basé sur les images"
-                )
+                ])
                 st.write(response.text)
             
 
