@@ -33,7 +33,7 @@ if st.button("Créer un contrôle sur ce cours"):
                       Le contrôle doit contenir différents types de questions (QCM, questions ouvertes, etc.)."
 
             with st.spinner("L'EtudIAnt reflechit..."):
-                response = model.generate_content([prompt], images)
+                response = model.generate_content([prompt]+ images)
                 st.write(response.text)
             
 
