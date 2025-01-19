@@ -76,4 +76,4 @@ if "chat_history" in st.session_state:
                 if message == st.session_state["chat_history"][-1]:
                     response_generator(message['content'], chat_msg)
                 else:
-                    chat_msg.write(f"**AI** : {message['content']})
+                    chat_msg.write(f"**AI** : {message['content']}")
