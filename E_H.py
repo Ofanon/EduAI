@@ -25,7 +25,6 @@ if "placeholders" not in st.session_state:
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 
-<<<<<<< HEAD
 def response_generator(message, placeholder):
     displayed_text = ""
     for i in message:
@@ -33,14 +32,6 @@ def response_generator(message, placeholder):
         chat_message = placeholder.chat_message('assistant')
         chat_message.write("**IA** : {displayed_text}")
         time.sleep(0.005)
-=======
-def response_generator(message, placeholder):
-    displayed_text = ""
-    for i in message:
-        displayed_text += i
-        placeholder.text(f"**IA** : {displayed_text}")
-        time.sleep(0.005)
->>>>>>> 080b14c15aed3ef1bff0ffb69cb085278c722984
 
 if uploaded_file:
     if "api_key" in st.session_state:
