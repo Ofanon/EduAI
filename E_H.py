@@ -30,21 +30,21 @@ def response_typing(message):
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
+placeholder_button = st.empty()
 
 if uploaded_file:
     if "api_key" in st.session_state["api_key"]:
-        image = PIL.Image.open(uploaded_file)
-        st_image = st.image(image, use_container_width=True)
-        st.session_state["st_image"] = st.image
-        placeholder = st.empty()
-        if "image_analyzed" not in st.session_state:
-            if placeholder.button("Resoudre cet exercice"):
+        if placeholder_button.button("Résoudre le devoir"):
+            image = PIL.Image.open(uploaded_file)
+            st_image = st.image(image, use_container_width=True)
+            st.session_state["st_image"] = st.image
+            if "image_analyzed" not in st.session_state:
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
                 response_ai = model.generate_content([prompt, image])
                 response_ai_user = response_ai.text
                 st.session_state["response_ai"] = response_ai_user
                 st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
-                placeholder.empty()
+                placeholder_button.empty()
                 st.session_state["image_analyzed"] = True
 
 if "image_analyzed" in st.session_state:
