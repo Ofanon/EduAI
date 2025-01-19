@@ -2,6 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 import time
 from PIL import Image
+from fpdf import FPDF
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
@@ -38,16 +39,24 @@ if uploaded_files:
                     response = model.generate_content([prompt]+ images)
                     st.write(response.text)
 
-                file_name = "test_etudIAnt.txt"
+                    chat = model.start_chat(history={
+                        "role": "user", "parts": response.text
+                    })
+                name_folder = chat.send_message("Trouve un nom de fichier pour ce controle.")
+                pdf = FPDF()
+                pdf.set_auto_page_break(auto=True, margin=15)
+                pdf.add_page()
+                pdf.set_font("Arial", size=12)
+                pdf.multi_cell(0, 10, response.text)
 
-            with open(file_name, "w") as f:
-                f.write(response.text)
-            with open(file_name, "r") as f:
-                st.download_button(
-                    label="Télécharger le contrôle",
-                    data=f,
-                    file_name=file_name,
-                    mime="text/plain"
-                )
-            
+                pdf_output_path = "{name_folder}.pdf"
+                pdf.output(pdf_output_path)
+
+                with open(pdf_output_path, "rb") as pdf_file:
+                    st.download_button(
+                        label="Télécharger le contrôle en PDF",
+                        data=pdf_file,
+                        file_name=pdf_output_path,
+                        mime="application/pdf"
+                    )
 
