@@ -65,7 +65,8 @@ if "image_analyzed" in st.session_state:
 if "chat_history" in st.session_state:
     for message in st.session_state["chat_history"]:
         if message["role"] == "user": 
-            message_user = st.chat_message('user')
-            message_user.write(f"**Vous** : {message['content']}")
+            with st.chat_message('user'):
+                st.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
-            response_typing(message['content'])
+            with st.chat_message('assistant'):
+                st.write(f"**IA** : {message['content']}")
