@@ -70,4 +70,4 @@ if "chat_history" in st.session_state:
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
             message_ai = st.chat_message('assistant')
-            message_ai.write_stream(f"**AI** : {message['content']}")
+            message_ai.write_stream(f"**AI** : {message['content']}", True)
