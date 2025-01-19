@@ -63,6 +63,6 @@ if "chat_history" in st.session_state:
             with st.chat_message('user'):
                 st.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
-                with st.chat_message('assistant') as chat_msg:
-                    chat_msg.write(f"**AI** : {message['content']}")
+                with st.chat_message('assistant'):
+                    st.write(f"**AI** : {message['content']}")
             
