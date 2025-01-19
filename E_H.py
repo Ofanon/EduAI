@@ -72,6 +72,8 @@ if "chat_history" in st.session_state:
             message_user = st.chat_message('user')
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
-            message_ai = st.chat_message('assistant')
-            message_ai_user = message['content']
-            response_generator(message_ai_user)
+            with st.chat_message("assistant") as chat_msg:
+                if message == st.session_state["chat_history"][-1]:
+                    response_generator(message['content'], chat_msg)
+                else:
+                    chat_msg.write(f"**AI** : {message['content']})
