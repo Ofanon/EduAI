@@ -29,7 +29,7 @@ def response_generator(message, chat_msg):
     displayed_text = ""
     for i in message:
         displayed_text += i
-        chat_msg.write("**IA** : {displayed_text}")
+        chat_msg.write(f"**IA** : {displayed_text}")
         time.sleep(0.005)
 
 if uploaded_file:
