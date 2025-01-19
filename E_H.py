@@ -22,13 +22,11 @@ if "st_image" not in st.session_state:
 
 def response_typing(message):
     displayed_text = ""
-    chat_msg = st.chat_message('assistant')
-    for i in message.split():
-        displayed_text += i
-        chat_msg.text(f"**IA** : {displayed_text}")
-        time.sleep(0.01)
-
-        
+    with st.chat_message('assistant'):
+        for i in message.split():
+            displayed_text += i
+            st.text(f"**IA** : {displayed_text}")
+            time.sleep(0.01)
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
