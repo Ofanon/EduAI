@@ -45,7 +45,7 @@ if "created" in st.session_state:
     if prompt_user and prompt_user != st.session_state["last_prompt"]:
         if "api_key" in st.session_state:
             history_chat = []
-            prompt_chat = "Répond à cette question en francais."
+            prompt_chat = "Répond à cette question en francais. La fiche de revision est de niveau :" + level +"adapte tes reponses au niveau."+"La matière est :"+subject+"Adapte tes reponses à la matière"
             st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
             history_chat.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
             chat = model.start_chat(history=history_chat)
