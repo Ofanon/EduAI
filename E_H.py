@@ -67,7 +67,7 @@ if "chat_history" in st.session_state:
         elif message["role"] == "assistant":
             message_ai = st.chat_message('assistant')
             message_ai_user  = f"**IA** : {message['content']}"
-            placeholders.append(st.empty())
+            placeholders.append(st.empty() for _ in range (len(message_ai_user)))
             for i in range(len(message_ai_user)):
                 placeholders[i].text(message_ai_user[i])
                 time.sleep(0.005)
