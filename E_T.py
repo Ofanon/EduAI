@@ -38,18 +38,13 @@ if uploaded_files:
                     place_holder_button.empty()
                     response = model.generate_content([prompt]+ images)
                     st.write(response.text)
-
-                    chat = model.start_chat(history={
-                        "role": "user", "parts": response.text
-                    })
-                name_folder = chat.send_message("Trouve un nom de fichier pour ce controle.")
                 pdf = FPDF()
                 pdf.set_auto_page_break(auto=True, margin=15)
                 pdf.add_page()
                 pdf.set_font("Arial", size=12)
                 pdf.multi_cell(0, 10, response.text)
 
-                pdf_output_path = "{name_folder}.pdf"
+                pdf_output_path = "test.pdf"
                 pdf.output(pdf_output_path)
 
                 with open(pdf_output_path, "rb") as pdf_file:
