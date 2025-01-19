@@ -40,8 +40,6 @@ if prompt_user:
                     st.session_state["created"] = True
         else:
             st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
-else:
-    st.error("Renseigne ton niveau pour continuer.")
 
 if "created" in st.session_state:
     if prompt_user and prompt_user != st.session_state["last_prompt"]:
