@@ -58,7 +58,7 @@ if "image_analyzed" in st.session_state:
         st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
 
 if "chat_history" in st.session_state:
-    for message in enumerate(st.session_state["chat_history"]):
+    for message in st.session_state["chat_history"]:
         if message["role"] == "user": 
             with st.chat_message('user'):
                 st.write(f"**Vous** : {message['content']}")
