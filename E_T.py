@@ -21,8 +21,11 @@ def display_images(files):
     images = []
     for file in files:
         image = Image.open(file)
-        images.append(image)
+        if image.mode != "RGB"
+            image = image.convert("RGB")
+        image.save(output_path, "JPEG", quality=85)
         st.image(image, caption=file.name, use_container_width=True)
+        images.append(image)
     return images
 
 place_holder_button = st.empty()
