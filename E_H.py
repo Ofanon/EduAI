@@ -48,7 +48,7 @@ if uploaded_file:
                     st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                     st.session_state["image_analyzed"] = True
     else:
-        st.error("Veuillez enregistrer dans l'onglet 'Connexion à l'EtudIAnt' pour utiliser l'EtudIAnt.")
+        st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
 
 if "image_analyzed" in st.session_state:
     placeholder_button.empty()
