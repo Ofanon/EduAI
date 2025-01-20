@@ -117,6 +117,7 @@ if "connected" not in st.session_state:
         if api_key:
             st.success(f"Clée API existante : {api_key}")
             st.session_state["api_key"] = api_key
+            st.session_state["user_id"] = user_id
             st.session_state["connected"] = True
             st.rerun()
         else:
@@ -126,6 +127,7 @@ if "connected" not in st.session_state:
                 if api_key:
                     if verify_api_key(api_key):
                         save_api_key(user_id, api_key)
+                        st.session_state["user_id"] = user_id
                         st.success("Clé API enregistrée avec succès.")
                         st.session_state["api_key"] = api_key
                     else:
@@ -136,7 +138,7 @@ if "connected" not in st.session_state:
 st.link_button("Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
 
 if "api_key" in st.session_state:
-    st.title(f"Vous êtes connecté {user_id}!")
+    st.title(f"Vous êtes connecté {st.session_state["user_id"]}!")
     st.text("L'EtudIAnt est une Intelligence Artificielle basée sur la correction et l'aide aux devoirs, elle permet multiples services. L'EtduIAnt est une version Alpha, veuillez prendre en compte cela lorsque vous l'utilisez.")
     st.session_state["authenticated"] = True
 
