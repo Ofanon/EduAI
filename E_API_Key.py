@@ -115,7 +115,6 @@ if "connected" not in st.session_state:
     if st.session_state["authenticated"] == True:
         api_key = get_api_key(user_id)
         if api_key:
-            st.success(f"Clée API existante : {api_key}")
             st.session_state["api_key"] = api_key
             st.session_state["connected"] = True
             st.rerun()
@@ -139,6 +138,6 @@ if "connected" not in st.session_state:
 
 if "connected" in st.session_state:
     st.title(f"Vous êtes connecté !")
-    st.text("L'EtudIAnt est une Intelligence Artificielle basée sur la correction et l'aide aux devoirs, elle permet multiples services. L'EtduIAnt est une version Alpha, veuillez prendre en compte cela lorsque vous l'utilisez.")
-    st.session_state["authenticated"] = True
+    st.success(f"Clée API existante : {api_key}")
+        st.session_state["authenticated"] = True
 
