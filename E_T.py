@@ -52,6 +52,9 @@ if uploaded_files:
                         file_name=file_name,
                         mime="text/plain"
                     )
+                    for image_pil in images:
+                        st.image(image_pil, caption=image_pil.name, use_container_width=True)
+                        
 if "analyze_image_finished" in st.session_state:
     for message in st.session_state["chat_control"]:
         if message["role"] == "assistant":
