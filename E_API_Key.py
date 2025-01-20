@@ -17,6 +17,10 @@ if "action" not in st.session_state:
 if "hide_buttons" not in st.session_state:
     st.session_state["hide_buttons"] = False
 
+if "api_key" in st.session_state:
+    st.success(f"Vous êtes connecté")
+    st.session_state["authenticated"] = True
+
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
@@ -125,7 +129,4 @@ if st.session_state["authenticated"] == True:
                     st.error("Veuillez entrer un clé API valide.")
             else:
                 st.error("Veuillez entrer une clé API.")
-
-    if "api_key" in st.session_state["api_key"]:
-        st.success("Vous êtes bien connecté !")
 
