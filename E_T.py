@@ -10,7 +10,8 @@ else:
 
 if "analyze_image_finished" not in st.session_state:
     st.session_state["analyze_image_finished"] = False
-
+if "chat_control" not in st.session_state:
+    st.session_state["chat_control"] = []
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
 st.title("EtudIAnt : Créateur de contrôles")
@@ -38,7 +39,7 @@ if uploaded_files:
                 with st.spinner("L'EtudIAnt reflechit..."):
                     place_holder_button.empty()
                     response = model.generate_content([prompt]+ images)
-                    st.write(response.text)
+                    st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
 
                 file_name = "controle_genere.txt"
                 with open(file_name, "w") as f:
@@ -51,3 +52,8 @@ if uploaded_files:
                         file_name=file_name,
                         mime="text/plain"
                     )
+if "analyze_image_finished" in st.session_state:
+    for message in st.session_state["chat_control"]:
+        if message["role"] == "assistant":
+            with st.chat_message("assistant"):
+                st.write(f"**IA** : {message['content']}")
