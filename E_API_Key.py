@@ -17,9 +17,6 @@ if "action" not in st.session_state:
 if "hide_buttons" not in st.session_state:
     st.session_state["hide_buttons"] = False
 
-if "api_key" in st.session_state:
-    st.success(f"Vous êtes connecté")
-    st.session_state["authenticated"] = True
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -72,7 +69,7 @@ def verify_api_key(api_key):
     except requests.exceptions.RequestException as e:
         return False
 
-if "api_key" not in st.session_state:   
+if "connected" not in st.session_state:   
     if st.session_state["action"] == "Créer un compte":
         st.title("Créer un compte EtudIAnt")
         user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
@@ -117,6 +114,7 @@ if "api_key" not in st.session_state:
         if api_key:
             st.success(f"Clée API existante : {api_key}")
             st.session_state["api_key"] = api_key
+            st.session_state["connected"] = True
             st.rerun()
         else:
             st.subheader("Votre clé API")
@@ -131,4 +129,9 @@ if "api_key" not in st.session_state:
                         st.error("Veuillez entrer un clé API valide.")
                 else:
                     st.error("Veuillez entrer une clé API.")
+
+
+if "api_key" in st.session_state:
+    st.subheader(f"Vous êtes connecté {user_id} !")
+    st.session_state["authenticated"] = True
 
