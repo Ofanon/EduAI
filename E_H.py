@@ -22,12 +22,11 @@ if "st_image" not in st.session_state:
 if "image_pil" not in st.session_state:
     st.session_state["image_pil"] = None
 
-def response_typing(message):
+def response_typing(message, key):
     placeholder_message = st.empty()
     displayed_text = ""
-    for i in message.split():
-        displayed_text += i
-        placeholder_message.write(f"**IA** : {displayed_text}")
+    for i in range(len(message)):
+        placeholder_message.markdown(message[:i+1], key=key)
         time.sleep(0.01)
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
@@ -71,4 +70,4 @@ if "chat_history" in st.session_state:
                 st.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
             with st.chat_message('assistant'):
-                st.write(f"**IA** : {message['content']}")
+                response_typing(f"**IA** : {message['content']}", key=len(message['content']))
