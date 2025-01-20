@@ -117,9 +117,9 @@ if "connected" not in st.session_state:
         if api_key:
             st.success(f"Clée API existante : {api_key}")
             st.session_state["api_key"] = api_key
-            st.session_state["user_id"] = user_id
             st.session_state["connected"] = True
             st.rerun()
+            st.session_state["user_id"] = user_id
         else:
             st.subheader("Votre clé API")
             api_key = st.text_input("Entrez une nouvelle clé API")
