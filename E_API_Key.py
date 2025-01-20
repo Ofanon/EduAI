@@ -72,7 +72,7 @@ def verify_api_key(api_key):
     except requests.exceptions.RequestException as e:
         return False
 
-if "api_key" in st.session_state:   
+if "api_key" not in st.session_state:   
     if st.session_state["action"] == "Créer un compte":
         st.title("Créer un compte EtudIAnt")
         user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
