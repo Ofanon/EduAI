@@ -19,6 +19,8 @@ if "uploaded_file" not in st.session_state:
     st.session_state["uploaded_file"] = None
 if "st_image" not in st.session_state:
     st.session_state["st_image"] = None
+if "image_pil" not in st.session_state:
+    st.session_state["image_pil"] = None
 
 def response_typing(message):
     placeholder_message = st.empty()
@@ -36,8 +38,7 @@ if uploaded_file:
     if "api_key" in st.session_state:
         if placeholder_button.button("Résoudre le devoir"):
             image = PIL.Image.open(uploaded_file)
-            st_image = st.image(image, use_container_width=True)
-            st.session_state["st_image"] = st_image
+            st.session_state["st_image"] = image
             if "image_analyzed" not in st.session_state:
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
                 with st.spinner("L'EtudIAnt reflechit..."):
@@ -53,6 +54,7 @@ if "image_analyzed" in st.session_state:
     placeholder_button.empty()
     history = []
     user_input = st.chat_input("ex : je n'ai pas compris ta réponse dans l'exercice B")
+    st.image(st.session_state["st_image"], use_container_width=True)
     if user_input:
         st.session_state["chat_history"].append({"role":"user","content":user_input})
         history.append({"role":"model", "parts":st.session_state["response_ai"]})
