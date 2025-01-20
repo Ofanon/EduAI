@@ -18,7 +18,7 @@ st.title("EtudIAnt : Créateur de contrôles")
 
 level = st.selectbox('Séléctionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
 subject = st.selectbox('Séléctionne la matière du contrôle :', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"])
-prompt = "Voici un groupe d'images d'un cours de niveau :" + level + "Crée un contrôle dessus en adaptant la difficultée en fonction du niveau."+ "Ce contrôle est sur la matière:"+subject+"Répond en parlant francais, jamais en anglais."+"Le contrôle doit contenir différents types de questions en fonction du niveau et de la matière (QCM, questions ouvertes, developpement construit, etc..)."+"Essaye malgré l'ecriture de l'utilisateur dans le cours, d'être un maximum en rapport avec."
+prompt = f"Voici un groupe d'images d'un cours de niveau :{level}.Crée un contrôle dessus en adaptant la difficultée en fonction du niveau. Ce contrôle est sur la matière: {subject} .Répond en parlant francais, jamais en anglais. Le contrôle doit contenir différents types de questions en fonction de la matière (QCM, questions ouvertes, developpement construit, etc..)."
 uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp"], accept_multiple_files=True)
 
 def display_images(files):
