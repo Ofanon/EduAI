@@ -36,9 +36,6 @@ if uploaded_files:
         if place_holder_button.button("Créer un contrôle sur ce cours"):
                 images = display_images(uploaded_files)
                 if not st.session_state["analyze_image_finished"]:
-                    prompt = "Voici un groupe d'images d'un cours. Crée un contrôle basé sur ces images. \
-                            Le contrôle doit contenir différents types de questions (QCM, questions ouvertes, etc.)."
-
                     with st.spinner("L'EtudIAnt reflechit..."):
                         place_holder_button.empty()
                         response = model.generate_content([prompt]+ images)
