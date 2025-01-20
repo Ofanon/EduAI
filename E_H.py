@@ -55,6 +55,7 @@ if "image_analyzed" in st.session_state:
     st.image(st.session_state["st_image"], use_container_width=True)
     if user_input:
         st.session_state["chat_history"].append({"role":"user","content":user_input})
+        st.rerun()
         history.append({"role":"model", "parts":st.session_state["response_ai"]})
         chat = model.start_chat(history = history)
         response = chat.send_message(user_input)
