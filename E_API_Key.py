@@ -138,6 +138,6 @@ if "connected" not in st.session_state:
 
 if "connected" in st.session_state:
     st.title(f"Vous êtes connecté !")
-    st.success(f"Clée API existante : {api_key}")
-        st.session_state["authenticated"] = True
+    st.success(f"Clée API existante : {st.session_state["api_key"]}")
+    st.session_state["authenticated"] = True
 
