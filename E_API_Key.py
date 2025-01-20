@@ -7,7 +7,7 @@ users_file = "users.json"
 api_key_file = "api_key.json"
 
 if "user_id" not in st.session_state:
-    st.session_state["user_id"] = None
+    st.session_state["user_id"] = []
 if "password" not in st.session_state:
     st.session_state["password"] = None
 if "authenticated" not in st.session_state:
