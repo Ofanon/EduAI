@@ -133,6 +133,7 @@ if "connected" not in st.session_state:
 
 
 if "api_key" in st.session_state:
-    st.subheader(f"Vous êtes connecté {st.session_state["user_id"]} !")
+    st.subheader(f"Vous êtes connecté !")
+    st.text("L'EtudIAnt est une version alpha.")
     st.session_state["authenticated"] = True
 
