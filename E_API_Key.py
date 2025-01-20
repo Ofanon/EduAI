@@ -81,8 +81,8 @@ if "connected" not in st.session_state:
                         st.error("L'utilisateur existe déjà.")
                     else:
                         save_user(user_id, password)
-                        st.session_state["user_id"] = user_id
                         st.success("Compte créé avec succès.")
+                        st.session_state["user_id"] = user_id
                         if authenticate(user_id, password):
                             st.subheader(f"Bienvenue, {user_id} ! Vous êtes connecté.")
                             st.session_state["authenticated"] = True
@@ -101,6 +101,7 @@ if "connected" not in st.session_state:
             if st.button("Me connecter"):
                 if authenticate(user_id, password):
                     st.subheader(f"Bienvenue, {user_id} !")
+                    st.session_state["user_id"] = user_id
                     st.session_state["authenticated"] = True
                     st.session_state["hide_buttons"] = True
                 else:
@@ -135,7 +136,7 @@ if "connected" not in st.session_state:
 st.link_button("Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
 
 if "api_key" in st.session_state:
-    st.subheader(f"Vous êtes connecté !")
+    st.title("Vous êtes connecté !")
     st.text("L'EtudIAnt est une Intelligence Artificielle basée sur la correction et l'aide aux devoirs, elle permet multiples services. L'EtduIAnt est une version Alpha, veuillez prendre en compte cela lorsque vous l'utilisez.")
     st.session_state["authenticated"] = True
 
