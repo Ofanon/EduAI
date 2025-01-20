@@ -67,51 +67,52 @@ def verify_api_key(api_key):
             return False
     except requests.exceptions.RequestException as e:
         return False
-
-
-if st.session_state["action"] == "Créer un compte":
-    st.title("Créer un compte EtudIAnt")
-    user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
-    password = st.text_input("Créez votre mot de passe.",type="password")
-    if not st.session_state["hide_buttons"]:
-        if st.button("Déjà un compte, connectez-vous"):
-            st.session_state["action"] = "Se connecter"
-            st.rerun()
-        if st.button("Créer mon compte"):
-            if user_id and password:
-                if user_id in load_users():
-                    st.error("L'utilisateur existe déjà.")
+if st.session_state["authenticated"] == False:
+    if st.session_state["action"] == "Créer un compte":
+        st.title("Créer un compte EtudIAnt")
+        user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
+        password = st.text_input("Créez votre mot de passe.",type="password")
+        if not st.session_state["hide_buttons"]:
+            if st.button("Déjà un compte, connectez-vous"):
+                st.session_state["action"] = "Se connecter"
+                st.rerun()
+            if st.button("Créer mon compte"):
+                if user_id and password:
+                    if user_id in load_users():
+                        st.error("L'utilisateur existe déjà.")
+                    else:
+                        save_user(user_id, password)
+                        st.success("Compte créé avec succès.")
+                        if authenticate(user_id, password):
+                            st.subheader(f"Bienvenue, {user_id} ! Vous êtes connecté.")
+                            st.session_state["authenticated"] = True
+                        st.session_state["hide_buttons"] = True
                 else:
-                    save_user(user_id, password)
-                    st.success("Compte créé avec succès.")
-                    if authenticate(user_id, password):
-                        st.subheader(f"Bienvenue, {user_id} ! Vous êtes connecté.")
-                        st.session_state["authenticated"] = True
-                    st.session_state["hide_buttons"] = True
-            else:
-                st.error("Veuillez remplir tous les champs.")
+                    st.error("Veuillez remplir tous les champs.")
 
-elif st.session_state["action"] == "Se connecter":
-    st.title("Se connecter à l'EtudIAnt")
-    user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
-    password = st.text_input("Entrez votre mot de passe.",type="password")
-    if not st.session_state["hide_buttons"]:
-        if st.button("Pas de compte ? En créer un"):
-            st.session_state["action"] = "Créer un compte"
-            st.rerun()
-        if st.button("Me connecter"):
-            if authenticate(user_id, password):
-                st.subheader(f"Bienvenue, {user_id} !")
-                st.session_state["authenticated"] = True
-                st.session_state["hide_buttons"] = True
-            else:
-                st.error("Identifiant ou mot de passe incorrect.")
+    elif st.session_state["action"] == "Se connecter":
+        st.title("Se connecter à l'EtudIAnt")
+        user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
+        password = st.text_input("Entrez votre mot de passe.",type="password")
+        if not st.session_state["hide_buttons"]:
+            if st.button("Pas de compte ? En créer un"):
+                st.session_state["action"] = "Créer un compte"
+                st.rerun()
+            if st.button("Me connecter"):
+                if authenticate(user_id, password):
+                    st.subheader(f"Bienvenue, {user_id} !")
+                    st.session_state["authenticated"] = True
+                    st.session_state["hide_buttons"] = True
+                else:
+                    st.error("Identifiant ou mot de passe incorrect.")
+
 
 if st.session_state["authenticated"] == True:
     api_key = get_api_key(user_id)
     if api_key:
-        st.success(f"Clée API existante : {api_key}")
-        st.session_state["api_key"] = api_key
+        if "api_key" in st.session_state["api_key"]:
+            st.success(f"Clée API existante : {api_key}")
+            st.session_state["api_key"] = api_key
     else:
         st.subheader("Votre clé API")
         api_key = st.text_input("Entrez une nouvelle clé API")
