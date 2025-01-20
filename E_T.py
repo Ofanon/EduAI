@@ -39,7 +39,7 @@ if uploaded_files:
                 with st.spinner("L'EtudIAnt reflechit..."):
                     place_holder_button.empty()
                     response = model.generate_content([prompt]+ images)
-                    st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
+                st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
 
                 file_name = "controle_genere.txt"
                 with open(file_name, "w") as f:
