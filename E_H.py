@@ -22,12 +22,11 @@ if "st_image" not in st.session_state:
 if "image_pil" not in st.session_state:
     st.session_state["image_pil"] = None
 
-def response_typing(message, key):
+def response_typing(message_typing, key):
     placeholder_message = st.empty()
-    displayed_text = ""
-    for i in range(len(message)):
-        placeholder_message.markdown(message[:i+1], key=key)
-        time.sleep(0.01)
+    for i in range(len(message_typing)):
+        placeholder_message.markdown(message_typing[:i+1], key=key)
+        time.sleep(0.05)
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
