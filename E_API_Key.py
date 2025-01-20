@@ -122,7 +122,7 @@ if "connected" not in st.session_state:
         else:
             st.subheader("Votre clé API")
             api_key = st.text_input("Entrez une nouvelle clé API")
-            if st.button("Enregistrer la clée"):
+            if st.button("Enregistrer la clé"):
                 if api_key:
                     if verify_api_key(api_key):
                         save_api_key(user_id, api_key)
@@ -138,6 +138,6 @@ if "connected" not in st.session_state:
 
 if "connected" in st.session_state:
     st.title(f"Vous êtes connecté !")
-    st.success(f"Clée API existante : {st.session_state["api_key"]}")
+    st.success(f"Clé API existante : {st.session_state["api_key"]}")
     st.session_state["authenticated"] = True
 
