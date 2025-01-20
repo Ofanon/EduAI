@@ -68,7 +68,7 @@ def verify_api_key(api_key):
             return False
     except requests.exceptions.RequestException as e:
         return False
-st.link_button("Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
+
 if "connected" not in st.session_state:   
     if st.session_state["action"] == "Créer un compte":
         st.title("Créer un compte EtudIAnt")
@@ -131,6 +131,7 @@ if "connected" not in st.session_state:
                 else:
                     st.error("Veuillez entrer une clé API.")
 
+st.link_button("Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
 
 if "api_key" in st.session_state:
     st.subheader(f"Vous êtes connecté !")
