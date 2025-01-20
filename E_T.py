@@ -22,6 +22,7 @@ def display_images(files):
     for file in files:
         image_pil = Image.open(file)
         st.image(image_pil, caption=file.name, use_container_width=True)
+        image_pil.resize((1024, 1024))
         images.append(image_pil)
     return images
 
