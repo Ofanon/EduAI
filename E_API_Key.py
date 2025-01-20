@@ -84,6 +84,7 @@ if "connected" not in st.session_state:
                         st.error("L'utilisateur existe déjà.")
                     else:
                         save_user(user_id, password)
+                        st.session_state["user_id"] = user_id
                         st.success("Compte créé avec succès.")
                         if authenticate(user_id, password):
                             st.subheader(f"Bienvenue, {user_id} ! Vous êtes connecté.")
