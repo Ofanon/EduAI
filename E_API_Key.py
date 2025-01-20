@@ -129,6 +129,7 @@ if "connected" not in st.session_state:
                         st.session_state["user_id"] = user_id
                         st.success("Clé API enregistrée avec succès.")
                         st.session_state["api_key"] = api_key
+                        st.session_state["connected"] = True
                     else:
                         st.error("Veuillez entrer un clé API valide.")
                 else:
