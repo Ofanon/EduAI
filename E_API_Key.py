@@ -126,4 +126,6 @@ if st.session_state["authenticated"] == True:
             else:
                 st.error("Veuillez entrer une clé API.")
 
+    if "api_key" in st.session_state["api_key"]:
+        st.success("Vous êtes bien connecté !")
 
