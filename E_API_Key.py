@@ -136,7 +136,7 @@ if "connected" not in st.session_state:
 st.link_button("Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
 
 if "api_key" in st.session_state:
-    st.title("Vous êtes connecté !")
+    st.title(f"Vous êtes connecté {st.session_state["user_id"]}!")
     st.text("L'EtudIAnt est une Intelligence Artificielle basée sur la correction et l'aide aux devoirs, elle permet multiples services. L'EtduIAnt est une version Alpha, veuillez prendre en compte cela lorsque vous l'utilisez.")
     st.session_state["authenticated"] = True
 
