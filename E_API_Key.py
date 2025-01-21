@@ -136,7 +136,7 @@ if "connected" not in st.session_state:
                 else:
                     st.error("Veuillez entrer une clé API.")
 if "connected" not in st.session_state:
-    st.link_button("Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
+    st.link_button("🔑 Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
 
 if "connected" in st.session_state:
     st.title(f"Vous êtes connecté !")
