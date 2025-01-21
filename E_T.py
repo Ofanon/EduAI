@@ -2,6 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 import time
 from PIL import Image
+from fpdf import FPDF
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
@@ -22,6 +23,17 @@ subject = st.selectbox('Séléctionne la matière du contrôle :', ["Français",
 prompt = f"Voici un groupe d'images d'un cours de niveau {level}. Crée un contrôle comme au college ou lycée dessus en adaptant la difficultée en fonction du niveau er de la matière : {subject}. Répond en parlant francais, jamais en anglais. Ne fais pas ton introduction dans la réponse, fais directement le contrôle"
 
 uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp"], accept_multiple_files=True)
+
+def create_pdf(response_pdf):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    for ligne in response_pdf.split("\n"):
+        pdf.cell(0, 10, txt=ligne, ln=True)
+    
+    return pdf.output(dest="S").encode("latin1")
+
 
 def display_images(files):
     images = []
@@ -44,6 +56,15 @@ if uploaded_files:
                     st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
+
+pdf_bytes = create_pdf(response)
+
+st.download_button(
+    label="Télécharger le contrôle",
+    data=pdf_bytes,
+    file_name=f"Contrôle_{subject}",
+    mime="application/pdf"
+)
 
 if "analyze_image_finished" in st.session_state:
     for message in st.session_state["chat_control"]:
