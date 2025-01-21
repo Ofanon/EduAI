@@ -36,7 +36,7 @@ if uploaded_file:
     if "api_key" in st.session_state:
         if placeholder_button.button("Résoudre le devoir"):
             image = Image.open(uploaded_file)
-            image.resize((256, 256))
+            image.resize((512, 512))
             st.session_state["st_image"] = image
             if "image_analyzed" not in st.session_state:
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
