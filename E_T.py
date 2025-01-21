@@ -26,17 +26,6 @@ prompt = f"Voici un groupe d'images d'un cours de niveau {level}. Crée un contr
 
 uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp"], accept_multiple_files=True)
 
-def create_pdf(response_pdf):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-
-    for ligne in response_pdf.splitlines():
-        pdf.cell(0, 10, txt=ligne, ln=True)
-    
-    return pdf.output(dest="S").encode("latin1")
-
-
 def display_images(files):
     images = []
     for file in files:
@@ -56,14 +45,6 @@ if uploaded_files:
                         place_holder_button.empty()
                         response = model.generate_content([prompt]+ images)
                         st.session_state["response_pdf"] = response
-                        pdf_bytes = create_pdf(response.text)
-
-                        st.download_button(
-                            label="Télécharger le contrôle",
-                            data=pdf_bytes,
-                            file_name=f"Contrôle_{subject}",
-                            mime="application/pdf"
-                        )
                     st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
