@@ -75,7 +75,7 @@ if "connected" not in st.session_state:
         user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
         password = st.text_input("Créez votre mot de passe.",type="password")
         if not st.session_state["hide_buttons"]:
-            if st.button("➕ Créer mon compte"):
+            if st.button("👋 Créer mon compte"):
                 if user_id and password:
                     if user_id in load_users():
                         st.error("L'utilisateur existe déjà.")
@@ -98,7 +98,7 @@ if "connected" not in st.session_state:
         user_id = st.text_input("Entrez votre identifiant utilisateur.", placeholder="Exemple : user123")
         password = st.text_input("Entrez votre mot de passe.",type="password")
         if not st.session_state["hide_buttons"]:
-            if st.button("Me connecter"):
+            if st.button("👋 Me connecter"):
                 if authenticate(user_id, password):
                     st.subheader(f"Bienvenue, {user_id} !")
                     st.session_state["user_id"] = user_id
@@ -107,7 +107,7 @@ if "connected" not in st.session_state:
                 else:
                     st.error("Identifiant ou mot de passe incorrect.")
 
-            elif st.button("Pas de compte ? En créer un"):
+            elif st.button("➕ Pas de compte ? En créer un"):
                 st.session_state["action"] = "Créer un compte"
                 st.rerun()
 
