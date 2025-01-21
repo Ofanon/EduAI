@@ -31,7 +31,7 @@ def create_pdf(response_pdf):
     pdf.add_page()
     pdf.set_font("Arial", size=12)
 
-    for ligne in response_pdf.split("\n"):
+    for ligne in response_pdf.split():
         pdf.cell(0, 10, txt=ligne, ln=True)
     
     return pdf.output(dest="S").encode("latin1")
@@ -56,7 +56,7 @@ if uploaded_files:
                         place_holder_button.empty()
                         response = model.generate_content([prompt]+ images)
                         st.session_state["response_pdf"] = response
-                        pdf_bytes = create_pdf(response_pdf=st.session_state["response_pdf"])
+                        pdf_bytes = create_pdf(response)
 
                         st.download_button(
                             label="Télécharger le contrôle",
