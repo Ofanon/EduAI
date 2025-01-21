@@ -6,7 +6,7 @@ from PIL import Image
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
 else:
-    st.error("Clée API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
+    st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
 
 if "analyze_image_finished" not in st.session_state:
     st.session_state["analyze_image_finished"] = False
@@ -18,15 +18,17 @@ st.title("EtudIAnt : Créateur de contrôles")
 
 level = st.selectbox('Séléctionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
 subject = st.selectbox('Séléctionne la matière du contrôle :', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"])
+
 prompt = f"Voici un groupe d'images d'un cours de niveau {level}. Crée un contrôle comme au college ou lycée dessus en adaptant la difficultée en fonction du niveau er de la matière : {subject}. Répond en parlant francais, jamais en anglais. Ne fais pas ton introduction dans la réponse, fais directement le contrôle"
+
 uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp"], accept_multiple_files=True)
 
 def display_images(files):
     images = []
     for file in files:
         image_pil = Image.open(file)
+        image_pil.resize((256, 256), Image.ANTIALIAS)
         st.image(image_pil, caption=file.name, use_container_width=True)
-        image_pil.resize((1024, 1024))
         images.append(image_pil)
     return images
 
