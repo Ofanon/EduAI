@@ -20,8 +20,7 @@ if "response_pdf" not in st.session_state:
 st.title("EtudIAnt : Créateur de contrôles")
 if st.session_state["user_informations"] == []: 
     level = st.selectbox('Sélectionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
-else:
-    level = st.session_state["user_informations"].get["level"]
+
 
 subject = st.selectbox('Sélectionne la matière du contrôle :', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"])
 
