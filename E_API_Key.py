@@ -151,5 +151,5 @@ if "connected" in st.session_state:
     st.subheader("Plus d'infos sur toi !")
     st.write("Répond au formulaire pour adapter l'EtudIAnt à tes besoins.")
     st.selectbox("Sélectionne ton niveau :", ["6ème", "5ème", "4ème", "3ème", "Seconde", "Première", "Terminale"])
-    st.select_slider("Definis ton niveau en cours :" 0, 100)
+    st.slider("Definis ton niveau en cours :", 0, 100)
 
