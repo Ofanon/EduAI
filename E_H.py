@@ -30,12 +30,12 @@ def response_typing(message_typing, key):
 
 def display_chat_history():
     for idx, message in enumerate(st.session_state["chat_history"]):
-    if message["role"] == "user": 
-        with st.chat_message('user'):
-            st.write(f"**Vous** : {message['content']}")
-    elif message["role"] == "assistant":
-        with st.chat_message('assistant'):
-            response_typing(f"**IA** : {message['content']}", key=f"assistant_response_{idx}")
+        if message["role"] == "user": 
+            with st.chat_message('user'):
+                st.write(f"**Vous** : {message['content']}")
+        elif message["role"] == "assistant":
+            with st.chat_message('assistant'):
+                response_typing(f"**IA** : {message['content']}", key=f"assistant_response_{idx}")
                 
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
