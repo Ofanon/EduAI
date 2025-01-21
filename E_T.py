@@ -14,6 +14,8 @@ if "analyze_image_finished" not in st.session_state:
 if "chat_control" not in st.session_state:
     st.session_state["chat_control"] = []
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
+if "response_pdf" not in st.session_state:
+    st.session_state["response_pdf"] = None
 
 st.title("EtudIAnt : Créateur de contrôles")
 
@@ -53,18 +55,18 @@ if uploaded_files:
                     with st.spinner("L'EtudIAnt reflechit..."):
                         place_holder_button.empty()
                         response = model.generate_content([prompt]+ images)
+                        st.session_state["response_pdf"] = response
+                        pdf_bytes = create_pdf(st.session_state["response_pdf"])
+
+                        st.download_button(
+                            label="Télécharger le contrôle",
+                            data=pdf_bytes,
+                            file_name=f"Contrôle_{subject}",
+                            mime="application/pdf"
+                        )
                     st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
-
-pdf_bytes = create_pdf(response)
-
-st.download_button(
-    label="Télécharger le contrôle",
-    data=pdf_bytes,
-    file_name=f"Contrôle_{subject}",
-    mime="application/pdf"
-)
 
 if "analyze_image_finished" in st.session_state:
     for message in st.session_state["chat_control"]:
