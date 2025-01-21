@@ -56,7 +56,7 @@ if uploaded_files:
                         place_holder_button.empty()
                         response = model.generate_content([prompt]+ images)
                         st.session_state["response_pdf"] = response
-                        pdf_bytes = create_pdf(st.session_state["response_pdf"])
+                        pdf_bytes = create_pdf(response_pdf=st.session_state["response_pdf"])
 
                         st.download_button(
                             label="Télécharger le contrôle",
