@@ -108,7 +108,12 @@ if "connected" not in st.session_state:
                 st.session_state["action"] = "Créer un compte"
                 st.rerun()
 
-
+if not st.session_state["hide_buttons"]:
+    if st.button("➡️ Déjà un compte, connectez-vous"):
+        st.session_state["action"] = "Se connecter"
+        st.rerun()
+        
+if "connected" not in st.session_state:  
     if st.session_state["authenticated"] == True:
         api_key = get_api_key(user_id)
         if api_key:
@@ -134,11 +139,6 @@ if "connected" not in st.session_state:
                     st.error("Veuillez entrer une clé API.")
 if "connected" not in st.session_state:
     st.link_button("🔑 Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
-    
-if not st.session_state["hide_buttons"]:
-    if st.button("➡️ Déjà un compte, connectez-vous"):
-        st.session_state["action"] = "Se connecter"
-        st.rerun()
 
 if "connected" in st.session_state:
     st.title(f"Vous êtes connecté !")
