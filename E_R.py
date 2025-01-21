@@ -20,8 +20,8 @@ if "last_prompt" not in st.session_state:
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
-level = st.selectbox('Séléctionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
-subject = st.selectbox('Séléctionne la matière de ta fiche de révision:', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"])
+level = st.selectbox('Sélectionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
+subject = st.selectbox('Sélectionne la matière de ta fiche de révision:', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"])
 prompt = "Crée une fiche de revision le plus précisement possible. La fiche de revision doit être au niveau :" + level + "Adapte la fiche de révision en fonction du niveau"+ "Cette fiche de revision est sur la matière:"+subject+"En parlant francais, jamais en anglais"
 prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
