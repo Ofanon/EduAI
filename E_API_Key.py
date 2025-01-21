@@ -109,10 +109,11 @@ if "connected" not in st.session_state:
                 st.rerun()
 
 if not st.session_state["hide_buttons"]:
-    if st.button("➡️ Déjà un compte, connectez-vous"):
-        st.session_state["action"] = "Se connecter"
-        st.rerun()
-        
+    if st.session_state["action"] == "Créer un compte":
+        if st.button("➡️ Déjà un compte, connectez-vous"):
+            st.session_state["action"] = "Se connecter"
+            st.rerun()
+
 if "connected" not in st.session_state:  
     if st.session_state["authenticated"] == True:
         api_key = get_api_key(user_id)
