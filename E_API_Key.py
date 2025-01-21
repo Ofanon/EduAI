@@ -89,9 +89,6 @@ if "connected" not in st.session_state:
                         st.session_state["hide_buttons"] = True
                 else:
                     st.error("Veuillez remplir tous les champs.")
-            elif st.button("➡️ Déjà un compte, connectez-vous"):
-                st.session_state["action"] = "Se connecter"
-                st.rerun()
 
     elif st.session_state["action"] == "Se connecter":
         st.title("Se connecter à l'EtudIAnt")
@@ -137,6 +134,11 @@ if "connected" not in st.session_state:
                     st.error("Veuillez entrer une clé API.")
 if "connected" not in st.session_state:
     st.link_button("🔑 Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
+    
+if not st.session_state["hide_buttons"]:
+    if st.button("➡️ Déjà un compte, connectez-vous"):
+        st.session_state["action"] = "Se connecter"
+        st.rerun()
 
 if "connected" in st.session_state:
     st.title(f"Vous êtes connecté !")
