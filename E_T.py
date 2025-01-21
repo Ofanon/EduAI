@@ -26,12 +26,12 @@ prompt = f"Voici un groupe d'images d'un cours de niveau {level}. Crée un contr
 
 uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp"], accept_multiple_files=True)
 
-def create_pdf(response_pdf):
+def create_pdf(response_pdf.text):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
 
-    for ligne in response_pdf.split():
+    for ligne in response_pdf.splitlines():
         pdf.cell(0, 10, txt=ligne, ln=True)
     
     return pdf.output(dest="S").encode("latin1")
