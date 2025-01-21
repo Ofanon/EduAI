@@ -25,8 +25,6 @@ if st.session_state["user_informations"] == []:
 user_infos = st.session_state["user_informations"]
 if st.session_state["user_informations"] == []: 
     level = st.selectbox('Sélectionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
-else:
-    level = user_infos["level"]
     
 prompt = f"Voici un groupe d'images d'un cours de niveau {level}. Crée un contrôle comme au college ou lycée dessus en adaptant la difficultée en fonction du niveau er de la matière : {subject}. Répond en parlant francais, jamais en anglais. Ne fais pas ton introduction dans la réponse, fais directement le contrôle"
 
