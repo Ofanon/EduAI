@@ -28,6 +28,16 @@ def response_typing(message_typing, key):
         placeholder_message.text(message_typing[:i+1], key=key)
         time.sleep(0.05)
 
+def display_chat_history():
+    for idx, message in enumerate(st.session_state["chat_history"]):
+    if message["role"] == "user": 
+        with st.chat_message('user'):
+            st.write(f"**Vous** : {message['content']}")
+    elif message["role"] == "assistant":
+        with st.chat_message('assistant'):
+            response_typing(f"**IA** : {message['content']}", key=f"assistant_response_{idx}")
+                
+
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 placeholder_button = st.empty()
