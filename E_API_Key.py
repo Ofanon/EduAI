@@ -89,7 +89,7 @@ if "connected" not in st.session_state:
                         st.session_state["hide_buttons"] = True
                 else:
                     st.error("Veuillez remplir tous les champs.")
-            elif st.button("Déjà un compte, connectez-vous"):
+            elif st.button("➡️Déjà un compte, connectez-vous"):
                 st.session_state["action"] = "Se connecter"
                 st.rerun()
 
