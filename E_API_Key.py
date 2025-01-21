@@ -75,7 +75,7 @@ if "connected" not in st.session_state:
         user_id = st.text_input("Créez votre identifiant utilisateur.", placeholder="Exemple : user123")
         password = st.text_input("Créez votre mot de passe.",type="password")
         if not st.session_state["hide_buttons"]:
-            if st.button("Créer mon compte"):
+            if st.button("➕ Créer mon compte"):
                 if user_id and password:
                     if user_id in load_users():
                         st.error("L'utilisateur existe déjà.")
