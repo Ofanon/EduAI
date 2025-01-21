@@ -16,6 +16,9 @@ if "action" not in st.session_state:
     st.session_state["action"] = "Créer un compte"
 if "hide_buttons" not in st.session_state:
     st.session_state["hide_buttons"] = False
+if "user_informations" not in st.session_state:
+    st.session_state["user_informations"] = []
+
 
 
 def hash_password(password):
@@ -148,10 +151,18 @@ if "connected" in st.session_state:
     st.title(f"Vous êtes connecté !")
     st.success(f"Clé API existante : {st.session_state["api_key"]}")
     st.session_state["authenticated"] = True
-    with st.form(key="user_info_form"):
-        st.subheader("Plus d'infos sur toi !")
-        st.write("Répond au formulaire pour adapter l'EtudIAnt à tes besoins.")
-        st.selectbox("Sélectionne ton niveau :", ["6ème", "5ème", "4ème", "3ème", "Seconde", "Première", "Terminale"])
-        st.selectbox("Quel matière préfères-tu ?", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol", "Aucune matière"])
-        st.slider("Definis ton niveau en cours :", 0, 100)
+    st.subheader("Plus d'infos sur toi !")
+    st.write("Répond au formulaire pour adapter l'EtudIAnt à tes besoins.")
+    level = st.selectbox("Sélectionne ton niveau :", ["6ème", "5ème", "4ème", "3ème", "Seconde", "Première", "Terminale"])
+    liked_subject = st.selectbox("Quel matière préfères-tu ?", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol", "Aucune matière"])
+    user_level = st.slider("Definis ton niveau en cours :", 0, 100)
+    goals = st.selectbox("Quels sont tes objectifs scolaire ?", 
+                 ["Préparation pour un examen (Brevet, Bac, etc.)",
+                  "Améliorer mes notes dans une matière spécifique",
+                  "Mieux comprendre des concepts difficiles",
+                  "Autre"
+                  ])
+    if st.button("Soumettre"):
+        st.session_state["user_informations"] = [{"level": level, "liked_subject": liked_subject, "user_level":user_level, "goals":goals}]
+        st.success("Merci beaucoup d'avoir répondu à ces questions !")
 
