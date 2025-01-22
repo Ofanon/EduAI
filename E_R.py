@@ -3,7 +3,7 @@ import streamlit as st
 import time
 import random
 
-st.title("EtudIAnt : fiche de révision📝")
+st.title("EtudIAnt : Créateur de fiche de révision📝")
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
@@ -31,7 +31,6 @@ if prompt_user:
     if "created" not in st.session_state:
         if "api_key" in st.session_state:
             st.session_state["last_prompt"] = prompt_user
-            time.sleep(3)
             with st.spinner("L'EtudIAnt reflechit..."):
                 response_ai = model.generate_content([prompt_user, prompt])
                 response_ai_user = response_ai.text
