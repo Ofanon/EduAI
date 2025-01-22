@@ -22,12 +22,17 @@ subject = st.selectbox("Sélectionne la matière du quiz :", ["Français", "Math
 def get_question():
     response_ai =  model.generate_content([f"Créer un quiz de niveau juste pour une question {level}, et dans la matière {subject} avec 4 choix de réponses pour une correcte. Tu dois parler en français pas en anglais. Crée la réponse comme un container JSON qui contient : question, choices, correct_answer, explanation."])
     response_json = response_ai.text
+    if not response_json.strip():  # Si la réponse est vide ou composée uniquement d'espaces
+        st.error("L'API n'a pas renvoyé de réponse valide.")
+        return {}
 
+    time.sleep(3)
     try:
         data = json.loads(response_json)
     except json.decoder.JSONDecodeError as e:
         st.error(f"Erreur de décodage JSON : {e}")
         return {}
+
     return data
 
 if "form_count" not in st.session_state:
