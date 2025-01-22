@@ -69,9 +69,12 @@ if "chat_history" in st.session_state:
                     st.write(f"**Vous** : {message['content']}")
             elif message["role"] == "assistant":
                 with st.chat_message('assistant'):
-                    placeholder_response = st.empty()
-                    full_response = ''
-                    for item in message['content']:
-                        full_response += item
-                        placeholder_response.markdown(f"**IA** : {full_response}")
-                        time.sleep(0.009)
+                    if len(message) - 1:
+                        placeholder_response = st.empty()
+                        full_response = ''
+                        for item in message['content']:
+                            full_response += item
+                            placeholder_response.markdown(f"**IA** : {full_response}")
+                            time.sleep(0.009)
+                    else:
+                        st.error("deja ecrit")
