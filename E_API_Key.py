@@ -151,19 +151,4 @@ if "connected" in st.session_state:
     st.subheader(f"👋Bienvenue dans l'EtudIAnt {st.session_state["user_id"]} !")
     st.success(f"Clé API existante : {st.session_state["api_key"]}")
     st.session_state["authenticated"] = True
-    st.subheader("Plus d'infos sur toi !")
-    with st.form("Adapte l'EtudIAnt !"):
-        st.write("Répond au formulaire pour adapter l'EtudIAnt à tes besoins.")
-        level = st.selectbox("Sélectionne ton niveau :", ["6ème", "5ème", "4ème", "3ème", "Seconde", "Première", "Terminale"])
-        liked_subject = st.selectbox("Quel matière préfères-tu ?", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol", "Aucune matière"])
-        user_level = st.slider("Definis ton niveau en cours :", 0, 10)
-        goals = st.selectbox("Quels sont tes objectifs scolaire ?", 
-                    ["Préparation pour un examen (Brevet, Bac, etc.)",
-                    "Améliorer mes notes dans une matière spécifique",
-                    "Mieux comprendre des concepts difficiles",
-                    "Autre"
-                    ])
-        if st.form_submit_button("Soumettre les informations"):
-            st.session_state["user_informations"] = [{"level": level, "liked_subject": liked_subject, "user_level":user_level, "goals":goals}]
-            st.success("Merci beaucoup d'avoir répondu à ces questions !")
 
