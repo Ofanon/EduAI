@@ -40,10 +40,9 @@ if uploaded_file:
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
                 with st.spinner("L'EtudIAnt reflechit..."):
                     response_ai = model.generate_content([prompt, image], stream=True)
-                    with st.chat_message('assistant'):
-                        st.write_stream(f"**IA** : {response_ai}")
+                    response_ai_user  = st.write_stream(response_ai)
                     st.session_state["response_ai"] = response_ai.text
-                    st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
+                    st.session_state["chat_history"].append({"role":"assistant","content":response_ai_user})
                     st.session_state["image_analyzed"] = True
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
@@ -67,3 +66,6 @@ if "chat_history" in st.session_state:
             if message["role"] == "user": 
                 with st.chat_message('user'):
                     st.write(f"**Vous** : {message['content']}")
+            elif message["role"] == "assistant":
+                with st.chat_message('assistant'):
+                    st.write_stream(f"**IA** : {message['content']}")
