@@ -24,7 +24,7 @@ def get_question():
     st.write(response_ai.text)
 
     try:
-        data = json.loads(response_ai)
+        data = json.loads(response_ai.text)
     except json.decoder.JSONDecodeError as e:
         st.error(f"Erreur de décodage JSON : {e}")
         return {}
