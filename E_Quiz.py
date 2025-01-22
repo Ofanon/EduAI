@@ -20,13 +20,12 @@ level = st.selectbox('Sélectionne ton niveau : ', ["3ème","Seconde","Premiere"
 subject = st.selectbox("Sélectionne la matière du quiz :", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"]) 
 
 def get_question():
-    response_ai =  model.generate_content([f"Créer un quiz de niveau juste pour une question {level}, et dans la matière {subject} avec 4 choix de réponses pour une correcte. Tu dois parler en français pas en anglais. Crée la réponse comme un container JSON qui contient : question, choices, correct_answer, explanation."])
-    response_json = response_ai.text
-    st.write(response_json)
+    response_ai =  model.generate_content([f"Créer un quiz de niveau juste pour une question {level}, et dans la matière {subject} avec 4 choix de réponses pour une correcte. Tu dois parler en français pas en anglais. Crée la réponse comme un container json qui contient : question, choices, correct_answer, explanation."])
+    st.write(response_ai)
 
     time.sleep(3)
     try:
-        data = simplejson.loads(response_json)
+        data = simplejson.loads(response_ai)
     except simplejson.decoder.JSONDecodeError as e:
         st.error(f"Erreur de décodage JSON : {e}")
         return {}
