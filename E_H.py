@@ -43,7 +43,7 @@ if uploaded_file:
                     for item in response_ai_user:
                         full_response += item
                         placeholder_response.markdown(full_response)
-                        time.sleep(0.02)
+                        time.sleep(0.001)
                     st.session_state["response_ai"] = response_ai_user
                     st.session_state["chat_history"].append({"role":"assistant","content":full_response})
                     st.session_state["image_analyzed"] = True
