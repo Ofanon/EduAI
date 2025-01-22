@@ -9,7 +9,7 @@ if "api_key" in st.session_state:
 else:
     st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
 if "quiz_data" not in st.session_state:
-    st.session_state["quiz_data"] = None
+    st.session_state["quiz_data"] = []
 
 level = st.selectbox('Sélectionne ton niveau : ', ["3ème","Seconde","Premiere","Terminale"])
 subject = st.selectbox("Sélectionne la matière du quiz :", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"]) 
@@ -35,7 +35,7 @@ if st.button("Créer un quiz"):
             st.success("Bonne réponse !")
         else:
             st.error("Pas la bonne réponse, tu fera mieux la prochaine fois !") 
-            st.markdown(f"Explication : {quiz_data['explanation']}")
+            
 
         next_question = st.button("Prochaine question")
         with st.spinner("L'EtudIAnt réflechit..."):
