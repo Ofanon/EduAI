@@ -37,7 +37,7 @@ if uploaded_file:
             st.session_state["st_image"] = image
             if "image_analyzed" not in st.session_state:
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
-                with st.spinner("L'EtudIAnt réfléchit..."):
+                with st.spinner("L'EtudIAnt reflechit..."):
                     response_ai = model.generate_content([prompt, image], stream=True)
                     response_ai_user = response_ai.text
                     st.session_state["response_ai"] = response_ai_user
@@ -56,10 +56,8 @@ if "image_analyzed" in st.session_state:
         st.session_state["chat_history"].append({"role":"user","content":user_input})
         history.append({"role":"model", "parts":st.session_state["response_ai"]})
         chat = model.start_chat(history = history)
-        with st.spinner("L'EtudIAnt réfléchit..."):
-            response = chat.send_message(user_input, stream=True)
-        response_ai_user = response.text
-        st.session_state["chat_history"].append({"role":"assistant","content":response_ai_user})
+        response = chat.send_message(user_input)
+        st.session_state["chat_history"].append({"role":"assistant","content":response.text})
         history.append({"role":"user", "parts":user_input})
         history.append({"role":"model", "parts":response.text})
 
