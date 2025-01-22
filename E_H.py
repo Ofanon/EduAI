@@ -71,3 +71,4 @@ if "chat_history" in st.session_state:
                         full_response += item
                         placeholder_response.markdown(full_response)
                         time.sleep(0.001)
+                    placeholder_response = st.empty()
