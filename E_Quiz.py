@@ -3,6 +3,7 @@ import google.generativeai as genai
 import random
 import json
 import time
+import os
 
 st.title("EtudIAnt : Quiz interactif")
 
@@ -19,8 +20,8 @@ level = st.selectbox('Sélectionne ton niveau : ', ["3ème","Seconde","Premiere"
 subject = st.selectbox("Sélectionne la matière du quiz :", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"]) 
 
 def get_question():
-    response =  model.generate_content([f"Créer un quiz de niveau {level}, et dans la matière {subject} avec 4 choix de réponses pour une correcte. Tu dois parler en français pas en anglais. Crée la réponse comme un container JSON qui contient : question, choices, correct_answer, explanation."])
-    data = json.loads(response.text)
+    response_ai =  model.generate_content([f"Créer un quiz de niveau {level}, et dans la matière {subject} avec 4 choix de réponses pour une correcte. Tu dois parler en français pas en anglais. Crée la réponse comme un container JSON qui contient : question, choices, correct_answer, explanation."])
+    data = json.loads(response_ai.text)
     return data
 
 if "form_count" not in st.session_state:
@@ -28,8 +29,8 @@ if "form_count" not in st.session_state:
 
 
 st.session_state["data"] = get_question()
-
 quiz_data = st.session_state["data"]
+st.write
 
 if st.button("Créer un quiz"):
     
