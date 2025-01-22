@@ -22,7 +22,7 @@ if st.session_state["user_informations"] == []:
 
 level = st.selectbox('Sélectionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
 subject = st.selectbox('Sélectionne la matière de ta fiche de révision:', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"])   
-difficulty = st.slider("Defini la difficultée du contrôle de 1 à 10 :", 1, 10)
+difficulty = st.slider("Définis la difficultée du contrôle de 1 à 10 :", 1, 10)
 prompt = f"Voici un groupe d'images d'un cours de niveau {level}. Crée un contrôle de difficulté : {difficulty} sur 10. Comme au college ou lycée dessus en adaptant la difficultée en fonction du niveau er de la matière : {subject}. Répond en parlant francais, jamais en anglais. Ne fais pas ton introduction dans la réponse, fais directement le contrôle"
 uploaded_files = st.file_uploader("Télécharge les photos de tes cours.", type=["png", "jpg", "jpeg", "bmp"], accept_multiple_files=True)
 
