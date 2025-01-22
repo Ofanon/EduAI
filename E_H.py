@@ -38,7 +38,7 @@ if uploaded_file:
             if "image_analyzed" not in st.session_state:
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
                 with st.spinner("L'EtudIAnt reflechit..."):
-                    response_ai = model.generate_content([prompt, image])
+                    response_ai = model.generate_content([prompt, image], stream=True)
                     response_ai_user = response_ai.text
                     st.session_state["response_ai"] = response_ai_user
                     st.session_state["messages"].append(response_ai_user)
@@ -56,7 +56,7 @@ if "image_analyzed" in st.session_state:
         st.session_state["chat_history"].append({"role":"user","content":user_input})
         history.append({"role":"model", "parts":st.session_state["response_ai"]})
         chat = model.start_chat(history = history)
-        response = chat.send_message(user_input)
+        response = chat.send_message(user_input, stream=True)
         st.session_state["chat_history"].append({"role":"assistant","content":response.text})
         history.append({"role":"user", "parts":user_input})
         history.append({"role":"model", "parts":response.text})
@@ -68,13 +68,4 @@ if "chat_history" in st.session_state:
                     st.write(f"**Vous** : {message['content']}")
             elif message["role"] == "assistant":
                 with st.chat_message('assistant'):
-                    for i in enumerate(st.session_state["messages"]):
-                        if i == len(st.session_state["messages"]) - 1:
-                            placeholder_response = st.empty()
-                            full_response = ''
-                            for item in message['content']:
-                                full_response += item
-                                placeholder_response.markdown(f"**IA** : {full_response}")
-                                time.sleep(0.009)
-                            st.session_state["messages"].append(full_response)
-                                
+                    st.write(f"**IA** : {message['content']}")
