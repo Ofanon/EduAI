@@ -11,13 +11,11 @@ if "api_key" in st.session_state:
 else:
     st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
 
-
-model = genai.GenerativeModel("gemini-1.5-flash-002")
-
 level = st.selectbox('Sélectionne ton niveau : ', ["3ème","Seconde","Premiere","Terminale"])
 subject = st.selectbox("Sélectionne la matière du quiz :", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"]) 
 
 def get_question():
+    model = genai.GenerativeModel("gemini-1.5-flash-002")
     prompt = f"Créer un quiz de niveau {level}, dans la matière {subject}, avec 4 choix de réponses. Fais une réponse comme un container JSON : question, choices, correct_answer, explanation."
     response_ai = model.generate_content([prompt])
     data = json.loads(response_ai.text)
