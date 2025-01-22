@@ -28,7 +28,7 @@ def get_question():
 if "form_count" not in st.session_state:
     st.session_state["form_count"] = 0
 
-st.session_state["data"] = get_question
+st.session_state["data"] = get_question()
 
 quiz_data = st.session_state["data"]
 if st.button("Créer un quiz"):
