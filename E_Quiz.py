@@ -23,7 +23,7 @@ def get_question():
     response_ai =  model.generate_content([f"Créer un quiz de niveau juste pour une question {level}, et dans la matière {subject} avec 4 choix de réponses pour une correcte. Tu dois parler en français pas en anglais. Crée la réponse comme un container JSON qui contient : question, choices, correct_answer, explanation."])
     response_json = response_ai.text
     time.sleep(3)
-    data = json.loads(response_json)
+    data = json.decoder(response_json)
     return data
 
 if "form_count" not in st.session_state:
