@@ -3,7 +3,7 @@ import streamlit as st
 import time
 import random
 
-st.title("EtudIAnt : fiche de révision")
+st.title("EtudIAnt : fiche de révision📝")
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
