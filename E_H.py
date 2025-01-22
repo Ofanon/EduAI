@@ -29,6 +29,7 @@ uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg",
 st.session_state["uploaded_file"] = uploaded_file
 placeholder_button = st.empty()
 
+
 if uploaded_file:
     if "api_key" in st.session_state:
         if placeholder_button.button("Résoudre le devoir"):
@@ -39,13 +40,10 @@ if uploaded_file:
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
                 with st.spinner("L'EtudIAnt reflechit..."):
                     response_ai = model.generate_content([prompt, image], stream=True)
-                    text_response = []
-                    for chunk in response_ai:
-                        text_response.append(chunk.text)
-                    response_ai_user = text_response
-                    st.session_state["response_ai"] = response_ai_user
-                    st.session_state["messages"].append(response_ai_user)
-                    st.session_state["chat_history"].append({"role":"assistant","content":response_ai_user})
+                    with st.chat_message('assistant'):
+                        st.write_stream(f"**IA** : {response_ai}")
+                    st.session_state["response_ai"] = response_ai.text
+                    st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                     st.session_state["image_analyzed"] = True
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
@@ -69,6 +67,3 @@ if "chat_history" in st.session_state:
             if message["role"] == "user": 
                 with st.chat_message('user'):
                     st.write(f"**Vous** : {message['content']}")
-            elif message["role"] == "assistant":
-                with st.chat_message('assistant'):
-                    st.write(f"**IA** : {message['content']}")
