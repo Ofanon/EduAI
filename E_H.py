@@ -68,7 +68,7 @@ if "chat_history" in st.session_state:
                 with st.chat_message('user'):
                     st.write(f"**Vous** : {message['content']}")
             elif message["role"] == "assistant":
-                for i in enumerate(st.session_state["messages"]):
+                for i in enumerate(st.session_state["messages"]) -1:
                     if i == len(st.session_state["messages"]):
                         with st.chat_message('assistant'):
                             placeholder_response = st.empty()
