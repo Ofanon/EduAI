@@ -12,9 +12,6 @@ else:
     st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
 
 
-if "data" not in st.session_state:
-    st.session_state["data"] = None
-
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 level = st.selectbox('Sélectionne ton niveau : ', ["3ème","Seconde","Premiere","Terminale"])
@@ -28,7 +25,8 @@ def get_question():
 if "form_count" not in st.session_state:
     st.session_state["form_count"] = 0
 
-st.session_state["data"] = get_question()
+if "data" not in st.session_state:
+    st.session_state["data"] = None
 
 quiz_data = st.session_state["data"]
 if st.button("Créer un quiz"):
