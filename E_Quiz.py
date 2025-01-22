@@ -20,14 +20,20 @@ level = st.selectbox('Sélectionne ton niveau : ', ["3ème","Seconde","Premiere"
 subject = st.selectbox("Sélectionne la matière du quiz :", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"]) 
 
 def get_question():
-    response_ai =  model.generate_content([f"Créer un quiz de niveau juste pour une question {level}, et dans la matière {subject} avec 4 choix de réponses pour une correcte. Tu dois parler en français pas en anglais. Crée la réponse comme un container json qui contient : question, choices, correct_answer, explanation."])
-    st.write(response_ai.text)
+    prompt = (
+        f"Créer un quiz de niveau {level}, dans la matière {subject}, avec 4 choix de réponses, "
+        "dont une correcte. Formate la réponse comme un container JSON contenant : "
+        "question, choices, correct_answer, explanation. Parle en français."
+    )
+    response_ai = model.generate_content([prompt])
     
-    data = json.loads('["foo", {"bar":["baz", null, 1.0, 2]}]')
-    return data
-
-if "form_count" not in st.session_state:
-    st.session_state["form_count"] = 0
+    # Assurez-vous que la réponse est un JSON valide
+    try:
+        data = json.loads(response_ai[0]["text"])
+        return data
+    except (json.JSONDecodeError, KeyError):
+        st.error("Erreur lors de la génération de la question. Réessayez.")
+        return None
 
 
 if st.button("Créer un quiz"):
