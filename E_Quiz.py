@@ -22,6 +22,7 @@ subject = st.selectbox("Sélectionne la matière du quiz :", ["Français", "Math
 def get_question():
     response_ai =  model.generate_content([f"Créer un quiz de niveau juste pour une question {level}, et dans la matière {subject} avec 4 choix de réponses pour une correcte. Tu dois parler en français pas en anglais. Crée la réponse comme un container JSON qui contient : question, choices, correct_answer, explanation."])
     response_json = response_ai.text
+    st.write(response_json)
 
     time.sleep(3)
     try:
