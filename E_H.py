@@ -44,8 +44,14 @@ if uploaded_file:
                 with st.spinner("L'EtudIAnt reflechit..."):
                     response_ai = model.generate_content([prompt, image])
                     response_ai_user = response_ai.text
+                    placeholder_response = st.empty()
+                    full_response = ''
+                    for item in response_ai_user:
+                        full_response += item
+                        placeholder_response.markdown(full_response)
+                    placeholder_response.markdown(full_response)
                     st.session_state["response_ai"] = response_ai_user
-                    st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
+                    st.session_state["chat_history"].append({"role":"assistant","content":full_response})
                     st.session_state["image_analyzed"] = True
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
