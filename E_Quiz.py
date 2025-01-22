@@ -18,6 +18,20 @@ def get_question():
     return data
 
 
+
+if "chat_add" not in st.session_state:
+    st.session_state["chat_add"] = []
+if "response_ai_revision" not in st.session_state:
+    st.session_state["response_ai_revision"] = None
+if "last_prompt" not in st.session_state:
+    st.session_state["last_prompt"] = None
+
+model = genai.GenerativeModel("gemini-1.5-flash-002")
+
+st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
+
+level = st.selectbox("Sélectionne ton niveau : ", ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"], key="level")
+subject = st.selectbox("Sélectionne la matière de ta fiche de révision:", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"], key="subject")
 def initialize_session_state():
     session_state = st.session_state
     session_state.form_count = 0
