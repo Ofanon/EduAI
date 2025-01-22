@@ -69,15 +69,21 @@ st.markdown(
     }
     #capture-button:hover { background-color: #45a049; }
     </style>
-    <button id="capture-button">📸 Capturer la réponse</button>
+    <button id="capture-button">📸 Capturer et Télécharger</button>
     <script>
     document.getElementById('capture-button').onclick = function() {
-        const responseElement = document.querySelector('.response-container');
-        html2canvas(responseElement).then(canvas => {
+        const captureSection = document.getElementById('capture-section');
+        html2canvas(captureSection).then(canvas => {
+            // Convertir le canvas en image
+            const image = canvas.toDataURL('image/png');
+            
+            // Créer un lien de téléchargement
             const link = document.createElement('a');
-            link.download = 'response.png';
-            link.href = canvas.toDataURL('image/png');
+            link.download = 'capture.png';
+            link.href = image;
             link.click();
+        }).catch(err => {
+            alert("Erreur lors de la capture : " + err.message);
         });
     };
     </script>
