@@ -77,6 +77,5 @@ if "chat_history" in st.session_state:
                                 full_response += item
                                 placeholder_response.write_stream(f"**IA** : {full_response}")
                                 time.sleep(0.001)
-                            placeholder_response = st.empty()
                     else:
                         st.write(f"**IA** : {message['content']}")
