@@ -17,8 +17,6 @@ if "chat_control" not in st.session_state:
     st.session_state["chat_control"] = []
 
 st.title("EtudIAnt : Créateur de contrôles")
-if st.session_state["user_informations"] == []: 
-    level = st.selectbox('Sélectionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
 
 level = st.selectbox('Sélectionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
 subject = st.selectbox('Sélectionne la matière de ta fiche de révision:', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"])   
