@@ -6,7 +6,10 @@ import json
 st.title("EtudIAnt : Quiz interactif")
 
 
-genai.configure(api_key=st.text_input("clé api"))
+if "api_key" in st.session_state:
+    genai.configure(api_key=st.session_state["api_key"])
+else:
+    st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
 
 
 if "data" not in st.session_state:
