@@ -18,6 +18,7 @@ def get_question():
     model = genai.GenerativeModel("gemini-1.5-flash-002")
     prompt = f"Créer un quiz d'une question de niveau {level}, dans la matière {subject}, avec 4 choix de réponses pour une reponse correcte. Repond comme un container JSON avec : question, choices, correct_answer, explanation."
     response_ai = model.generate_content([prompt])
+    st.write(response_ai.text)
     data = json.loads(response_ai.text)
     return data
 
