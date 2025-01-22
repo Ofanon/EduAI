@@ -156,7 +156,7 @@ if "connected" in st.session_state:
         st.write("Répond au formulaire pour adapter l'EtudIAnt à tes besoins.")
         level = st.selectbox("Sélectionne ton niveau :", ["6ème", "5ème", "4ème", "3ème", "Seconde", "Première", "Terminale"])
         liked_subject = st.selectbox("Quel matière préfères-tu ?", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol", "Aucune matière"])
-        user_level = st.slider("Definis ton niveau en cours :", 0, 100)
+        user_level = st.slider("Definis ton niveau en cours :", 0, 10)
         goals = st.selectbox("Quels sont tes objectifs scolaire ?", 
                     ["Préparation pour un examen (Brevet, Bac, etc.)",
                     "Améliorer mes notes dans une matière spécifique",
