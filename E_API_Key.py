@@ -148,7 +148,7 @@ if "connected" not in st.session_state:
     st.link_button("🔑 Pas de clé API Gemini ? Cliquez ici","https://aistudio.google.com/app/u/2/apikey")
 
 if "connected" in st.session_state:
-    st.title(f"👋Bienvenue dans l'EtudIAnt {st.session_state["user_id"]} !")
+    st.subheader(f"👋Bienvenue dans l'EtudIAnt {st.session_state["user_id"]} !")
     st.success(f"Clé API existante : {st.session_state["api_key"]}")
     st.session_state["authenticated"] = True
 
