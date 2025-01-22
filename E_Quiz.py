@@ -5,7 +5,11 @@ import os
 import json
 import google.generativeai as genai
 
-
+if "api_key" in st.session_state:
+    genai.configure(api_key=st.session_state["api_key"])
+else:
+    st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
+    
 def get_question():
     model=genai.GenerativeModel('gemini-1.5-flash-002')
     response = model.generate_content("Crée un QCM d'une seul question, de niveau {level}, de matière {subject} avec 4 reponse dont une seule correcte. Repond comme un container JSON : question, choices, correct_answer, explanation.",
