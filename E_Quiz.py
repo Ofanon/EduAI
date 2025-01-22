@@ -23,9 +23,8 @@ def get_question():
     response_ai =  model.generate_content([f"Créer un quiz de niveau juste pour une question {level}, et dans la matière {subject} avec 4 choix de réponses pour une correcte. Tu dois parler en français pas en anglais. Crée la réponse comme un container json qui contient : question, choices, correct_answer, explanation."])
     st.write(response_ai.text)
 
-    time.sleep(3)
     try:
-        data = simplejson.loads(response_ai.text)
+        data = simplejson.loads((response_ai.text))
     except simplejson.decoder.JSONDecodeError as e:
         st.error(f"Erreur de décodage JSON : {e}")
         return {}
