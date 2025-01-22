@@ -29,13 +29,3 @@ if st.button("Créer un quiz"):
     st.markdown(f"Question : {quiz_data['question']}")
     form = st.form(key=f"quiz_form_{st.session_state["form_count"]}")
     user_choice = form.radio(f"Trouve la bonne réponse :", quiz_data['choices'])
-    if form.form_submit_button("Verifier"):
-        if user_choice == quiz_data['correct_answer']:
-            st.success("Bonne réponse !")
-        else:
-            st.error("Pas la bonne réponse, tu fera mieux la prochaine fois !")     
-        with st.spinner("L'EtudIAnt réflechit..."):
-            st.session_state["data"] = get_question()
-
-        if st.button("Prochaine question"):
-            st.session_state["form_count"] += 1
