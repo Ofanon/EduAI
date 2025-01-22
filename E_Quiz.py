@@ -13,7 +13,7 @@ else:
 
 
 if "data" not in st.session_state:
-    st.session_state["data"] = []
+    st.session_state["data"] = None
 
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
