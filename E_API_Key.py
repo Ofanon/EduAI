@@ -149,7 +149,7 @@ if "connected" not in st.session_state:
 
 if "connected" in st.session_state:
     st.title(f"Vous êtes connecté !👋")
-    st.subheader(f"Bienvenue {st.session_state["user_id"]}")
+    st.subheader(f"Bienvenue dans l'EtudIAnt {st.session_state["user_id"]} !")
     st.success(f"Clé API existante : {st.session_state["api_key"]}")
     st.session_state["authenticated"] = True
     st.subheader("Plus d'infos sur toi !")
