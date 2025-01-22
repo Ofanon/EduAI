@@ -73,5 +73,5 @@ if "chat_history" in st.session_state:
                     full_response = ''
                     for item in message['content']:
                         full_response += item
-                        placeholder_response.write_stream(f"**IA** : {full_response}")
+                        placeholder_response.markdown(f"**IA** : {full_response}")
                         time.sleep(0.009)
