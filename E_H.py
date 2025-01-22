@@ -70,7 +70,7 @@ if "chat_history" in st.session_state:
             elif message["role"] == "assistant":
                 with st.chat_message('assistant'):
                     for i in enumerate(st.session_state["chat_history"]):
-                            if i == len(st.session_state["chat_hisotry"]):
+                            if i == len(st.session_state["chat_history"]):
                                 if message["role"] == "assistant":
                                     placeholder_response = st.empty()
                                     full_response = ''
