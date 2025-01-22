@@ -152,7 +152,7 @@ if "connected" in st.session_state:
     st.success(f"Clé API existante : {st.session_state["api_key"]}")
     st.session_state["authenticated"] = True
     st.subheader("Plus d'infos sur toi !")
-    with st.form():
+    with st.form("Adapte l'EtudIAnt !"):
         st.write("Répond au formulaire pour adapter l'EtudIAnt à tes besoins.")
         level = st.selectbox("Sélectionne ton niveau :", ["6ème", "5ème", "4ème", "3ème", "Seconde", "Première", "Terminale"])
         liked_subject = st.selectbox("Quel matière préfères-tu ?", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol", "Aucune matière"])
