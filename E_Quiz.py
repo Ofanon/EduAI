@@ -29,11 +29,9 @@ if "form_count" not in st.session_state:
     st.session_state["form_count"] = 0
 
 
-st.session_state["data"] = get_question()
-quiz_data = st.session_state["data"]
-
 if st.button("Créer un quiz"):
-    
+    st.session_state["data"] = get_question()
+    quiz_data = st.session_state["data"]
     st.markdown(f"Question : {quiz_data['question']}")
     form = st.form(key=f"quiz_form_{st.session_state["form_count"]}")
     user_choice = form.radio(f"Trouve la bonne réponse :", quiz_data['choices'])
