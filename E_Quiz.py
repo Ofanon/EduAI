@@ -20,16 +20,10 @@ level = st.selectbox('Sélectionne ton niveau : ', ["3ème","Seconde","Premiere"
 subject = st.selectbox("Sélectionne la matière du quiz :", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"]) 
 
 def get_question():
-    prompt = (
-        f"Créer un quiz de niveau {level}, dans la matière {subject}, avec 4 choix de réponses,  Réponds sous ce format clair :\n"
-        "question : ...\n"
-        "choices: 1) ...  2) ...  3) ...  4) ...\n"
-        "correct_answer : ...\n"
-        "explanation : ..."
-    )
+    prompt = f"Créer un quiz de niveau {level}, dans la matière {subject}, avec 4 choix de réponses. Fais une réponse comme un container JSON : question, choices, correct_answer, explanation."
     response_ai = model.generate_content([prompt])
-    
-    return response_ai.text
+    data = json.loads(response_ai.text)
+    return data
 
 
 if st.button("Créer un quiz"):
