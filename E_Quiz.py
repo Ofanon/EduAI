@@ -2,6 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 import random
 import json
+import time
 
 st.title("EtudIAnt : Quiz interactif")
 
@@ -30,6 +31,7 @@ if "data" not in st.session_state:
 
 quiz_data = st.session_state["data"]
 if st.button("Créer un quiz"):
+    time.sleep(7)
     st.markdown(f"Question : {quiz_data['question']}")
     form = st.form(key=f"quiz_form_{st.session_state["form_count"]}")
     user_choice = form.radio(f"Trouve la bonne réponse :", quiz_data['choices'])
