@@ -67,7 +67,7 @@ if "chat_history" in st.session_state:
                 with st.chat_message('assistant'):
                     placeholder_response = st.empty()
                     full_response = ''
-                    for item in response_ai_user:
+                    for item in message['content']:
                         full_response += item
-                        placeholder_response.markdown(message['content'])
+                        placeholder_response.markdown(full_response)
                         time.sleep(0.001)
