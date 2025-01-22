@@ -50,43 +50,5 @@ if "analyze_image_finished" in st.session_state:
     for message in st.session_state["chat_control"]:
         if message["role"] == "assistant":
             with st.chat_message("assistant"):
-                st.markdown('<div class="response-container">', unsafe_allow_html=True)
                 st.write(f"**IA** : {message['content']}")
 
-st.markdown(
-    """
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-    #capture-button { 
-        padding: 10px; 
-        background-color: #4CAF50; 
-        color: white; 
-        border: none; 
-        cursor: pointer; 
-        font-size: 16px; 
-        border-radius: 5px; 
-        margin-top: 10px; 
-    }
-    #capture-button:hover { background-color: #45a049; }
-    </style>
-    <button id="capture-button">📸 Capturer et Télécharger</button>
-    <script>
-    document.getElementById('capture-button').onclick = function() {
-        const captureSection = document.getElementById('capture-section');
-        html2canvas(captureSection).then(canvas => {
-            // Convertir le canvas en image
-            const image = canvas.toDataURL('image/png');
-            
-            // Créer un lien de téléchargement
-            const link = document.createElement('a');
-            link.download = 'capture.png';
-            link.href = image;
-            link.click();
-        }).catch(err => {
-            alert("Erreur lors de la capture : " + err.message);
-        });
-    };
-    </script>
-    """,
-    unsafe_allow_html=True
-)
