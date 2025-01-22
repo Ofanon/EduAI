@@ -22,6 +22,8 @@ if "st_image" not in st.session_state:
     st.session_state["st_image"] = None
 if "image_pil" not in st.session_state:
     st.session_state["image_pil"] = None
+if "messages" not in st.session_state:
+    st.session_state["messages"] = []
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
@@ -64,11 +66,15 @@ if "chat_history" in st.session_state:
                 with st.chat_message('user'):
                     st.write(f"**Vous** : {message['content']}")
             elif message["role"] == "assistant":
-                with st.chat_message('assistant'):
-                    placeholder_response = st.empty()
-                    full_response = ''
-                    for item in message['content']:
-                        full_response += item
-                        placeholder_response.markdown(full_response)
-                        time.sleep(0.001)
-                    placeholder_response = st.empty()
+                for i in enumerate(st.session_state["message"]):
+                    if i == len(st.session_state["message"]):
+                        with st.chat_message('assistant'):
+                            placeholder_response = st.empty()
+                            full_response = ''
+                            for item in message['content']:
+                                full_response += item
+                                placeholder_response.write_stream(f"**IA** : {full_response}")
+                                time.sleep(0.001)
+                            placeholder_response = st.empty()
+                    else:
+                        st.write(f"**IA** : {message['content']}")
