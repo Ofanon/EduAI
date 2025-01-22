@@ -163,7 +163,7 @@ if "connected" in st.session_state:
                     "Mieux comprendre des concepts difficiles",
                     "Autre"
                     ])
-        if st.button("Soumettre"):
+        if st.form_submit_button("Soumettre les informations"):
             st.session_state["user_informations"] = [{"level": level, "liked_subject": liked_subject, "user_level":user_level, "goals":goals}]
             st.success("Merci beaucoup d'avoir répondu à ces questions !")
 
