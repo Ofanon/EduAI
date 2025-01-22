@@ -17,6 +17,7 @@ level = st.selectbox('Sélectionne ton niveau : ', ["3ème","Seconde","Premiere"
 subject = st.selectbox("Sélectionne l'épreuve que tu souhaites faire :", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"])   
 
 exam_number_questions = random.randint(12, 16)
+st.write(exam_number_questions)
 
 if st.button("Commencer l'examen"):
     for i, question in len(exam_number_questions):
