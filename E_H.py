@@ -1,5 +1,6 @@
+import PIL.Image
 import google.generativeai as genai
-from PIL import Image
+import PIL
 import streamlit as st
 import time
 st.title("EtudIAnt : Aide aux devoirs")
@@ -29,7 +30,7 @@ placeholder_button = st.empty()
 if uploaded_file:
     if "api_key" in st.session_state:
         if placeholder_button.button("Résoudre le devoir"):
-            image = Image.open(uploaded_file)
+            image = PIL.Image.open(uploaded_file)
             image.resize((512, 512))
             st.image(st.session_state["st_image"], use_container_width=True)
             st.session_state["st_image"] = image
