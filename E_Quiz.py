@@ -17,15 +17,14 @@ subject = st.selectbox("Sélectionne la matière du quiz :", ["Français", "Math
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 def get_question():
-    prompt = f"Créer un quiz d'une question de niveau {level}, dans la matière {subject}, avec 4 choix de réponses pour une reponse correcte. Repond comme un container JSON avec : question, choices, correct_answer, explanation."
+    prompt = f"Créer un QCM d'une question, de niveau {level}, dans la matière {subject}, avec 4 choix de réponses pour une reponse correcte. Repond comme un container JSON avec : question, choices, correct_answer, explanation."
     response_ai = model.generate_content(prompt)
     st.write(response_ai.text)
     data = json.loads(response_ai.text)
     return data
 
 if st.button("Créer un quiz"):
-    st.session_state["quiz_data_ai"] = get_question()
-    quiz_data = st.session_state["quiz_data_ai"]
+    quiz_data = get_question()
     st.markdown(f"Question : {quiz_data['question']}")
     form = st.form(key=f"quiz_form_{st.session_state["form_count"]}")
     user_choice = form.radio(f"Trouve la bonne réponse :", quiz_data['choices'])
