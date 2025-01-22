@@ -29,9 +29,7 @@ if st.button("Créer un quiz"):
     st.markdown(f"Question : {quiz_data['question']}")
     form = st.form(key=f"quiz_form_{st.session_state["form_count"]}")
     user_choice = form.radio(f"Trouve la bonne réponse :", quiz_data['choices'])
-    submitted = form.form_submit_button("Verifier")
-
-    if submitted:
+    if form.form_submit_button("Verifier"):
         if user_choice == quiz_data['correct_answer']:
             st.success("Bonne réponse !")
         else:
