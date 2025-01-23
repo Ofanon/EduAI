@@ -6,4 +6,3 @@ requests
 streamlit
 Pillow
 fpdf==1.7.2
-simplejson
