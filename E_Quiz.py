@@ -1,6 +1,7 @@
 import google.generativeai as genai
 import streamlit as st
 import json
+import	time
 
 genai.configure(api_key=st.text_input("La clé api"))
 
@@ -24,5 +25,5 @@ def get_question():
 if st.button("Commencer le quiz"):
     st.session_state["data"] = get_question()
     quiz_data = st.session_state["data"]
-    st.subheader(f"Question {st.session_state["question_count"]} : {quiz_data['question']}")
+    st.subheader(f"Question {st.session_state["question_count"]} : {quiz_data[0:5]}")
 
