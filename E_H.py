@@ -2,7 +2,7 @@ import PIL.Image
 import google.generativeai as genai
 import PIL
 import streamlit as st
-import time
+
 st.title("EtudIAnt : Aide aux devoirs")
 
 if "api_key" in st.session_state:
