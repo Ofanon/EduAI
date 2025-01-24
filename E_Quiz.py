@@ -31,8 +31,6 @@ if "started" not in st.session_state:
     st.session_state.explanation = None
     st.session_state.next_question = False
     st.session_state.already_prompted = False
-else:
-    st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
 
 def get_question(level, subject, prompt):
 
@@ -111,3 +109,6 @@ if "api_key" in st.session_state:
                     
                 st.title(f"Tu as fini le quiz en {st.session_state.subject} !")
                 st.subheader(f"Ton score est de : {st.session_state.correct_responses * 2}/20 ")
+
+else:
+    st.error("Veuillez enregister votre clé API pour utiliser l'EtudIAnt.")
