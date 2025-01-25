@@ -91,7 +91,7 @@ if "api_key" in st.session_state:
 
         if st.session_state.verified == True:
 
-            if st.session_state.question_count != 10:
+            if st.session_state.question_count < 9:
 
                 if st.button("Continuer"):
 
@@ -106,7 +106,6 @@ if "api_key" in st.session_state:
                     st.rerun()
 
             else:
-                    
                 st.title(f"Tu as fini le quiz en {st.session_state.subject} !")
                 st.subheader(f"Ton score est de : {st.session_state.correct_responses * 2}/20 ")
 
