@@ -3,7 +3,7 @@ import google.generativeai as genai
 import re
 import json
 
-st.title("Quiz interactif")
+st.title("EtudIAnt : Quiz interactif")
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
