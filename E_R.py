@@ -1,6 +1,7 @@
 import google.generativeai as genai
 import streamlit as st
 import time
+import random
 
 st.title("EtudIAnt : Créateur de fiche de révision📝")
 
@@ -9,26 +10,25 @@ if "api_key" in st.session_state:
 else:
     st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
 
-if "started" not in st.session_state:
+if "chat_add" not in st.session_state:
     st.session_state["chat_add"] = []
+if "response_ai_revision" not in st.session_state:
     st.session_state["response_ai_revision"] = None
+if "last_prompt" not in st.session_state:
     st.session_state["last_prompt"] = None
-    st.session_state.started = False
 
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
 
-if not st.session_state.started:
-    level = st.selectbox("Sélectionne ton niveau : ", ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"], key="level")
-    subject = st.selectbox("Sélectionne la matière de ta fiche de révision:", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"], key="subject")
-    prompt = f"Crée une fiche de revision le plus précisement possible. La fiche de revision doit être au niveau :{level}. Adapte la fiche de révision en fonction du niveau. Cette fiche de revision est sur la matière: {subject}.En parlant en francais, jamais en anglais"
-    prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
+level = st.selectbox("Sélectionne ton niveau : ", ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"], key="level")
+subject = st.selectbox("Sélectionne la matière de ta fiche de révision:", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"], key="subject")
+prompt = f"Crée une fiche de revision le plus précisement possible. La fiche de revision doit être au niveau :{level}. Adapte la fiche de révision en fonction du niveau. Cette fiche de revision est sur la matière: {subject}.En parlant en francais, jamais en anglais"
+prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
 if prompt_user:
     if "created" not in st.session_state:
         if "api_key" in st.session_state:
-            st.session_state.started = True
             st.session_state["last_prompt"] = prompt_user
             with st.spinner("L'EtudIAnt reflechit..."):
                 response_ai = model.generate_content([prompt_user, prompt])
