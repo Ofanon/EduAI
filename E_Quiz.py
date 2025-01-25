@@ -38,6 +38,7 @@ if "started" not in st.session_state:
       st.session_state.correct_answers = 0
       st.session_state.verified = False
       st.session_state.explanation = None
+      st.rerun()
 
 else :
 
@@ -98,4 +99,4 @@ else :
                     st.rerun()
         else:
             st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
-            st.write(f"Votre note est de {st.session_state.correct_answers * 2}/20 !")
+            st.write(f"Votre note est de {st.session_state.correct_answers}/20 !")
