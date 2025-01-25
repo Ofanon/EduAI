@@ -70,7 +70,6 @@ else :
             disable_verify = st.session_state.verified
             st.subheader(st.session_state.question)
             user_repsponse = st.radio("Sélectionne ta réponse :", st.session_state.choices, disabled=disable_radio)
-            st.write(f"Votre réponse : {user_repsponse}")
 
             if st.button("Verifier", disabled=disable_verify):
                 st.session_state.verified = True
