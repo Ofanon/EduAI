@@ -2,8 +2,16 @@ import PIL.Image
 import google.generativeai as genai
 import PIL
 import streamlit as st
-
+from streamlit_lottie import st_lottie
+import requests
 st.title("EtudIAnt : Aide aux devoirs")
+def load_lottieurl(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+st_lottie(load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_jcikwtux.json"), height=300)
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
