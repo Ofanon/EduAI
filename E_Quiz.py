@@ -102,5 +102,6 @@ else :
             st.write(f"Votre note est de {st.session_state.correct_answers}/20 !")
             if st.button("Refaire un autre quiz"):
                 del st.session_state.started
+                st.rerun()
 
 
