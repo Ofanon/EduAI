@@ -38,7 +38,6 @@ with st.spinner("La page est en cours de chargement..."):
     if "started" not in st.session_state:
         st.session_state.level = None
         st.session_state.subject = None
-        st.session_state.can_start = False
         st.session_state.user_prompt = None
         st.session_state.current_question = 0
         st.session_state.question_count = 1
@@ -57,6 +56,7 @@ if "started" in st.session_state:
 
     if not st.session_state.started:
         col1, col2 = st.columns(2)
+        st.session_state.can_start = False
         with col1:
             st.session_state.user_prompt = st.text_input("Le sujet du quiz (optionel) :", placeholder="Ex : sur la révolution")
             st.session_state.level = st.selectbox('Sélectionne ton niveau : ', ["CP","6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
