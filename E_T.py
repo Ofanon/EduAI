@@ -38,13 +38,13 @@ place_holder_button = st.empty()
 if uploaded_files:
     if "api_key" in st.session_state:
         if place_holder_button.button("Créer un contrôle sur ce cours"):
-                st.session_state.started = True
                 images = display_images(uploaded_files)
                 if not st.session_state["analyze_image_finished"]:
                     with st.spinner("L'EtudIAnt reflechit..."):
                         place_holder_button.empty()
                         response = model.generate_content([prompt]+ images)
                     st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
+                    st.session_state.started = True
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
 
