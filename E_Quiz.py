@@ -38,7 +38,7 @@ with st.spinner("La page est en cours de chargement..."):
     if "started" not in st.session_state:
         st.session_state.level = None
         st.session_state.subject = None
-        st.session_state.can_start = True
+        st.session_state.can_start = False
         st.session_state.user_prompt = None
         st.session_state.current_question = 0
         st.session_state.question_count = 1
@@ -64,7 +64,7 @@ if "started" in st.session_state:
             st.session_state.subject = st.selectbox('Sélectionne la matière du quiz :', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie","Technologie", "Anglais","Allemand", "Espagnol"])
         
         if st.button("Créer le quiz", disabled=st.session_state.can_start):
-            st.session_state.can_start = False
+            st.session_state.can_start = True
             if "api_key" in st.session_state:
                 st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
             else:
@@ -120,7 +120,7 @@ if "started" in st.session_state:
             st.balloons()
             if st.button("Refaire un autre quiz"):
                 del st.session_state.started
-                st.session_state.can_start = True
+                st.session_state.can_start = False
                 st.rerun()
 
 
