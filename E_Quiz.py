@@ -69,6 +69,7 @@ if "started" in st.session_state:
                 st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
             else:
                 st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
+            st.balloons()
         
         if st.session_state.data != {}:
             st.session_state.current_question = st.session_state.data[st.session_state.question_count]
