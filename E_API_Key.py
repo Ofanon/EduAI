@@ -151,5 +151,4 @@ if "connected" in st.session_state:
     st.subheader(f"👋Bienvenue dans l'EtudIAnt {st.session_state["user_id"]} !")
     st.success(f"Clé API existante : {st.session_state["api_key"]}")
     st.session_state["authenticated"] = True
-    st.form
 
