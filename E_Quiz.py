@@ -13,8 +13,6 @@ def load_lottieurl(url):
 
 lottie_quiz = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_jcikwtux.json")
 
-st_lottie(lottie_quiz, speed=1, reverse=False, loop=True, height=300, key="quiz")
-
 st.title("EtudIAnt : Quiz interactif")
 
 if "api_key" in st.session_state:
