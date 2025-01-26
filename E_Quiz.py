@@ -120,6 +120,7 @@ if "started" in st.session_state:
             st.balloons()
             if st.button("Refaire un autre quiz"):
                 del st.session_state.started
+                st.session_state.can_start = True
                 st.rerun()
 
 
