@@ -11,7 +11,7 @@ def load_lottieurl(url):
         return None
     return r.json()
 
-st_lottie(load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_jcikwtux.json"), height=300)
+st_lottie(load_lottieurl("https://assets2.lottiefiles.com/packages/lf20_k86wxpgr.json"), height=300)
 
 if "api_key" in st.session_state:
     genai.configure(api_key=st.session_state["api_key"])
