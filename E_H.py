@@ -44,6 +44,7 @@ if uploaded_file:
                     st.session_state["response_ai"] = response_ai.text
                 st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                 st.session_state.image_analyzed = True
+                st.rerun()
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
 
