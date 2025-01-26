@@ -39,8 +39,8 @@ if uploaded_file:
             image = PIL.Image.open(uploaded_file)
             image.resize((512, 512))
             st.session_state["st_image"] = image
-            st.image(st.session_state.st_image, use_container_width=True)
             if "image_analyzed" not in st.session_state:
+                st.image(st.session_state.st_image, use_container_width=True)
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
                 with st.spinner("L'EtudIAnt reflechit..."):
                     response_ai = model.generate_content([prompt, image])
