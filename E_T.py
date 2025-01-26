@@ -12,8 +12,8 @@ else:
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
 if "started" not in st.session_state:
-    st.session_state.analyze_image_finished = False
-    st.session_state.chat_control = []
+    st.session_state["analyze_image_finished"] = False
+    st.session_state["chat_control"] = []
     st.session_state.started = False
 
 st.title("EtudIAnt : Créateur de contrôles")
@@ -40,16 +40,16 @@ if uploaded_files:
         if place_holder_button.button("Créer un contrôle sur ce cours"):
                 st.session_state.started = True
                 images = display_images(uploaded_files)
-                if not st.session_state.analyze_image_finished:
+                if not st.session_state["analyze_image_finished"]:
                     with st.spinner("L'EtudIAnt reflechit..."):
                         place_holder_button.empty()
                         response = model.generate_content([prompt]+ images)
-                    st.session_state.chat_control.append({"role": "assistant", "content": response.text})
+                    st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
 
 if "analyze_image_finished" in st.session_state:
-    for message in st.session_state.chat_control:
+    for message in st.session_state["chat_control"]:
         if message["role"] == "assistant":
             with st.chat_message("assistant"):
                 st.write(f"**IA** : {message['content']}")
