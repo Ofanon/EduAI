@@ -14,15 +14,15 @@ model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
 if "started" not in st.session_state:
     st.session_state["chat_history"] = []
-    st.session_state.response_ai = None
-    st.session_state.uploaded_file = None
-    st.session_state.st_image = None
-    st.session_state.image_pil = None
-    st.session_state.message = []
-    st.session_state.started = False
+    st.session_state["response_ai"] = None
+    st.session_state["uploaded_file"] = None
+    st.session_state["st_image"] = None
+    st.session_state["image_pil"] = None
+    st.session_state["message"] = []
+    st.session_state["started"] = False
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
-st.session_state.uploaded_file = uploaded_file
+st.session_state["uploaded_file"] = uploaded_file
 placeholder_button = st.empty()
 
 
@@ -36,8 +36,8 @@ if uploaded_file:
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
                 with st.spinner("L'EtudIAnt reflechit..."):
                     response_ai = model.generate_content([prompt, image])
-                    st.session_state.response_ai = response_ai.text
-                    st.session_state['chat_history'].append({"role":"assistant","content":response_ai.text})
+                    st.session_state["response_ai"] = response_ai.text
+                    st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                     st.session_state.image_analyzed = True
     else:
         st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
@@ -48,16 +48,16 @@ if "image_analyzed" in st.session_state:
     user_input = st.chat_input("ex : je n'ai pas compris ta réponse dans l'exercice B")
     st.image(st.session_state.st_image, use_container_width=True)
     if user_input:
-        st.session_state['chat_history'].append({"role":"user","content":user_input})
+        st.session_state["chat_history"].append({"role":"user","content":user_input})
         history.append({"role":"model", "parts":st.session_state.response_ai})
         chat = model.start_chat(history = history)
         response = chat.send_message(user_input)
-        st.session_state['response_ai'].append({"role":"assistant","content":response.text})
+        st.session_state["response_ai"].append({"role":"assistant","content":response.text})
         history.append({"role":"user", "parts":user_input})
         history.append({"role":"model", "parts":response.text})
 
 if "chat_history" in st.session_state:
-    for message in st.session_state.chay_history:
+    for message in st.session_state["chay_history"]:
             if message["role"] == "user": 
                 with st.chat_message('user'):
                     st.write(f"**Vous** : {message['content']}")
