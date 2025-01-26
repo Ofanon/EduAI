@@ -13,7 +13,7 @@ else:
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
 if "started" not in st.session_state:
-    st.session_state["chat_history"] = []
+    st.session_state["chat_history"] = ()
     st.session_state["response_ai"] = None
     st.session_state["uploaded_file"] = None
     st.session_state["st_image"] = None
