@@ -2,6 +2,18 @@ import streamlit as st
 import google.generativeai as genai
 import re
 import json
+from streamlit_lottie import st_lottie
+import requests
+
+def load_lottieurl(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+lottie_quiz = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_jcikwtux.json")
+
+st_lottie(lottie_quiz, speed=1, reverse=False, loop=True, height=300, key="quiz")
 
 st.title("EtudIAnt : Quiz interactif")
 
