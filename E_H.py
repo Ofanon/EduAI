@@ -12,19 +12,24 @@ else:
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
-if "chat_history" not in st.session_state:
-    st.session_state["chat_history"] = []
-    st.session_state["response_ai"] = None
-    st.session_state["uploaded_file"] = None
-    st.session_state["st_image"] = None
-    st.session_state["image_pil"] = None
-    st.session_state["message"] = []
-    st.session_state["started"] = False
+with st.spinner("La page est en cours de chargement..."):
+    if "chat_history" not in st.session_state:
+        st.session_state["chat_history"] = []
+        st.session_state["response_ai"] = None
+        st.session_state["uploaded_file"] = None
+        st.session_state["st_image"] = None
+        st.session_state["image_pil"] = None
+        st.session_state["message"] = []
+        st.session_state["started"] = False
 
 uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 placeholder_button = st.empty()
 
+if "image_analyzed" in st.session_state:
+    if st.button("Résoudre un autre devoir"):
+        del st.session_state.chat_history
+        st.rerun()
 
 if uploaded_file:
     if "api_key" in st.session_state:

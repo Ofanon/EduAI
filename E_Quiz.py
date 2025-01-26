@@ -24,23 +24,25 @@ def get_questions(level, subject, prompt):
             st.error("Erreur lors de la création des questions.")
             return []
 
-if "started" not in st.session_state:
-      st.session_state.level = None
-      st.session_state.subject = None
-      st.session_state.user_prompt = None
-      st.session_state.current_question = 0
-      st.session_state.question_count = 1
-      st.session_state.started = False
-      st.session_state.data = {}
-      st.session_state.question = None
-      st.session_state.choices = None
-      st.session_state.correct_answer = None
-      st.session_state.correct_answers = 0
-      st.session_state.verified = False
-      st.session_state.explanation = None
-      st.rerun()
+with st.spinner("La page est en cours de chargement..."):
+    if "started" not in st.session_state:
+        st.session_state.level = None
+        st.session_state.subject = None
+        st.session_state.user_prompt = None
+        st.session_state.current_question = 0
+        st.session_state.question_count = 1
+        st.session_state.started = False
+        st.session_state.data = {}
+        st.session_state.question = None
+        st.session_state.choices = None
+        st.session_state.correct_answer = None
+        st.session_state.correct_answers = 0
+        st.session_state.verified = False
+        st.session_state.explanation = None
+        st.rerun()
 
-else :
+
+if "started" in st.session_state:
 
     if not st.session_state.started:
         st.session_state.user_prompt = st.text_input("Le sujet du quiz (optionel) :", placeholder="Ex : sur la révolution")
