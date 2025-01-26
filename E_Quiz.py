@@ -62,12 +62,12 @@ if "started" in st.session_state:
         with col2:
             st.session_state.subject = st.selectbox('Sélectionne la matière du quiz :', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie","Technologie", "Anglais","Allemand", "Espagnol"])
         
-        if st.button("Créer le quiz"):
+        if st.button("Créer le quiz", disabled=not st.session_state.started):
+            st.balloons()
             if "api_key" in st.session_state:
                 st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
             else:
                 st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
-            st.balloons()
         
         if st.session_state.data != {}:
             st.session_state.current_question = st.session_state.data[st.session_state.question_count]
