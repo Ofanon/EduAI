@@ -55,7 +55,7 @@ if "started" in st.session_state:
             else:
                 st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
         
-        if st.session_state.data:
+        if st.session_state.data != None:
             st.session_state.current_question = st.session_state.data[st.session_state.question_count]
             st.session_state.question = st.session_state.current_question['question']
             st.session_state.choices = st.session_state.current_question['choices']
