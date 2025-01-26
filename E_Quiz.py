@@ -65,7 +65,6 @@ if "started" in st.session_state:
         
         if st.button("Créer le quiz", disabled=st.session_state.start):
             st.session_state.can_start = False
-            st.balloons()
             if "api_key" in st.session_state:
                 st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
             else:
@@ -118,6 +117,7 @@ if "started" in st.session_state:
         else:
             st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
             st.write(f"Votre note est de {st.session_state.correct_answers}/20 !")
+            st.balloons()
             if st.button("Refaire un autre quiz"):
                 del st.session_state.started
                 st.rerun()
