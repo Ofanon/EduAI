@@ -1,8 +1,9 @@
 import streamlit as st
 
+logo = "logo.png"
 st.set_page_config(
     page_title="EtudIAnt",
-    page_icon=":guardsman:",
+    page_icon= logo,
     initial_sidebar_state="auto",
     menu_items={
         'Get Help': None,
