@@ -62,7 +62,7 @@ if "started" in st.session_state:
         with col2:
             st.session_state.subject = st.selectbox('Sélectionne la matière du quiz :', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie","Technologie", "Anglais","Allemand", "Espagnol"])
         
-        if st.button("Créer le quiz", disabled=not st.session_state.started):
+        if st.button("Créer le quiz", disabled=st.session_state.started == True):
             st.balloons()
             if "api_key" in st.session_state:
                 st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
