@@ -57,7 +57,7 @@ if "image_analyzed" in st.session_state:
         history.append({"role":"model", "parts":response.text})
 
 if "chat_history" in st.session_state:
-    for message in st.session_state["chay_history"]:
+    for message in st.session_state["chat_history"]:
             if message["role"] == "user": 
                 with st.chat_message('user'):
                     st.write(f"**Vous** : {message['content']}")
