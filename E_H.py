@@ -29,6 +29,7 @@ placeholder_button = st.empty()
 if "image_analyzed" in st.session_state:
     if st.button("Résoudre un autre devoir"):
         del st.session_state.chat_history
+        del st.session_state.image_analyzed
         st.rerun()
 
 if uploaded_file:
