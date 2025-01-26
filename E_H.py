@@ -12,8 +12,8 @@ else:
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
-if "started" not in st.session_state:
-    st.session_state["chat_history"] = ()
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
     st.session_state["response_ai"] = None
     st.session_state["uploaded_file"] = None
     st.session_state["st_image"] = None
@@ -52,7 +52,7 @@ if "image_analyzed" in st.session_state:
         history.append({"role":"model", "parts":st.session_state.response_ai})
         chat = model.start_chat(history = history)
         response = chat.send_message(user_input)
-        st.session_state["response_ai"].append({"role":"assistant","content":response.text})
+        st.session_state["chat_history"].append({"role":"assistant","content":response.text})
         history.append({"role":"user", "parts":user_input})
         history.append({"role":"model", "parts":response.text})
 
