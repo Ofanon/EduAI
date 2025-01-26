@@ -3,4 +3,4 @@ requests
 streamlit
 Pillow
 fpdf==1.7.2
-streamlit-lootie
+streamlit-lottie>=0.0.2
