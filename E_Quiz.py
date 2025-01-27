@@ -84,7 +84,7 @@ if "started" in st.session_state:
     if st.session_state.started:
         if st.session_state.question_count < 9:
 
-            st.metric("Progrès", f"{st.session_state.question_count*10}%")
+            st.metric("Progression dans le quiz :", f"{st.session_state.question_count*10}%")
             style_metric_cards()
             add_vertical_space(2)
 
