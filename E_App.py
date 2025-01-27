@@ -4,6 +4,7 @@ import requests
 import data.db_manager as db_manager
 
 with st.sidebar:
+    st.title("EtudIAnt")
     st.write(f"⭐ Etoiles restantes : {db_manager.get_requests_left()}")
 logo = "logo.png"
 
