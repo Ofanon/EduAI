@@ -64,10 +64,7 @@ if "started" in st.session_state:
         if st.button("Créer le quiz", disabled=st.session_state.can_start):
             if db_manager.can_user_make_request(max_requests=10):
                 st.session_state.can_start = True
-                if "api_key" in st.session_state:
-                    st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
-                else:
-                    st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
+                st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
             else:
                 st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
         
