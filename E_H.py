@@ -2,7 +2,7 @@ import PIL.Image
 import google.generativeai as genai
 import PIL
 import streamlit as st
-import db_manager
+import data.db_manager as db_manager
 
 
 genai.configure(api_key=st.secrets["API_KEY"])

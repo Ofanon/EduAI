@@ -4,13 +4,12 @@ import time
 from PIL import Image
 from fpdf import FPDF
 import requests
-import db_manager
+import data.db_manager as db_manager
 
 genai.configure(api_key=st.secrets["API_KEY"])
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
-st.title("EtudIAnt : Aide aux devoirs")
 def load_lottieurl(url):
     r = requests.get(url)
     if r.status_code != 200:
