@@ -121,7 +121,7 @@ if "started" in st.session_state:
         else:
             note = (st.session_state.correct_answers / 10) * 20
             st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
-            st.write(f"Votre note est de {note:.1f}/20 !")
+            st.write(f"Votre note est de {note}/20 !")
             st.balloons()
             if st.button("Refaire un autre quiz"):
                 del st.session_state.started
