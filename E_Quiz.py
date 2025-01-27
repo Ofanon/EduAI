@@ -6,7 +6,7 @@ from streamlit_lottie import st_lottie
 import requests
 import db_manager
 
-st.write(f"Vous pouvez encore interroger {db_manager.get_user_requests_left()} fois l'EtudIAnt, aujourd'hui.")
+st.write(f"Vous pouvez encore interroger {db_manager.requests_left} fois l'EtudIAnt, aujourd'hui.")
 
 def load_lottieurl(url):
     r = requests.get(url)
