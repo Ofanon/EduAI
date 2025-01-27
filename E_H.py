@@ -6,7 +6,6 @@ from streamlit_lottie import st_lottie
 import requests
 import db_manager
 
-st.write(db_manager.get_user_requests_left())
 def load_lottieurl(url):
     r = requests.get(url)
     if r.status_code != 200:
