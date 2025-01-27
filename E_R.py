@@ -1,7 +1,7 @@
 import google.generativeai as genai
 import streamlit as st
 import time
-import db_manager
+import data.db_manager as db_manager
 
 st.title("EtudIAnt : Créateur de fiche de révision📝")
 

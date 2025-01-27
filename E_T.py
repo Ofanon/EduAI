@@ -10,12 +10,6 @@ genai.configure(api_key=st.secrets["API_KEY"])
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
-def load_lottieurl(url):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-
 if "started" not in st.session_state:
     st.session_state["analyze_image_finished"] = False
     st.session_state["chat_control"] = []

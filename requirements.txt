@@ -5,3 +5,4 @@ Pillow
 fpdf==1.7.2
 streamlit-lottie>=0.0.2
 tinydb
+streamlit-extras
