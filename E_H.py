@@ -4,7 +4,8 @@ import PIL
 import streamlit as st
 from streamlit_lottie import st_lottie
 import requests
-st.title("EtudIAnt : Aide aux devoirs")
+import db_manager
+
 def load_lottieurl(url):
     r = requests.get(url)
     if r.status_code != 200:
@@ -13,10 +14,7 @@ def load_lottieurl(url):
 
 st_lottie(load_lottieurl("https://assets2.lottiefiles.com/packages/lf20_k86wxpgr.json"), height=300)
 
-if "api_key" in st.session_state:
-    genai.configure(api_key=st.session_state["api_key"])
-else:
-    st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
+genai.configure(api_key=st.secrets["API_KEY"])
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
@@ -42,11 +40,11 @@ if "image_analyzed" in st.session_state:
         st.rerun()
 
 if uploaded_file:
-    if "api_key" in st.session_state:
-        if placeholder_button.button("Résoudre le devoir"):
-            image = PIL.Image.open(uploaded_file)
-            image.resize((512, 512))
-            st.session_state["st_image"] = image
+    if placeholder_button.button("Résoudre le devoir"):
+        image = PIL.Image.open(uploaded_file)
+        image.resize((512, 512))
+        st.session_state["st_image"] = image
+        if db_manager.can_user_make_request(max_requests=10):
             if "image_analyzed" not in st.session_state:
                 st.image(st.session_state.st_image, use_container_width=True)
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
@@ -56,8 +54,8 @@ if uploaded_file:
                 st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                 st.session_state.image_analyzed = True
                 st.rerun()
-    else:
-        st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
+        else:
+            st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
 if "image_analyzed" in st.session_state:
     placeholder_button.empty()
@@ -65,14 +63,16 @@ if "image_analyzed" in st.session_state:
     user_input = st.chat_input("ex : je n'ai pas compris ta réponse dans l'exercice B")
     st.image(st.session_state.st_image, use_container_width=True)
     if user_input:
-        st.session_state["chat_history"].append({"role":"user","content":user_input})
-        history.append({"role":"model", "parts":st.session_state.response_ai})
-        chat = model.start_chat(history = history)
-        response = chat.send_message(user_input)
-        st.session_state["chat_history"].append({"role":"assistant","content":response.text})
-        history.append({"role":"user", "parts":user_input})
-        history.append({"role":"model", "parts":response.text})
-
+        if db_manager.can_user_make_request(max_requests=10):
+            st.session_state["chat_history"].append({"role":"user","content":user_input})
+            history.append({"role":"model", "parts":st.session_state.response_ai})
+            chat = model.start_chat(history = history)
+            response = chat.send_message(user_input)
+            st.session_state["chat_history"].append({"role":"assistant","content":response.text})
+            history.append({"role":"user", "parts":user_input})
+            history.append({"role":"model", "parts":response.text})
+        else:
+                st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 if "chat_history" in st.session_state:
     for message in st.session_state["chat_history"]:
             if message["role"] == "user": 

@@ -4,6 +4,7 @@ import re
 import json
 from streamlit_lottie import st_lottie
 import requests
+import db_manager
 
 def load_lottieurl(url):
     r = requests.get(url)
@@ -15,10 +16,7 @@ lottie_quiz = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_jcik
 
 st.title("EtudIAnt : Quiz interactif")
 
-if "api_key" in st.session_state:
-    genai.configure(api_key=st.session_state["api_key"])
-else:
-    st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
+genai.configure(api_key=st.secrets["API_KEY"])
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
@@ -64,11 +62,14 @@ if "started" in st.session_state:
             st.session_state.subject = st.selectbox('Sélectionne la matière du quiz :', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie","Technologie", "Anglais","Allemand", "Espagnol"])
         
         if st.button("Créer le quiz", disabled=st.session_state.can_start):
-            st.session_state.can_start = True
-            if "api_key" in st.session_state:
-                st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
+            if db_manager.can_user_make_request(max_requests=10):
+                st.session_state.can_start = True
+                if "api_key" in st.session_state:
+                    st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
+                else:
+                    st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
             else:
-                st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
+                st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
         
         if st.session_state.data != {}:
             st.session_state.current_question = st.session_state.data[st.session_state.question_count]

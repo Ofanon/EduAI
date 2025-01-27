@@ -3,13 +3,19 @@ import google.generativeai as genai
 import time
 from PIL import Image
 from fpdf import FPDF
+import requests
+import db_manager
 
-if "api_key" in st.session_state:
-    genai.configure(api_key=st.session_state["api_key"])
-else:
-    st.error("Clé API non enregistrée, veuillez vous rendre dans l'onglet 'Connexion à l'EtudIAnt' pour l'enregistrer.")
+genai.configure(api_key=st.secrets["API_KEY"])
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
+
+st.title("EtudIAnt : Aide aux devoirs")
+def load_lottieurl(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
 
 if "started" not in st.session_state:
     st.session_state["analyze_image_finished"] = False
@@ -36,17 +42,16 @@ def display_images(files):
 
 place_holder_button = st.empty()
 if uploaded_files:
-    if "api_key" in st.session_state:
-        if place_holder_button.button("Créer un contrôle sur ce cours"):
-                images = display_images(uploaded_files)
-                if not st.session_state["analyze_image_finished"]:
-                    with st.spinner("L'EtudIAnt reflechit..."):
-                        place_holder_button.empty()
-                        response = model.generate_content([prompt]+ images)
-                    st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
-                    st.session_state.started = True
-    else:
-        st.error("Veuillez enregistrer votre clé API pour utiliser l'EtudIAnt.")
+    if place_holder_button.button("Créer un contrôle sur ce cours"):
+        if db_manager.can_user_make_request(max_requests=10):
+            images = display_images(uploaded_files)
+            if not st.session_state["analyze_image_finished"]:
+                with st.spinner("L'EtudIAnt reflechit..."):
+                    place_holder_button.empty()
+                    response = model.generate_content([prompt]+ images)
+                st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
+                st.session_state.started = True
+        st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
 if "analyze_image_finished" in st.session_state:
     for message in st.session_state["chat_control"]:
