@@ -2,8 +2,7 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 import requests
 import data.db_manager as db_manager
-from streamlit_extras.colored_header import colored_header
-colored_header("L'EtudIAnt, l'IA des élèves.", color_name="blue-70")
+
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db_manager.get_requests_left()}")
 logo = "logo.png"

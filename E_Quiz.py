@@ -8,7 +8,6 @@ import data.db_manager as db_manager
 from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_extras.metric_cards import style_metric_cards
 
-
 def load_lottieurl(url):
     r = requests.get(url)
     if r.status_code != 200:
