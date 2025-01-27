@@ -57,7 +57,7 @@ if uploaded_file:
                 st.session_state.image_analyzed = True
                 st.rerun()
         else:
-            st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
+            st.session_state["chat_history"].append({"role": "assistant", "content" : "Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt."})
 
 if "image_analyzed" in st.session_state:
     placeholder_button.empty()
