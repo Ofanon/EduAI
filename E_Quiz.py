@@ -83,14 +83,8 @@ if "started" in st.session_state:
 
     if st.session_state.started:
         if st.session_state.question_count < 9:
-            
-            from streamlit_extras.add_vertical_space import add_vertical_space
-            from streamlit_extras.metric_cards import style_metric_cards
 
-            st.progress(st.session_state.question_count/10)
-
-            # Remplacez avec un cercle animé pour le progrès
-            st.metric("Progrès", f"{st.session_state.question_count*10}%", delta="10%")
+            st.metric("Progrès", f"{st.session_state.question_count*10}%")
             style_metric_cards()
             add_vertical_space(2)
 
