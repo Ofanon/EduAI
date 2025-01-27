@@ -6,7 +6,7 @@ from streamlit_lottie import st_lottie
 import requests
 import db_manager
 
-st.write(f"Il vous reste {db_manager.get_user_requests_left()}")
+st.write(f"Il vous reste {db_manager.get_user_requests_left()} crédits...")
 
 def load_lottieurl(url):
     r = requests.get(url)
