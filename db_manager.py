@@ -7,7 +7,7 @@ def get_user_id():
 
 
 user_id = get_user_id()
-max_requests = 10
+max_requests = 2
 
 db = TinyDB("request_logs.json")
 User = Query()
@@ -39,6 +39,7 @@ def can_user_make_request():
             return True, requests_left - 1
     else:
         db.insert({"user_id": user_id, "date": today, "requests": 1})
+
         return True, max_requests - 1
 
 requests_left = get_requests_left()
