@@ -2,6 +2,7 @@ import google.generativeai as genai
 import streamlit as st
 import time
 import data.db_manager as db_manager
+from streamlit_extras.streaming_write import st
 
 st.title("EtudIAnt : Créateur de fiche de révision📝")
 
@@ -59,7 +60,7 @@ if "chat_add" in st.session_state:
             message_user.write(f"**Vous** : {message['content']}")
         elif message["role"] == "assistant":
             message_ai = st.chat_message('assistant')
-            message_ai.write(f"**IA** : {message['content']}")
+            st.write_stream(f"**IA** : {message['content']}")
 
         
     
