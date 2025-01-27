@@ -43,7 +43,7 @@ def display_images(files):
 place_holder_button = st.empty()
 if uploaded_files:
     if place_holder_button.button("Créer un contrôle sur ce cours"):
-        if db_manager.can_user_make_request(max_requests=10):
+        if db_manager.can_user_make_request():
             images = display_images(uploaded_files)
             if not st.session_state["analyze_image_finished"]:
                 with st.spinner("L'EtudIAnt reflechit..."):

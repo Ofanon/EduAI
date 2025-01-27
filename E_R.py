@@ -25,7 +25,7 @@ prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
 if prompt_user:
     if "created" not in st.session_state:
-        if db_manager.can_user_make_request(max_requests=10):
+        if db_manager.can_user_make_request():
             st.session_state["last_prompt"] = prompt_user
             with st.spinner("L'EtudIAnt reflechit..."):
                 response_ai = model.generate_content([prompt_user, prompt])

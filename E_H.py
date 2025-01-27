@@ -6,6 +6,7 @@ from streamlit_lottie import st_lottie
 import requests
 import db_manager
 
+st.write(db_manager.get_user_requests_left())
 def load_lottieurl(url):
     r = requests.get(url)
     if r.status_code != 200:
@@ -44,7 +45,7 @@ if uploaded_file:
         image = PIL.Image.open(uploaded_file)
         image.resize((512, 512))
         st.session_state["st_image"] = image
-        if db_manager.can_user_make_request(max_requests=10):
+        if db_manager.can_user_make_request():
             if "image_analyzed" not in st.session_state:
                 st.image(st.session_state.st_image, use_container_width=True)
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
@@ -63,7 +64,7 @@ if "image_analyzed" in st.session_state:
     user_input = st.chat_input("ex : je n'ai pas compris ta réponse dans l'exercice B")
     st.image(st.session_state.st_image, use_container_width=True)
     if user_input:
-        if db_manager.can_user_make_request(max_requests=10):
+        if db_manager.can_user_make_request():
             st.session_state["chat_history"].append({"role":"user","content":user_input})
             history.append({"role":"model", "parts":st.session_state.response_ai})
             chat = model.start_chat(history = history)

@@ -9,8 +9,8 @@ user_id = get_user_id()
 
 db = TinyDB("request_logs.json")
 User = Query()
-
-def can_user_make_request(max_requests=10):
+max_requests= 20
+def can_user_make_request():
 
     today = datetime.now().strftime("%Y-%m-%d")
     user_data = db.get((User.user_id == user_id) & (User.date == today))
@@ -25,3 +25,14 @@ def can_user_make_request(max_requests=10):
         db.insert({"user_id": user_id, "date": today, "requests": 1})
 
     return True
+
+def get_user_requests_left():
+    today = datetime.now().strftime("%Y-%m-%d")
+    user_data = db.get((User.user_id == user_id) & (User.date == today))
+
+    if user_data:
+        requests_made = user_data["requests"]
+        requests_left = max_requests - requests_made
+        return max(0, requests_left)
+    else:
+        return max_requests
