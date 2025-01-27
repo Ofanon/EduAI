@@ -24,7 +24,7 @@ def can_user_make_request():
     else:
         db.insert({"user_id": user_id, "date": today, "requests": 1})
 
-    return True
+    return True, max_requests - 1
 
 def get_user_requests_left():
     today = datetime.now().strftime("%Y-%m-%d")
