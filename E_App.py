@@ -3,7 +3,7 @@ from streamlit_lottie import st_lottie
 import requests
 import db_manager
 
-with st.sidebar():
+with st.sidebar:
     st.write(f"Etoiles restantes : {db_manager.get_requests_left()}")
 logo = "logo.png"
 
