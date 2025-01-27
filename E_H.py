@@ -2,19 +2,8 @@ import PIL.Image
 import google.generativeai as genai
 import PIL
 import streamlit as st
-from streamlit_lottie import st_lottie
-import requests
 import db_manager
 
-st.write(f"Vous pouvez encore interroger {db_manager.get_requests_left()} fois l'EtudIAnt, aujourd'hui.")
-
-def load_lottieurl(url):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-
-st_lottie(load_lottieurl("https://assets2.lottiefiles.com/packages/lf20_k86wxpgr.json"), height=300)
 
 genai.configure(api_key=st.secrets["API_KEY"])
 
