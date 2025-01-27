@@ -6,14 +6,9 @@ def get_user_id():
 user_id = get_user_id()
 db = TinyDB("request_logs.json")
 User = Query()
+max_requests=10
+def get_requests_left():
 
-def get_requests_left(user_id, max_requests=10):
-    """
-    Retourne le nombre de requêtes restantes pour un utilisateur.
-    :param user_id: Identifiant unique de l'utilisateur (e.g., adresse IP ou email)
-    :param max_requests: Nombre maximum de requêtes par jour
-    :return: int - Le nombre de requêtes restantes
-    """
     today = datetime.now().strftime("%Y-%m-%d")
     user_data = db.get((User.user_id == user_id) & (User.date == today))
 
