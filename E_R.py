@@ -2,7 +2,7 @@ import google.generativeai as genai
 import streamlit as st
 import time
 import db_manager
-
+st.write(f"Vous pouvez encore interroger {db_manager.get_requests_left()} fois l'EtudIAnt, aujourd'hui.")
 st.title("EtudIAnt : Créateur de fiche de révision📝")
 
 genai.configure(api_key=st.secrets["API_KEY"])
