@@ -64,6 +64,7 @@ def purchase_requests(cost_in_experience, requests_to_add):
 
 def can_user_make_request():
     quotas = load_quotas()
+    user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
 
     if user_id in quotas and quotas[user_id]["date"] == today:
@@ -74,10 +75,7 @@ def can_user_make_request():
             save_quotas(quotas)
             return True
     else:
-        quotas[user_id] = {
-            "date": today,
-            "requests": 1,
-        }
+        quotas[user_id] = {"date": today, "requests": 1}
         save_quotas(quotas)
         return True
 
