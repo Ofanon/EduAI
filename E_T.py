@@ -58,7 +58,7 @@ def create_dynamic_word_doc(response):
 
 place_holder_button = st.empty()
 
-if uploaded_files is not None and len(uploaded_files) > 0:
+if uploaded_files and len(uploaded_files) > 0 or st.session_state.started == True:
     if place_holder_button.button("Créer un contrôle sur ce cours"):
         if db_manager.can_user_make_request():
             images = display_images(uploaded_files)
