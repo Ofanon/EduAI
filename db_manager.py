@@ -20,7 +20,9 @@ def save_quotas(quotas):
         json.dump(quotas, f)
 
 def get_user_id():
-    return socket.gethostname()
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
+    return local_ip
 
 def get_requests_left():
     quotas = load_quotas()
