@@ -4,11 +4,9 @@ import socket
 
 DB_FILE = "data/request_logs.db"
 
-# Connexion à la base SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# Création de la table si elle n'existe pas
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
@@ -20,7 +18,6 @@ cursor.execute('''
 ''')
 conn.commit()
 
-# Obtenir l'ID utilisateur
 hostname = socket.gethostname()
 user_id = socket.gethostbyname(hostname)
 
@@ -56,13 +53,12 @@ def can_user_make_request():
         last_date, requests = row
         if last_date == today:
             if requests >= 10:
-                return False  # Quota atteint
+                return False
             else:
                 cursor.execute("UPDATE users SET requests = requests + 1 WHERE user_id = ?", (user_id,))
         else:
             cursor.execute("UPDATE users SET date = ?, requests = 1 WHERE user_id = ?", (today, user_id))
     else:
-        # Créer l'utilisateur si nécessaire
         cursor.execute("INSERT INTO users (user_id, date, requests) VALUES (?, ?, ?)", (user_id, today, 1))
 
     conn.commit()
