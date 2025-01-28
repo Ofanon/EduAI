@@ -4,7 +4,7 @@ import re
 import json
 from streamlit_lottie import st_lottie
 import requests
-import db_manager as db_manager
+import data.db_manager as db_manager
 
 def load_lottieurl(url):
     r = requests.get(url)

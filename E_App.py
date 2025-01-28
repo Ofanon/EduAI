@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
 import requests
-import db_manager as db_manager
+import data.db_manager as db_manager
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db_manager.get_requests_left()}")
