@@ -77,7 +77,6 @@ def can_user_make_request():
         quotas[user_id] = {
             "date": today,
             "requests": 1,
-            "experience_points": quotas[user_id].get("experience_points", 0)
         }
         save_quotas(quotas)
         return True
