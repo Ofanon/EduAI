@@ -77,7 +77,6 @@ if "started" in st.session_state:
             st.session_state.choices = st.session_state.current_question['choices']
             st.session_state.correct_answer = st.session_state.current_question['correct_answer']
             st.session_state.explanation = st.session_state.current_question['explanation']
-            st.session_state.correct_answers = 0
             st.session_state.started = True
             st.rerun()
 
@@ -116,9 +115,9 @@ if "started" in st.session_state:
                     st.session_state.explanation = st.session_state.current_question['explanation']
                     st.rerun()
         else:
-            note = (st.session_state.correct_answers / 10) * 20
+            st.session_state.note = (st.session_state.correct_answers / 10) * 20
             st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
-            st.session_state.note = st.write(f"Votre note est de {note}/20 !")
+            st.write(f"Votre note est de {st.session_state.note}/20 !")
             if st.session_state.points == None:
                 st.session_state.points = st.session_state.note * 10
                 db.update_experience_points(points=st.session_state.points)
