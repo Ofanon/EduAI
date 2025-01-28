@@ -81,7 +81,7 @@ if "started" in st.session_state:
             st.rerun()
 
     if st.session_state.started:
-        if st.session_state.question_count < 10:
+        if st.session_state.question_count < 9:
             st.progress(st.session_state.question_count/10)
 
             disable_radio = st.session_state.verified
