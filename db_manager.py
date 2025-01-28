@@ -1,13 +1,14 @@
-from datetime import datetime
 import sqlite3
 from datetime import datetime
 import socket
 
 DB_FILE = "data/request_logs.db"
 
+# Connexion à la base SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
+# Création de la table si elle n'existe pas
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
@@ -46,31 +47,22 @@ def purchase_requests(cost_in_experience, requests_to_add):
         return True
     return False
 
-def can_user_make_request(user_id):
-    conn, cursor = get_db_connection()
-    if not cursor:
-        return False  
-    try:
-        today = datetime.now().strftime("%Y-%m-%d")
-        cursor.execute("SELECT date, requests FROM users WHERE user_id = ?", (user_id,))
-        row = cursor.fetchone()
-
-        if row and row[0] == today:
-            if row[1] >= 10:
-                return False
-            else:
-                cursor.execute("UPDATE users SET requests = requests + 1 WHERE user_id = ?", (user_id,))
-                conn.commit()
-                return True
+def can_user_make_request():
+    today = datetime.now().strftime("%Y-%m-%d")
+    cursor.execute("SELECT date, requests FROM users WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+    
+    if row and row[0] == today:
+        if row[1] >= 10:
+            return False
         else:
-            cursor.execute("UPDATE users SET date = ?, requests = 1 WHERE user_id = ?", (today, user_id))
+            cursor.execute("UPDATE users SET requests = requests + 1 WHERE user_id = ?", (user_id,))
             conn.commit()
             return True
-    except sqlite3.Error as e:
-        print(f"❌ ERREUR SQLITE : {e}")
-        return False
-    finally:
-        conn.close()
+    else:
+        cursor.execute("UPDATE users SET date = ?, requests = 1 WHERE user_id = ?", (today, user_id))
+        conn.commit()
+        return True
 
 def get_experience_points():
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
