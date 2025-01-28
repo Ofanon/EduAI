@@ -51,18 +51,22 @@ def can_user_make_request():
     today = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("SELECT date, requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
-    
-    if row and row[0] == today:
-        if row[1] >= 10:
-            return False
+
+    if row:
+        last_date, requests = row
+        if last_date == today:
+            if requests >= 10:
+                return False  # Quota atteint
+            else:
+                cursor.execute("UPDATE users SET requests = requests + 1 WHERE user_id = ?", (user_id,))
         else:
-            cursor.execute("UPDATE users SET requests = requests + 1 WHERE user_id = ?", (user_id,))
-            conn.commit()
-            return True
+            cursor.execute("UPDATE users SET date = ?, requests = 1 WHERE user_id = ?", (today, user_id))
     else:
-        cursor.execute("UPDATE users SET date = ?, requests = 1 WHERE user_id = ?", (today, user_id))
-        conn.commit()
-        return True
+        # Créer l'utilisateur si nécessaire
+        cursor.execute("INSERT INTO users (user_id, date, requests) VALUES (?, ?, ?)", (user_id, today, 1))
+
+    conn.commit()
+    return True
 
 def get_experience_points():
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
