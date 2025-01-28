@@ -7,7 +7,7 @@ import requests
 import data.db_manager as db_manager
 from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_extras.metric_cards import style_metric_cards
-from hydralit_components import Loaders
+from hydralit_components.Loaders import loaders
 def load_lottieurl(url):
     r = requests.get(url)
     if r.status_code != 200:
@@ -23,7 +23,7 @@ genai.configure(api_key=st.secrets["API_KEY"])
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
 def get_questions(level, subject, prompt):
-        with Loaders.standard_loaders:
+        with loaders.pulse_bars :
             response_ai = model.generate_content(f"Crée un QCM de 10 questions de niveau {level} en {subject} et de sujet : {prompt}. Toutes les réponses doivent etre dans un container JSON avec : question_number , question , choices , correct_answer , explanation.")
         match = re.search(r'\[.*\]', response_ai.text, re.DOTALL)
         if match:
