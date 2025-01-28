@@ -24,10 +24,10 @@ def get_user_id():
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
     return local_ip
+user_id = get_user_id()
 
 def initialize_user():
     quotas = load_quotas()
-    user_id = get_user_id()
     if user_id not in quotas:
         quotas[user_id] = {
             "date": None,
@@ -38,7 +38,6 @@ def initialize_user():
 
 def get_requests_left():
     quotas = load_quotas()
-    user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
     if user_id in quotas:
         user_data = quotas[user_id]
@@ -50,7 +49,6 @@ def get_requests_left():
 
 def purchase_requests(cost_in_experience, requests_to_add):
     quotas = load_quotas()
-    user_id = get_user_id()
     if user_id in quotas:
         user_data = quotas[user_id]
         current_experience = user_data.get("experience_points", 0)
@@ -66,7 +64,6 @@ def purchase_requests(cost_in_experience, requests_to_add):
 
 def can_user_make_request():
     quotas = load_quotas()
-    user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
 
     if user_id in quotas and quotas[user_id]["date"] == today:
@@ -87,12 +84,10 @@ def can_user_make_request():
 
 def get_experience_points():
     quotas = load_quotas()
-    user_id = get_user_id()
     return quotas.get(user_id, {}).get("experience_points", 0)
 
 def update_experience_points(points):
     quotas = load_quotas()
-    user_id = get_user_id()
     if user_id in quotas:
         quotas[user_id]["experience_points"] = quotas[user_id].get("experience_points", 0) + points
         save_quotas(quotas)
