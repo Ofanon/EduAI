@@ -34,6 +34,7 @@ def display_images(files):
     return images
 
 place_holder_button = st.empty()
+
 if uploaded_files:
     if place_holder_button.button("Créer un contrôle sur ce cours"):
         if db_manager.can_user_make_request():
@@ -44,7 +45,8 @@ if uploaded_files:
                     response = model.generate_content([prompt]+ images)
                 st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
                 st.session_state.started = True
-        st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
+        else:
+            st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
 if "analyze_image_finished" in st.session_state:
     for message in st.session_state["chat_control"]:
