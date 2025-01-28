@@ -93,5 +93,5 @@ if "analyze_image_finished" in st.session_state:
         if message["role"] == "assistant":
             with st.chat_message("assistant"):
                 st.write(f"**IA** : {message['content']}")
-                st.write("Si tu veux gagner des étoiles ⭐ fais ce controle et envoye le moi.")
+                st.write("Si tu veux gagner des étoiles ⭐ résoud ce contrôle et envoye le moi.")
 
