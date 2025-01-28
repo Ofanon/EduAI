@@ -7,3 +7,4 @@ streamlit-lottie>=0.0.2
 tinydb
 streamlit-extras
 hydralit-components
+numpy
