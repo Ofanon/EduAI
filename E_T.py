@@ -1,9 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
-import time
 from PIL import Image
-from fpdf import FPDF
-import requests
 import data.db_manager as db_manager
 
 genai.configure(api_key=st.secrets["API_KEY"])
