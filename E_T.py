@@ -35,7 +35,7 @@ def display_images(files):
 
 place_holder_button = st.empty()
 
-if uploaded_files:
+if uploaded_files is not None and len(uploaded_files) > 0:
     if place_holder_button.button("Créer un contrôle sur ce cours"):
         if db_manager.can_user_make_request():
             images = display_images(uploaded_files)
