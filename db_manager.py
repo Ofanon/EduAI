@@ -25,10 +25,12 @@ hostname = socket.gethostname()
 user_id = socket.gethostbyname(hostname)
 
 def initialize_user():
-    cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, ?, ?) ON CONFLICT(user_id) DO NOTHING", 
-                   (user_id, None, 0, 0, 0))
+    cursor.execute("""
+        INSERT OR IGNORE INTO users (user_id, date, requests, experience_points, purchased_requests)
+        VALUES (?, ?, 0, 0, 0)
+    """, (user_id, None))
     conn.commit()
-
+    
 def get_requests_left():
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -65,16 +67,25 @@ def can_user_make_request():
     today = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("SELECT date, requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
-    
-    if row and row[0] == today:
-        if row[1] >= 10:
-            return False
-        else:
-            return consume_request()
-    else:
-        cursor.execute("UPDATE users SET date = ?, requests = 5 WHERE user_id = ?", (today, user_id))
+
+    # Si l'utilisateur n'existe pas, le réinitialiser
+    if not row:
+        initialize_user()
+        cursor.execute("SELECT date, requests FROM users WHERE user_id = ?", (user_id,))
+        row = cursor.fetchone()
+
+    # Si la date a changé, réinitialiser les requêtes quotidiennes
+    if row and row[0] != today:
+        cursor.execute("UPDATE users SET date = ?, requests = 0 WHERE user_id = ?", (today, user_id))
         conn.commit()
         return True
+
+    # Vérifier si les requêtes quotidiennes sont disponibles
+    if row and row[1] < 10:
+        return consume_request()
+
+    # Si aucune requête n'est disponible
+    return False
 
 def get_experience_points():
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
