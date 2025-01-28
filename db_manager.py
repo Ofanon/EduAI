@@ -20,7 +20,6 @@ cursor.execute('''
 ''')
 conn.commit()
 
-# Obtenir l'ID utilisateur
 hostname = socket.gethostname()
 user_id = socket.gethostbyname(hostname)
 
@@ -46,7 +45,6 @@ def purchase_requests(cost_in_experience, requests_to_add):
         conn.commit()
         return True
     return False
-
 def consume_request():
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
