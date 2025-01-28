@@ -4,7 +4,7 @@ import re
 import json
 from streamlit_lottie import st_lottie
 import requests
-import data.db_manager as db_manager
+import db_manager as db
 
 def load_lottieurl(url):
     r = requests.get(url)
@@ -48,6 +48,8 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state.correct_answers = 0
         st.session_state.verified = False
         st.session_state.explanation = None
+        st.session_state.note = None
+        st.session_state.points = None
 
 
 if "started" in st.session_state:
@@ -63,7 +65,7 @@ if "started" in st.session_state:
             st.session_state.difficulty = st.slider("Définis une difficultée pour ce quiz :", 0, 10)
         
         if st.button("Créer le quiz", disabled=st.session_state.can_start):
-            if db_manager.can_user_make_request():
+            if db.can_user_make_request():
                 st.session_state.can_start = True
                 st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt, difficulty=st.session_state.difficulty)
             else:
@@ -116,7 +118,11 @@ if "started" in st.session_state:
         else:
             note = (st.session_state.correct_answers / 10) * 20
             st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
-            st.write(f"Votre note est de {note}/20 !")
+            st.session_state.note = st.write(f"Votre note est de {note}/20 !")
+            if st.session_state.points == None:
+                st.session_state.points = st.session_state.note * 10
+                db.update_experience_points(points=st.session_state.points)
+            st.success(f"Vous avez gagné {st.session_state.points} points d'experience !")
             st.balloons()
             if st.button("Refaire un autre quiz"):
                 del st.session_state.started

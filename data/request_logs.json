@@ -1,1 +1,8 @@
-{}
+{
+    "192.168.1.75": {
+        "date": "2025-01-28",
+        "requests": 0,
+        "experience_points": 120,
+        "purchased_requests": 160
+    }
+}

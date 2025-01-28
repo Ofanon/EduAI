@@ -20,6 +20,22 @@ if "user_informations" not in st.session_state:
     st.session_state["user_informations"] = []
 
 
+def update_experience_points(user_id, points):
+    users = load_users()
+    if user_id in users:
+        users[user_id]["experience_points"] = users[user_id].get("experience_points", 0) + points
+        with open(users_file, "w") as f:
+            json.dump(users, f, indent=4)
+        return users[user_id]["experience_points"]
+    else:
+        st.error("Veuillez vous enregistrer")
+
+def get_experience_points(user_id):
+    users = load_users()
+    if user_id in users:
+        return users[user_id].get("experience_points", 0)
+    else:
+        st.error("Veuillez vous enregistrer")
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -152,4 +168,8 @@ if "connected" in st.session_state:
     st.subheader(f"👋Bienvenue dans l'EtudIAnt {st.session_state["user_id"]} !")
     st.success(f"Clé API existante : {st.session_state["api_key"]}")
     st.session_state["authenticated"] = True
+
+if st.button("Points"):
+    update_experience_points(user_id=user_id, points=200)
+    st.write(get_experience_points(user_id=user_id))
 
