@@ -39,23 +39,25 @@ def create_dynamic_word_doc(response):
     doc.add_heading('Réponse de l\'IA', level=1)
 
     lines = response.split("\n")
+    table = None
+    
     for line in lines:
-        if line.startswith("1.") or line.startswith("-"):
-            doc.add_paragraph(line.strip(), style='List Number')
-        elif "|" in line:
+        if "|" in line:
             cells = [cell.strip() for cell in line.split("|") if cell.strip()]
-            if len(cells) > 1:
-                try:
-                    table = doc.tables[-1]
-                except IndexError:
-                    table = doc.add_table(rows=0, cols=len(cells))
-                row = table.add_row().cells
+            if not table:
+                table = doc.add_table(rows=1, cols=len(cells))
+                hdr_cells = table.rows[0].cells
                 for i, cell in enumerate(cells):
-                    row[i].text = cell
+                    hdr_cells[i].text = cell
+            else:
+                row_cells = table.add_row().cells
+                for i, cell in enumerate(cells):
+                    row_cells[i].text = cell
         else:
             doc.add_paragraph(line)
 
     return doc
+
 
 place_holder_button = st.empty()
 
