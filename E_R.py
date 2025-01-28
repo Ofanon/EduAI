@@ -36,7 +36,8 @@ if prompt_user:
                 if response_ai_user:
                     time.sleep(2)
                     st.session_state["created"] = True
-        st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
+        else:
+            st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
 if "created" in st.session_state:
     if prompt_user and prompt_user != st.session_state["last_prompt"]:
@@ -51,7 +52,8 @@ if "created" in st.session_state:
             history_chat.append({"role":"user", "parts":prompt_user})
             history_chat.append({"role":"model", "parts":response_chat.text})
             st.session_state["last_prompt"] = prompt_user
-
+        else:
+            st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
         
 if "chat_add" in st.session_state:
     for message in st.session_state["chat_add"]:
