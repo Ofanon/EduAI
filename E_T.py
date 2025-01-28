@@ -82,7 +82,7 @@ if st.session_state.started == True:
     doc.save(buffer)
     buffer.seek(0)
     st.download_button(
-    label="Télécharger la réponse en Word",
+    label="Télécharger la réponse en Word (bêta)",
     data=buffer,
     file_name="response.docx",
     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -93,4 +93,5 @@ if "analyze_image_finished" in st.session_state:
         if message["role"] == "assistant":
             with st.chat_message("assistant"):
                 st.write(f"**IA** : {message['content']}")
+                st.write("Si tu veux gagner des étoiles ⭐ fais ce controle et envoye le moi.")
 
