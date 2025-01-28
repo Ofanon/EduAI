@@ -44,23 +44,52 @@ def purchase_requests(cost_in_experience, requests_to_add):
         return True
     return False
 
-def can_user_make_request():
+def can_user_make_request(user_id):
     today = datetime.now().strftime("%Y-%m-%d")
-    cursor.execute("SELECT date, requests FROM users WHERE user_id = ?", (user_id,))
+    
+    # Récupérer les informations actuelles de l'utilisateur
+    cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
 
     if row:
-        last_date, requests = row
-        if last_date == today:
-            if requests >= 10:
-                return False
-            else:
-                cursor.execute("UPDATE users SET requests = requests + 1 WHERE user_id = ?", (user_id,))
-        else:
-            cursor.execute("UPDATE users SET date = ?, requests = 1 WHERE user_id = ?", (today, user_id))
-    else:
-        cursor.execute("INSERT INTO users (user_id, date, requests) VALUES (?, ?, ?)", (user_id, today, 1))
+        last_date, daily_requests, purchased_requests = row
 
+        # Vérifier si c'est un nouveau jour
+        if last_date != today:
+            # Réinitialiser les requêtes quotidiennes à 5
+            cursor.execute(
+                "UPDATE users SET date = ?, requests = ?, purchased_requests = ? WHERE user_id = ?",
+                (today, 5, purchased_requests, user_id)
+            )
+            conn.commit()
+            return True
+
+        # Consommer une requête achetée si disponible
+        if purchased_requests > 0:
+            cursor.execute(
+                "UPDATE users SET purchased_requests = purchased_requests - 1 WHERE user_id = ?",
+                (user_id,)
+            )
+            conn.commit()
+            return True
+
+        # Consommer une requête quotidienne si disponible
+        if daily_requests > 0:
+            cursor.execute(
+                "UPDATE users SET requests = requests - 1 WHERE user_id = ?",
+                (user_id,)
+            )
+            conn.commit()
+            return True
+
+        # Pas de requêtes disponibles
+        return False
+
+    # Si l'utilisateur n'existe pas, l'initialiser
+    cursor.execute(
+        "INSERT INTO users (user_id, date, requests, purchased_requests) VALUES (?, ?, ?, ?)",
+        (user_id, today, 5, 0)
+    )
     conn.commit()
     return True
 
