@@ -4,9 +4,11 @@ import socket
 
 DB_FILE = "data/request_logs.db"
 
+# Connexion à la base SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
+# Création de la table si elle n'existe pas
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
@@ -18,6 +20,7 @@ cursor.execute('''
 ''')
 conn.commit()
 
+# Obtenir l'ID utilisateur
 hostname = socket.gethostname()
 user_id = socket.gethostbyname(hostname)
 
@@ -44,54 +47,34 @@ def purchase_requests(cost_in_experience, requests_to_add):
         return True
     return False
 
+def consume_request():
+    cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+    if row:
+        if row[1] > 0:
+            cursor.execute("UPDATE users SET purchased_requests = purchased_requests - 1 WHERE user_id = ?", (user_id,))
+        elif row[0] > 0:
+            cursor.execute("UPDATE users SET requests = requests - 1 WHERE user_id = ?", (user_id,))
+        else:
+            return False
+        conn.commit()
+        return True
+    return False
+
 def can_user_make_request():
     today = datetime.now().strftime("%Y-%m-%d")
-    
-    # Récupérer les informations actuelles de l'utilisateur
-    cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT date, requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
-
-    if row:
-        last_date, daily_requests, purchased_requests = row
-
-        # Vérifier si c'est un nouveau jour
-        if last_date != today:
-            # Réinitialiser les requêtes quotidiennes à 5
-            cursor.execute(
-                "UPDATE users SET date = ?, requests = ?, purchased_requests = ? WHERE user_id = ?",
-                (today, 5, purchased_requests, user_id)
-            )
-            conn.commit()
-            return True
-
-        # Consommer une requête achetée si disponible
-        if purchased_requests > 0:
-            cursor.execute(
-                "UPDATE users SET purchased_requests = purchased_requests - 1 WHERE user_id = ?",
-                (user_id,)
-            )
-            conn.commit()
-            return True
-
-        # Consommer une requête quotidienne si disponible
-        if daily_requests > 0:
-            cursor.execute(
-                "UPDATE users SET requests = requests - 1 WHERE user_id = ?",
-                (user_id,)
-            )
-            conn.commit()
-            return True
-
-        # Pas de requêtes disponibles
-        return False
-
-    # Si l'utilisateur n'existe pas, l'initialiser
-    cursor.execute(
-        "INSERT INTO users (user_id, date, requests, purchased_requests) VALUES (?, ?, ?, ?)",
-        (user_id, today, 5, 0)
-    )
-    conn.commit()
-    return True
+    
+    if row and row[0] == today:
+        if row[1] >= 10:
+            return False
+        else:
+            return consume_request()
+    else:
+        cursor.execute("UPDATE users SET date = ?, requests = 5 WHERE user_id = ?", (today, user_id))
+        conn.commit()
+        return True
 
 def get_experience_points():
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
