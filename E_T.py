@@ -61,7 +61,7 @@ def create_dynamic_word_doc(response):
 
 place_holder_button = st.empty()
 
-if st.session_state.uploaded_files and len(st.session_state.uploaded_files) > 0 or st.session_state.started == True:
+if st.session_state.uploaded_files and len(st.session_state.uploaded_files) > 0 or st.session_state.started == True and st.session_state.chat_control != []:
     if place_holder_button.button("Créer un contrôle sur ce cours"):
         if db_manager.can_user_make_request():
             images = display_images(st.session_state.uploaded_files)
