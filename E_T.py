@@ -72,6 +72,7 @@ if st.session_state.uploaded_files and len(st.session_state.uploaded_files) > 0 
                 st.session_state.response_download = response.text
                 st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
                 st.session_state.started = True
+                st.rerun()
         else:
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
