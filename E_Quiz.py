@@ -120,6 +120,7 @@ if "started" in st.session_state:
             st.subheader(f"Votre note est de {st.session_state.note}/20 !")
             if st.session_state.points == None:
                 st.session_state.points = st.session_state.note * 10
+                db.update_experience_points(points=st.session_state.points)
             st.success(f"Vous avez gagné {st.session_state.points} points d'experience !")
             st.balloons()
             if st.button("Refaire un autre quiz"):
