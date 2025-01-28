@@ -44,7 +44,7 @@ def purchase_requests(cost_in_experience, requests_to_add):
         return True
     return False
 
-def can_user_make_request(user_id):
+def can_user_make_request():
     today = datetime.now().strftime("%Y-%m-%d")
     
     # Récupérer les informations actuelles de l'utilisateur
