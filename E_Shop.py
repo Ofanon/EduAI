@@ -1,7 +1,6 @@
 import streamlit as st
 import db_manager as db
 
-user_ip = db.get_user_id()
 experience_points = db.get_experience_points()
 
 st.title("🌟 Boutique de l'EtudIAnt 🌟")
