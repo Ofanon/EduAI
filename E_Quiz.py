@@ -121,7 +121,6 @@ if "started" in st.session_state:
             if st.session_state.points == None:
                 st.session_state.points = st.session_state.note * 10
                 db.update_experience_points(points=st.session_state.points)
-                st.rerun()
                 st.write(db.get_experience_points())
             st.success(f"Vous avez gagné {st.session_state.points} points d'experience !")
             st.balloons()
