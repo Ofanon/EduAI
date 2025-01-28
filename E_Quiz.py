@@ -20,9 +20,9 @@ genai.configure(api_key=st.secrets["API_KEY"])
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
-def get_questions(level, subject, prompt):
+def get_questions(level, subject, prompt, difficulty):
         with st.spinner("La création du quiz est en cours...") :
-            response_ai = model.generate_content(f"Crée un QCM de 10 questions de niveau {level} en {subject} et de sujet : {prompt}. Toutes les réponses doivent etre dans un container JSON avec : question_number , question , choices , correct_answer , explanation.")
+            response_ai = model.generate_content(f"Crée un QCM de 10 questions de niveau {level} en {subject}, de sujet : {prompt}. De diffcultée : {difficulty}. Toutes les réponses doivent etre dans un container JSON avec : question_number , question , choices , correct_answer , explanation.")
         match = re.search(r'\[.*\]', response_ai.text, re.DOTALL)
         if match:
                 json_text = match.group(0)
@@ -66,7 +66,7 @@ if "started" in st.session_state:
         if st.button("Créer le quiz", disabled=st.session_state.can_start):
             if db_manager.can_user_make_request():
                 st.session_state.can_start = True
-                st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
+                st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt, difficulty=st.session_state.difficulty)
             else:
                 st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
         
