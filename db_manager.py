@@ -64,7 +64,6 @@ def purchase_requests(cost_in_experience, requests_to_add):
 
 def can_user_make_request():
     quotas = load_quotas()
-    user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
 
     if user_id in quotas and quotas[user_id]["date"] == today:
@@ -89,6 +88,3 @@ def update_experience_points(points):
         quotas[user_id]["experience_points"] = quotas[user_id].get("experience_points", 0) + points
         save_quotas(quotas)
         return quotas[user_id]["experience_points"]
-    else:
-        raise ValueError("Utilisateur non trouvé.")
-
