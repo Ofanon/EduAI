@@ -12,6 +12,7 @@ model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 if "started" not in st.session_state:
     st.session_state["analyze_image_finished"] = False
     st.session_state["chat_control"] = []
+    st.session_state.response_download = None
     st.session_state.started = False
 
 st.title("EtudIAnt : Créateur de contrôles")
@@ -65,21 +66,23 @@ if uploaded_files is not None and len(uploaded_files) > 0:
                 with st.spinner("L'EtudIAnt reflechit..."):
                     place_holder_button.empty()
                     response = model.generate_content([prompt]+ images)
+                st.session_state.response_download = response.text
                 st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
                 st.session_state.started = True
-                doc = create_dynamic_word_doc(response)
-                buffer = BytesIO()
-                doc.save(buffer)
-                buffer.seek(0)
-
-                st.download_button(
-                    label="Télécharger la réponse en Word",
-                    data=buffer,
-                    file_name="response.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                )
         else:
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
+
+if st.session_state.started == True:
+    doc = create_dynamic_word_doc(st.session_state.response_download)
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    st.download_button(
+    label="Télécharger la réponse en Word",
+    data=buffer,
+    file_name="response.docx",
+    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
 if "analyze_image_finished" in st.session_state:
     for message in st.session_state["chat_control"]:
