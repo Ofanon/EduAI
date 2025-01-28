@@ -2,6 +2,8 @@ import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 import data.db_manager as db_manager
+from docx import Document
+from io import BytesIO
 
 genai.configure(api_key=st.secrets["API_KEY"])
 
@@ -30,6 +32,29 @@ def display_images(files):
         images.append(image_pil)
     return images
 
+def create_dynamic_word_doc(response):
+    doc = Document()
+    doc.add_heading('Réponse de l\'IA', level=1)
+
+    lines = response.split("\n")
+    for line in lines:
+        if line.startswith("1.") or line.startswith("-"):
+            doc.add_paragraph(line.strip(), style='List Number')
+        elif "|" in line:
+            cells = [cell.strip() for cell in line.split("|") if cell.strip()]
+            if len(cells) > 1:
+                try:
+                    table = doc.tables[-1]
+                except IndexError:
+                    table = doc.add_table(rows=0, cols=len(cells))
+                row = table.add_row().cells
+                for i, cell in enumerate(cells):
+                    row[i].text = cell
+        else:
+            doc.add_paragraph(line)
+
+    return doc
+
 place_holder_button = st.empty()
 
 if uploaded_files is not None and len(uploaded_files) > 0:
@@ -42,6 +67,17 @@ if uploaded_files is not None and len(uploaded_files) > 0:
                     response = model.generate_content([prompt]+ images)
                 st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
                 st.session_state.started = True
+                doc = create_dynamic_word_doc(response)
+                buffer = BytesIO()
+                doc.save(buffer)
+                buffer.seek(0)
+
+                st.download_button(
+                    label="Télécharger la réponse en Word",
+                    data=buffer,
+                    file_name="response.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
         else:
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
