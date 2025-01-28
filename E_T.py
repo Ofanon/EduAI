@@ -17,7 +17,7 @@ if "started" not in st.session_state:
 
 st.title("EtudIAnt : Créateur de contrôles")
 
-if not st.session_state.started:
+if st.session_state.started == False:
     level = st.selectbox('Sélectionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
     subject = st.selectbox('Sélectionne la matière de ta fiche de révision:', ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"])   
     difficulty = st.slider("Définis la difficultée du contrôle de 1 à 10 :", 1, 10)
