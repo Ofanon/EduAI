@@ -4,6 +4,7 @@ import os
 import streamlit as st
 import requests
 import hashlib
+import uuid
 DB_FILE = "request_logs.db"  # Met le fichier à la racine du projet
 
 # Vérifier si la base de données existe
