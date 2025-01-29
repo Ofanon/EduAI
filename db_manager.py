@@ -8,26 +8,24 @@ DB_FILE = "data/request_logs.db"
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# Création de la table si elle n'existe pas
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
         date TEXT,
-        requests INTEGER DEFAULT 0,
+        requests INTEGER DEFAULT 5,
         experience_points INTEGER DEFAULT 0,
         purchased_requests INTEGER DEFAULT 0
     )
 ''')
 conn.commit()
 
-# Obtenir l'ID utilisateur
 hostname = socket.gethostname()
 user_id = socket.gethostbyname(hostname)
 
 def initialize_user():
     cursor.execute("""
         INSERT OR IGNORE INTO users (user_id, date, requests, experience_points, purchased_requests)
-        VALUES (?, ?, 0, 0, 0)
+        VALUES (?, ?, 5, 0, 0)
     """, (user_id, None))
     conn.commit()
 
@@ -38,34 +36,28 @@ def can_user_make_request():
 
     if not row:
         initialize_user()
-        cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
-        row = cursor.fetchone()
+        return True
 
     date_last_request, normal_requests, purchased_requests = row
 
-    # Réinitialiser les requêtes si la date a changé
     if date_last_request != today:
         cursor.execute("UPDATE users SET date = ?, requests = 5 WHERE user_id = ?", (today, user_id))
         conn.commit()
         return True
 
-    # Vérifier si des requêtes normales sont disponibles
-    if normal_requests > 0:
-        return True
-
-    # Vérifier si des requêtes achetées sont disponibles
-    if purchased_requests > 0:
-        return True
-
-    return False
+    return normal_requests > 0 or purchased_requests > 0
 
 def consume_request():
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
+    if not row:
+        return False
 
-    if row[1] > 0:  # Consommer une requête achetée
+    normal_requests, purchased_requests = row
+
+    if purchased_requests > 0:
         cursor.execute("UPDATE users SET purchased_requests = purchased_requests - 1 WHERE user_id = ?", (user_id,))
-    elif row[0] > 0:  # Consommer une requête normale
+    elif normal_requests > 0:
         cursor.execute("UPDATE users SET requests = requests - 1 WHERE user_id = ?", (user_id,))
     else:
         return False
@@ -77,7 +69,7 @@ def purchase_requests(cost_in_experience, requests_to_add):
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
 
-    if row and row[0] >= cost_in_experience:  # Vérifier si suffisamment de points d'expérience
+    if row and row[0] >= cost_in_experience:
         cursor.execute("""
             UPDATE users
             SET experience_points = experience_points - ?, purchased_requests = purchased_requests + ?
@@ -86,6 +78,13 @@ def purchase_requests(cost_in_experience, requests_to_add):
         conn.commit()
         return True
     return False
+
+def get_requests_left():
+    cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+    if row:
+        return row[0] + row[1]  # Addition des requêtes normales et achetées
+    return 5  # Par défaut, on suppose que l'utilisateur a ses 5 requêtes de base
 
 def update_experience_points(points):
     cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
