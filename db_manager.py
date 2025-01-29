@@ -26,6 +26,11 @@ if not db_exists:
     ''')
     conn.commit()
 
+try:
+    print(f"[DEBUG] Votre utilisateur système est : {os.getlogin()}")
+except Exception as e:
+    print(f"[ERROR] os.getlogin() a échoué : {e}")
+
 def get_user_id():
     """Récupère un ID unique pour chaque utilisateur en utilisant `st.session_state`."""
     if "user_id" not in st.session_state:
