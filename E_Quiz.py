@@ -76,4 +76,4 @@ if st.session_state.started:
         st.write(f"🎯 Score : **{st.session_state.correct_answers}/10**")
         if st.button("🔄 Recommencer"):
             del st.session_state.started
-            st.experimental_rerun()
+            st.rerun()
