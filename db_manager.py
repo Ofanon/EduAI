@@ -13,7 +13,7 @@ if not os.path.exists("data"):
 
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
-
+db_exists = os.path.exists(DB_FILE)
 if not db_exists:
     print("[DEBUG] Création de la base de données.")
     cursor.execute('''
