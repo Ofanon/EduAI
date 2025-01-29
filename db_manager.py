@@ -5,7 +5,7 @@ import streamlit as st
 import requests
 import hashlib
 import uuid
-DB_FILE = "request_logs.db"
+DB_FILE = "data/request_logs.db"
 
 db_exists = os.path.exists(DB_FILE)
 
