@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
-import socket
+import uuid
+import requests
 import os
 
 DB_FILE = "data/request_logs.db"
@@ -23,15 +24,26 @@ if not db_exists:
     ''')
     conn.commit()
 
-hostname = socket.gethostname()
-user_id = socket.gethostbyname(hostname)
+def get_unique_user_id():
+    try:
+        response = requests.get("https://api64.ipify.org?format=json")
+        user_ip = response.json()["ip"]
+    except:
+        user_ip = "Unknown"
+
+    return f"{user_ip}_{uuid.uuid4()}"  # Combine IP + UUID
+
+user_id = get_unique_user_id()
 
 def initialize_user():
-    cursor.execute("""
-        INSERT OR IGNORE INTO users (user_id, date, requests, experience_points, purchased_requests)
-        VALUES (?, ?, 5, 0, 0)
-    """, (user_id, None))
-    conn.commit()
+    cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
+    if cursor.fetchone()[0] == 0:
+        print(f"[DEBUG] Nouvel utilisateur : {user_id}")
+        cursor.execute("""
+            INSERT INTO users (user_id, date, requests, experience_points, purchased_requests)
+            VALUES (?, ?, 5, 0, 0)
+        """, (user_id, None))
+        conn.commit()
 
 def can_user_make_request():
     today = datetime.now().strftime("%Y-%m-%d")
@@ -83,13 +95,6 @@ def purchase_requests(cost_in_experience, requests_to_add):
         return True
     return False
 
-def get_requests_left():
-    cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-    if row:
-        return row[0] + row[1]
-    return 5
-
 def update_experience_points(points):
     cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
     conn.commit()
@@ -98,5 +103,20 @@ def get_experience_points():
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] if row else 0
+
+def get_requests_left():
+    cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+    if row:
+        return row[0] + row[1]
+    return 5
+
+def debug_show_users():
+    """Affiche tous les utilisateurs de la base pour vérifier."""
+    cursor.execute("SELECT * FROM users")
+    rows = cursor.fetchall()
+    print("[DEBUG] Liste des utilisateurs enregistrés :")
+    for row in rows:
+        print(row)
 
 initialize_user()
