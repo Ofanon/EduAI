@@ -97,6 +97,7 @@ if "started" in st.session_state:
             if st.session_state.verified == True:
 
                 if user_repsponse == st.session_state.correct_answer:
+                    db.update_experience_points(points=20)
                     st.success("Bien joué, tu as trouvé la bonne réponse !")
                     st.session_state.correct_answers += 1
 

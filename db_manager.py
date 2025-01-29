@@ -83,8 +83,8 @@ def get_requests_left():
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     if row:
-        return row[0] + row[1]  # Addition des requêtes normales et achetées
-    return 5  # Par défaut, on suppose que l'utilisateur a ses 5 requêtes de base
+        return row[0] + row[1]
+    return 5
 
 def update_experience_points(points):
     cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
