@@ -1,16 +1,18 @@
 import sqlite3
 from datetime import datetime
-import uuid
-import requests
 import os
+import streamlit as st
 
 DB_FILE = "data/request_logs.db"
 
+# Vérifie si la base existe avant de la recréer
 db_exists = os.path.exists(DB_FILE)
 
+# Connexion à SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
+# Création de la table uniquement si la base est nouvelle
 if not db_exists:
     print("[DEBUG] Création de la base de données pour la première fois.")
     cursor.execute('''
@@ -24,18 +26,13 @@ if not db_exists:
     ''')
     conn.commit()
 
-def get_unique_user_id():
-    try:
-        response = requests.get("https://api64.ipify.org?format=json")
-        user_ip = response.json()["ip"]
-    except:
-        user_ip = "Unknown"
-
-    return f"{user_ip}_{uuid.uuid4()}"  # Combine IP + UUID
-
-user_id = get_unique_user_id()
+def get_user_id():
+    """Récupère l'ID utilisateur depuis `st.session_state`."""
+    return st.session_state.get("user_id", "unknown_user")
 
 def initialize_user():
+    """Crée un utilisateur s'il n'existe pas déjà."""
+    user_id = get_user_id()
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
     if cursor.fetchone()[0] == 0:
         print(f"[DEBUG] Nouvel utilisateur : {user_id}")
@@ -46,6 +43,8 @@ def initialize_user():
         conn.commit()
 
 def can_user_make_request():
+    """Vérifie si un utilisateur peut faire une requête."""
+    user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -64,6 +63,8 @@ def can_user_make_request():
     return normal_requests > 0 or purchased_requests > 0
 
 def consume_request():
+    """Consomme une requête de l'utilisateur (achetée ou normale)."""
+    user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     if not row:
@@ -82,6 +83,8 @@ def consume_request():
     return True
 
 def purchase_requests(cost_in_experience, requests_to_add):
+    """Achète des requêtes supplémentaires avec des XP."""
+    user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
 
@@ -96,20 +99,26 @@ def purchase_requests(cost_in_experience, requests_to_add):
     return False
 
 def update_experience_points(points):
+    """Ajoute des points d'expérience à l'utilisateur."""
+    user_id = get_user_id()
     cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
     conn.commit()
 
 def get_experience_points():
+    """Récupère les points d'expérience de l'utilisateur."""
+    user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] if row else 0
 
 def get_requests_left():
+    """Retourne le nombre total de requêtes disponibles (normales + achetées)."""
+    user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     if row:
         return row[0] + row[1]
-    return 5
+    return 5  # Valeur par défaut
 
 def debug_show_users():
     """Affiche tous les utilisateurs de la base pour vérifier."""
@@ -119,4 +128,5 @@ def debug_show_users():
     for row in rows:
         print(row)
 
+# Initialisation de l'utilisateur
 initialize_user()
