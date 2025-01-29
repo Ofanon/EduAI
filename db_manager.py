@@ -5,16 +5,13 @@ import streamlit as st
 import requests
 import hashlib
 import uuid
-DB_FILE = "request_logs.db"  # Met le fichier à la racine du projet
+DB_FILE = "request_logs.db"
 
-# Vérifier si la base de données existe
 db_exists = os.path.exists(DB_FILE)
 
-# Connexion à SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# Créer la table uniquement si la base est nouvelle
 if not db_exists:
     print("[DEBUG] Création de la base de données.")
     cursor.execute('''
