@@ -3,18 +3,18 @@ from datetime import datetime
 import os
 import streamlit as st
 
-DB_FILE = "data/request_logs.db"
+DB_FILE = "request_logs.db"  # Met le fichier à la racine du projet
 
-# Vérifie si la base existe avant de la recréer
+# Vérifier si la base de données existe
 db_exists = os.path.exists(DB_FILE)
 
 # Connexion à SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# Création de la table uniquement si la base est nouvelle
+# Créer la table uniquement si la base est nouvelle
 if not db_exists:
-    print("[DEBUG] Création de la base de données pour la première fois.")
+    print("[DEBUG] Création de la base de données.")
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id TEXT PRIMARY KEY,
@@ -27,15 +27,17 @@ if not db_exists:
     conn.commit()
 
 def get_user_id():
-    """Récupère l'ID utilisateur depuis `st.session_state`."""
-    return st.session_state.get("user_id", "unknown_user")
+    """Récupère un ID unique pour chaque utilisateur en utilisant `st.session_state`."""
+    if "user_id" not in st.session_state:
+        st.session_state["user_id"] = str(os.getlogin())  # Utilise le nom de l'utilisateur du PC
+    return st.session_state["user_id"]
 
 def initialize_user():
-    """Crée un utilisateur s'il n'existe pas déjà."""
+    """Crée un utilisateur seulement s'il n'existe pas."""
     user_id = get_user_id()
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
     if cursor.fetchone()[0] == 0:
-        print(f"[DEBUG] Nouvel utilisateur : {user_id}")
+        print(f"[DEBUG] Nouvel utilisateur ajouté : {user_id}")
         cursor.execute("""
             INSERT INTO users (user_id, date, requests, experience_points, purchased_requests)
             VALUES (?, ?, 5, 0, 0)
@@ -43,7 +45,7 @@ def initialize_user():
         conn.commit()
 
 def can_user_make_request():
-    """Vérifie si un utilisateur peut faire une requête."""
+    """Vérifie si l'utilisateur peut faire une requête."""
     user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
@@ -63,7 +65,7 @@ def can_user_make_request():
     return normal_requests > 0 or purchased_requests > 0
 
 def consume_request():
-    """Consomme une requête de l'utilisateur (achetée ou normale)."""
+    """Consomme une requête normale ou achetée."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -83,7 +85,7 @@ def consume_request():
     return True
 
 def purchase_requests(cost_in_experience, requests_to_add):
-    """Achète des requêtes supplémentaires avec des XP."""
+    """Achète des requêtes avec les points d'expérience."""
     user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -112,7 +114,7 @@ def get_experience_points():
     return row[0] if row else 0
 
 def get_requests_left():
-    """Retourne le nombre total de requêtes disponibles (normales + achetées)."""
+    """Retourne le nombre total de requêtes restantes (normales + achetées)."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
