@@ -12,7 +12,7 @@ col1, col2, col3 = st.columns([1, 1, 1])
 
 with col1:
     with st.container(key=1):
-        st.image("5_Stars.png", width=110)
+        st.image("5_Stars.png", use_container_width=True)
         if st.button("🎁 **Prix** : 💎 1000 points d'expérience", key="buy_5"):
             success = db.purchase_requests(cost_in_experience=1000, requests_to_add=5)
             if success:
@@ -24,7 +24,7 @@ with col1:
 
 with col2:
     with st.container(key=2):
-        st.image("10_Stars.png", width=110)
+        st.image("10_Stars.png", use_container_width=True)
         if st.button("🎁 **Prix** : 💎 2800 points d'expérience", key="buy_10"):
             success = db.purchase_requests(cost_in_experience=2800, requests_to_add=10)
             if success:
@@ -36,7 +36,7 @@ with col2:
 
 with col3:
     with st.container(key=3):
-        st.image("20_Stars.png", width=110)
+        st.image("20_Stars.png", use_container_width=True)
         if st.button("🎁 **Prix** : 💎 5700 points d'expérience", key="buy_20"):
             success = db.purchase_requests(cost_in_experience=5700, requests_to_add=20)
             if success:
