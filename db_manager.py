@@ -9,9 +9,9 @@ DB_FILE = "request_logs.db"  # Met le fichier à la racine du projet
 db_exists = os.path.exists(DB_FILE)
 
 if not os.path.exists(DB_FILE):
-    print("[ERROR] 🚨 La base de données n'existe pas, elle va être recréée !")
+    st.write("[ERROR] 🚨 La base de données n'existe pas, elle va être recréée !")
 else:
-    print("[DEBUG] ✅ La base de données existe bien et ne sera pas recréée.")
+    st.write("[DEBUG] ✅ La base de données existe bien et ne sera pas recréée.")
 # Connexion à SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
