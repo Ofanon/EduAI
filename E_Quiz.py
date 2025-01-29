@@ -38,8 +38,8 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state.subject = None
         st.session_state.difficulty = None
         st.session_state.user_prompt = None
-        st.session_state.current_question = 0
-        st.session_state.question_count = 1
+        st.session_state.current_question = 1
+        st.session_state.question_count = 0
         st.session_state.started = False
         st.session_state.data = None
         st.session_state.question = None
@@ -73,7 +73,7 @@ if "started" in st.session_state:
                 st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
         
         if "data" in st.session_state and st.session_state.data:
-            st.session_state.current_question = st.session_state.data[st.session_state.question_count]
+            st.session_state.current_question = st.session_state.data[st.session_state.current_question]
             st.session_state.question = st.session_state.current_question['question']
             st.session_state.choices = st.session_state.current_question['choices']
             st.session_state.correct_answer = st.session_state.current_question['correct_answer']
