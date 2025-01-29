@@ -16,7 +16,7 @@ if "started" not in st.session_state:
     st.session_state.uploaded_files = None
     st.session_state.started = False
 
-st.title("EtudIAnt : Créateur de contrôles")
+st.title("EtudIAnt : 📝 Créateur de contrôles")
 
 if st.session_state.started == False:
     level = st.selectbox('Sélectionne ton niveau : ', ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])

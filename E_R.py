@@ -4,7 +4,7 @@ import time
 import db_manager as db_manager
 from streamlit_extras.streaming_write import st
 
-st.title("EtudIAnt : Créateur de fiche de révision📝")
+st.title("EtudIAnt : 📒 Créateur de fiche de révision")
 
 genai.configure(api_key=st.secrets["API_KEY"])
 

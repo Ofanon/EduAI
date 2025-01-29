@@ -14,7 +14,7 @@ def load_lottieurl(url):
 
 lottie_quiz = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_jcikwtux.json")
 
-st.title("EtudIAnt : Quiz interactif")
+st.title("EtudIAnt : 🎯 Quiz interactif")
 
 genai.configure(api_key=st.secrets["API_KEY"])
 
