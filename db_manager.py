@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime
 import os
 import streamlit as st
-
+import requests
 DB_FILE = "request_logs.db"  # Met le fichier à la racine du projet
 
 # Vérifier si la base de données existe
@@ -32,9 +32,22 @@ except Exception as e:
     print(f"[ERROR] os.getlogin() a échoué : {e}")
 
 def get_user_id():
-    """Récupère un ID unique pour chaque utilisateur en utilisant `st.session_state`."""
+    """Génère un ID stable sans utiliser os.getlogin()."""
     if "user_id" not in st.session_state:
-        st.session_state["user_id"] = str(os.getlogin())  # Utilise le nom de l'utilisateur du PC
+        try:
+            # Récupération de l'adresse IP publique
+            response = requests.get("https://api64.ipify.org?format=json", timeout=5)
+            public_ip = response.json().get("ip", "Unknown")
+
+            # Génération d'un identifiant unique
+            unique_id = f"{public_ip}_{uuid.uuid4()}"
+            hashed_id = hashlib.sha256(unique_id.encode()).hexdigest()
+
+            st.session_state["user_id"] = hashed_id
+        except Exception:
+            # Si impossible d'obtenir l'IP, utiliser un ID aléatoire
+            st.session_state["user_id"] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+
     return st.session_state["user_id"]
 
 def initialize_user():
