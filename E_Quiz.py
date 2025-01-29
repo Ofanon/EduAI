@@ -73,7 +73,7 @@ if "started" in st.session_state:
                 st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
         
         if "data" in st.session_state and st.session_state.data:
-            st.session_state.current_question = st.session_state.data[st.session_state.current_question]
+            st.session_state.current_question = st.session_state.data[st.session_state.question_count]
             st.session_state.question = st.session_state.current_question['question']
             st.session_state.choices = st.session_state.current_question['choices']
             st.session_state.correct_answer = st.session_state.current_question['correct_answer']
