@@ -38,8 +38,8 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state.subject = None
         st.session_state.difficulty = None
         st.session_state.user_prompt = None
-        st.session_state.current_question = 1
-        st.session_state.question_count = 0
+        st.session_state.current_question = None
+        st.session_state.question_count = 1
         st.session_state.started = False
         st.session_state.data = None
         st.session_state.question = None
