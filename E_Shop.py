@@ -5,7 +5,12 @@ experience_points = db.get_experience_points()
 
 st.title("🌟 Boutique de l'EtudIAnt 🌟")
 st.subheader(f"💎 Vous avez **{experience_points}** points d'expérience.")
-
+with st.container():
+    st.image("star.png", width=100)
+    st.markdown("### ⭐ Pack 5 étoiles")
+    st.write("💎 **1000 XP**")
+    if st.button("🛒 Acheter"):
+        st.success("✅ 5 étoiles ajoutées !")
 st.markdown("---")
 
 col1, col2, col3 = st.columns([1, 1, 1])
