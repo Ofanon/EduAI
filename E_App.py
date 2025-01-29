@@ -4,18 +4,6 @@ import requests
 import db_manager as db
 import uuid
 
-if "user_id" not in st.session_state:
-    st.session_state["user_id"] = str(uuid.uuid4())
-
-import streamlit as st
-import db_manager
-
-if "user_id" not in st.session_state:
-    st.session_state["user_id"] = db_manager.get_user_id()
-
-st.write(f"👤 ID utilisateur : `{st.session_state['user_id']}`")
-st.write(f"⭐ Requêtes restantes : {db_manager.get_requests_left()}")
-st.write(f"💰 Points d'expérience : {db_manager.get_experience_points()}")
 
 
 with st.sidebar:

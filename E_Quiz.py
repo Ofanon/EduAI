@@ -62,12 +62,12 @@ if "started" in st.session_state:
             st.session_state.user_prompt = st.text_input("Le sujet du quiz (optionel) :", placeholder="Ex : sur la révolution")
         with col2:
             st.session_state.level = st.selectbox('Sélectionne ton niveau : ', ["CP","6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
-            st.session_state.difficulty = st.slider("Définis une difficultée pour ce quiz :", 0, 10)
         
         if st.button("Créer le quiz", disabled=st.session_state.can_start):
             if db.can_user_make_request():
+                db.consume_request()
                 st.session_state.can_start = True
-                st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt, difficulty=st.session_state.difficulty)
+                st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
             else:
                 st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
         
