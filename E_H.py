@@ -4,7 +4,7 @@ import PIL
 import streamlit as st
 import db_manager as db_manager
 
-st.title("EtudIAnt : Aide au devoirs")
+st.title("📚 EtudIAnt : Aide au devoirs")
 genai.configure(api_key=st.secrets["API_KEY"])
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
