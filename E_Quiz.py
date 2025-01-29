@@ -53,6 +53,7 @@ if not st.session_state.started:
             st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
             st.session_state.started = True
             st.session_state.question_count = 0
+            st.rerun()
         else:
             st.error("❌ Vous avez atteint votre quota de requêtes pour aujourd'hui.")
 
