@@ -27,11 +27,6 @@ if not db_exists:
     ''')
     conn.commit()
 
-try:
-    st.write(f"[DEBUG] Votre utilisateur système est : {os.getlogin()}")
-except Exception as e:
-    st.write(f"[ERROR] os.getlogin() a échoué : {e}")
-
 def get_user_id():
     """Génère un ID stable sans utiliser os.getlogin()."""
     if "user_id" not in st.session_state:
