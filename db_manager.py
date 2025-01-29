@@ -1,23 +1,27 @@
 import sqlite3
 from datetime import datetime
 import socket
+import os
 
 DB_FILE = "data/request_logs.db"
 
-# Connexion à la base SQLite
+db_exists = os.path.exists(DB_FILE)
+
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        date TEXT,
-        requests INTEGER DEFAULT 5,
-        experience_points INTEGER DEFAULT 0,
-        purchased_requests INTEGER DEFAULT 0
-    )
-''')
-conn.commit()
+if not db_exists:
+    print("[DEBUG] Création de la base de données pour la première fois.")
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            date TEXT,
+            requests INTEGER DEFAULT 5,
+            experience_points INTEGER DEFAULT 0,
+            purchased_requests INTEGER DEFAULT 0
+        )
+    ''')
+    conn.commit()
 
 hostname = socket.gethostname()
 user_id = socket.gethostbyname(hostname)
