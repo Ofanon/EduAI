@@ -5,9 +5,11 @@ import streamlit as st
 import requests
 import hashlib
 import uuid
-DB_FILE = "data/request_logs.db"
 
-db_exists = os.path.exists(DB_FILE)
+DB_FILE = os.path.join(os.getcwd(), "data", "request_logs.db")
+
+if not os.path.exists("data"):
+    os.makedirs("data")
 
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
