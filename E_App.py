@@ -8,7 +8,7 @@ import uuid
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db.get_requests_left()}")
-    pg = st.navigation([st.Page("E_Shop.py", title="Boutique"),st.Page("E_Quiz.py", title = "Quiz interactif"), st.Page("E_H.py", title = "Aide aux devoirs"), st.Page("E_R.py", title = "Créateur de fiches de révision"), st.Page("E_T.py", title= "Créateur de contrôle")])
+    pg = st.navigation([st.Page("E_Shop.py", title="Boutique"),st.Page("E_Quiz.py", title = "Quiz interactif"), st.Page("E_H.py", title = "📚 Aide aux devoirs"), st.Page("E_R.py", title = "Créateur de fiches de révision"), st.Page("E_T.py", title= "Créateur de contrôle")])
 
 pg.run()
 
