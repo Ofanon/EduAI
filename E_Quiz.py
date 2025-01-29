@@ -49,7 +49,7 @@ if not st.session_state.started:
 
     if st.button("🚀 Créer le quiz"):
         if db_manager.can_user_make_request():
-            db_manager.consume_request()  # Consommer une requête
+            db_manager.consume_request()
             st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
             st.session_state.started = True
             st.session_state.question_count = 0
