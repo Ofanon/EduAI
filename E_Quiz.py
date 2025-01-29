@@ -44,7 +44,7 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state.data = None
         st.session_state.question = None
         st.session_state.choices = None
-        st.session_state.correct_answer = None
+        st.session_state.correct_answer = 0
         st.session_state.correct_answers = 0
         st.session_state.verified = False
         st.session_state.explanation = None
