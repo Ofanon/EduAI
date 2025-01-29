@@ -19,19 +19,19 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state["message"] = []
         st.session_state["started"] = False
 
-uploaded_file = st.file_uploader("Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
+uploaded_file = st.file_uploader("📥 Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
 st.session_state["uploaded_file"] = uploaded_file
 placeholder_button = st.empty()
 
 if "image_analyzed" in st.session_state:
-    if st.button("Résoudre un autre devoir"):
+    if st.button("✨ Résoudre un autre devoir"):
         del st.session_state.chat_history
         del st.session_state.image_analyzed
         uploaded_file = None
         st.rerun()
 
 if uploaded_file:
-    if placeholder_button.button("Résoudre le devoir"):
+    if placeholder_button.button(" ✨ Résoudre le devoir"):
         image = PIL.Image.open(uploaded_file)
         image.resize((512, 512))
         st.session_state["st_image"] = image
