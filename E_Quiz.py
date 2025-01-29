@@ -20,9 +20,9 @@ genai.configure(api_key=st.secrets["API_KEY"])
 
 model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
 
-def get_questions(level, subject, prompt, difficulty):
+def get_questions(level, subject, prompt):
         with st.spinner("La création du quiz est en cours...") :
-            response_ai = model.generate_content(f"Crée un QCM de 10 questions de niveau {level} en {subject}, de sujet : {prompt}. De diffcultée : {difficulty} sur 10. Toutes les réponses doivent etre dans un container JSON avec : question_number , question , choices , correct_answer , explanation.")
+            response_ai = model.generate_content(f"Crée un QCM de 10 questions de niveau {level} en {subject}, de sujet : {prompt}. Toutes les réponses doivent etre dans un container JSON avec : question_number , question , choices , correct_answer , explanation.")
         match = re.search(r'\[.*\]', response_ai.text, re.DOTALL)
         if match:
                 json_text = match.group(0)
