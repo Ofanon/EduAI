@@ -116,11 +116,13 @@ if "started" in st.session_state:
                     st.session_state.explanation = st.session_state.current_question['explanation']
                     st.rerun()
         else:
-            st.session_state.note = (st.session_state.correct_answers / 10) * 20
+            total_questions = len(st.session_state.data)
+            st.session_state.note = (st.session_state.correct_answers / total_questions) * 20
             st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
             st.subheader(f"Votre note est de {st.session_state.note}/20 !")
             if st.session_state.points == None:
                 st.session_state.points = st.session_state.note * 10
+                db.update_experience_points(points=st.session_state.points)
             st.success(f"Vous avez gagné {st.session_state.points} points d'experience !")
             st.balloons()
             if st.button("Refaire un autre quiz"):
