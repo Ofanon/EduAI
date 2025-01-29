@@ -18,6 +18,7 @@ with col1:
         if success:
             st.success("✨ 5 étoiles ajoutées !")
             st.balloons()
+            st.rerun()
         else:
             st.error("❌ Pas assez de points.")
 
@@ -29,6 +30,7 @@ with col2:
         if success:
             st.success("✨ 10 étoiles ajoutées !")
             st.balloons()
+            st.rerun()
         else:
             st.error("❌ Pas assez de points.")
 
@@ -40,6 +42,7 @@ with col3:
         if success:
             st.success("✨ 20 étoiles ajoutées !")
             st.balloons()
+            st.rerun()
         else:
             st.error("❌ Pas assez de points.")
 
