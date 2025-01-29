@@ -4,7 +4,7 @@ import requests
 import db_manager as db
 import uuid
 
-
+db.debug_show_user()
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db.get_requests_left()}")
