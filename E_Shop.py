@@ -11,37 +11,40 @@ st.markdown("---")
 col1, col2, col3 = st.columns([1, 1, 1])
 
 with col1:
-    st.image("5_Stars.png", width=110)
-    if st.button("🎁 **Prix** : 💎 1000 points d'expérience", key="buy_5"):
-        success = db.purchase_requests(cost_in_experience=1000, requests_to_add=5)
-        if success:
-            st.success("✨ 5 étoiles ajoutées !")
-            st.balloons()
-            st.rerun()
-        else:
-            st.error("❌ Pas assez de points.")
+    with st.container(key=1):
+        st.image("5_Stars.png", width=110)
+        if st.button("🎁 **Prix** : 💎 1000 points d'expérience", key="buy_5"):
+            success = db.purchase_requests(cost_in_experience=1000, requests_to_add=5)
+            if success:
+                st.success("✨ 5 étoiles ajoutées !")
+                st.balloons()
+                st.rerun()
+            else:
+                st.error("❌ Pas assez de points.")
 
 with col2:
-    st.image("10_Stars.png", width=110)
-    if st.button("🎁 **Prix** : 💎 2800 points d'expérience", key="buy_10"):
-        success = db.purchase_requests(cost_in_experience=2800, requests_to_add=10)
-        if success:
-            st.success("✨ 10 étoiles ajoutées !")
-            st.balloons()
-            st.rerun()
-        else:
-            st.error("❌ Pas assez de points.")
+    with st.container(key=2):
+        st.image("10_Stars.png", width=110)
+        if st.button("🎁 **Prix** : 💎 2800 points d'expérience", key="buy_10"):
+            success = db.purchase_requests(cost_in_experience=2800, requests_to_add=10)
+            if success:
+                st.success("✨ 10 étoiles ajoutées !")
+                st.balloons()
+                st.rerun()
+            else:
+                st.error("❌ Pas assez de points.")
 
 with col3:
-    st.image("20_Stars.png", width=110)
-    if st.button("🎁 **Prix** : 💎 5700 points d'expérience", key="buy_20"):
-        success = db.purchase_requests(cost_in_experience=5700, requests_to_add=20)
-        if success:
-            st.success("✨ 20 étoiles ajoutées !")
-            st.balloons()
-            st.rerun()
-        else:
-            st.error("❌ Pas assez de points.")
+    with st.container(key=3):
+        st.image("20_Stars.png", width=110)
+        if st.button("🎁 **Prix** : 💎 5700 points d'expérience", key="buy_20"):
+            success = db.purchase_requests(cost_in_experience=5700, requests_to_add=20)
+            if success:
+                st.success("✨ 20 étoiles ajoutées !")
+                st.balloons()
+                st.rerun()
+            else:
+                st.error("❌ Pas assez de points.")
 
 st.markdown("---")
 
