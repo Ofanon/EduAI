@@ -39,7 +39,7 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state.difficulty = None
         st.session_state.user_prompt = None
         st.session_state.current_question = None
-        st.session_state.question_count = 0
+        st.session_state.question_count = 1
         st.session_state.started = False
         st.session_state.data = None
         st.session_state.question = None
@@ -66,7 +66,6 @@ if "started" in st.session_state:
         
         if st.button("Créer le quiz", disabled=st.session_state.can_start):
             if db.can_user_make_request():
-                db.consume_request()
                 st.session_state.can_start = True
                 st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt, difficulty=st.session_state.difficulty)
             else:
