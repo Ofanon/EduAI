@@ -5,11 +5,6 @@ import streamlit as st
 
 DB_FILE = "request_logs.db"
 
-if os.path.exists(DB_FILE):
-    print(f"[DEBUG] ✅ Base de données trouvée : {DB_FILE}")
-else:
-    print(f"[ERROR] ❌ La base de données a été supprimée ! Elle va être recréée.")
-
 db_exists = os.path.exists(DB_FILE)
 
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
