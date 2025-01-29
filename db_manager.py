@@ -28,9 +28,9 @@ if not db_exists:
     conn.commit()
 
 try:
-    print(f"[DEBUG] Votre utilisateur système est : {os.getlogin()}")
+    st.write(f"[DEBUG] Votre utilisateur système est : {os.getlogin()}")
 except Exception as e:
-    print(f"[ERROR] os.getlogin() a échoué : {e}")
+    st.write(f"[ERROR] os.getlogin() a échoué : {e}")
 
 def get_user_id():
     """Génère un ID stable sans utiliser os.getlogin()."""
@@ -47,6 +47,16 @@ def get_user_id():
             st.session_state["user_id"] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
 
     return st.session_state["user_id"]
+    
+def debug_show_users():
+    """Affiche tous les utilisateurs enregistrés dans la base."""
+    cursor.execute("SELECT * FROM users")
+    rows = cursor.fetchall()
+    print("[DEBUG] Liste des utilisateurs enregistrés :")
+    for row in rows:
+        print(row)
+
+debug_show_users()
 
 def initialize_user():
     user_id = get_user_id()
