@@ -8,6 +8,8 @@ DB_FILE = "request_logs.db"  # Met le fichier à la racine du projet
 # Vérifier si la base de données existe
 db_exists = os.path.exists(DB_FILE)
 
+st.write(f"[DEBUG] 📂 Le fichier SQLite devrait être ici : {os.path.abspath(DB_FILE)}")
+
 if not os.path.exists(DB_FILE):
     st.write("[ERROR] 🚨 La base de données n'existe pas, elle va être recréée !")
 else:
