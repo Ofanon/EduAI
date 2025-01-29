@@ -10,7 +10,6 @@ if "user_id" not in st.session_state:
 import streamlit as st
 import db_manager
 
-# Vérifie si un ID existe déjà, sinon crée-le
 if "user_id" not in st.session_state:
     st.session_state["user_id"] = db_manager.get_user_id()
 
