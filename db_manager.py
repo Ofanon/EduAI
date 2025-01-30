@@ -20,7 +20,6 @@ def backup_database():
     backup_path = DB_FILE + ".backup"
     if os.path.exists(DB_FILE):
         shutil.copy(DB_FILE, backup_path)
-        print(f"✅ [DEBUG] Sauvegarde effectuée : {backup_path}")
 
 backup_database()
 
@@ -35,9 +34,6 @@ if not db_exists:
         )
     ''')
     conn.commit()
-
-else:
-    print("✅ [DEBUG] Base existante détectée, pas de recréation.")
 
 def get_user_id():
     if "user_id" not in st.session_state:
