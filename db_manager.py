@@ -5,6 +5,7 @@ import hashlib
 import streamlit as st
 import uuid
 import shutil
+import requests
 
 DB_FILE = os.path.join("data", "request_logs.db")
 
@@ -36,17 +37,20 @@ if not db_exists:
     conn.commit()
 
 def get_user_id():
+    """Génère un ID unique pour chaque utilisateur basé sur son IP et un ID de session unique."""
     if "user_id" not in st.session_state:
         try:
-            mac_address = str(uuid.getnode())
-            import requests
             response = requests.get("https://api64.ipify.org?format=json", timeout=5)
             public_ip = response.json().get("ip", "Unknown")
-            unique_id = f"{mac_address}_{public_ip}"
+
+            session_id = str(uuid.uuid4())[:8]
+
+            unique_id = f"{public_ip}_{session_id}"
             hashed_id = hashlib.sha256(unique_id.encode()).hexdigest()
             st.session_state["user_id"] = hashed_id
         except Exception:
             st.session_state["user_id"] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+
     return st.session_state["user_id"]
 
 def initialize_user():
