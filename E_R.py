@@ -37,6 +37,7 @@ if prompt_user:
                     time.sleep(2)
                     st.session_state["created"] = True
             db.consume_request()
+            db.update_experience_points(points=20)
         else:
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
@@ -56,6 +57,7 @@ if "created" in st.session_state:
             history_chat.append({"role":"model", "parts":response_chat.text})
             st.session_state["last_prompt"] = prompt_user
             db.consume_request()
+            db.update_experience_points(points=50)
         else:
 
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")

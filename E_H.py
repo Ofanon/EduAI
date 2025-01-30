@@ -45,6 +45,7 @@ if uploaded_file:
                 st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                 st.session_state.image_analyzed = True
                 db.consume_request()
+                db.update_experience_points(points=20)
                 st.rerun()
         else:
             st.session_state["chat_history"].append({"role": "assistant", "content" : "Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt."})
@@ -56,7 +57,6 @@ if "image_analyzed" in st.session_state:
     st.image(st.session_state.st_image, use_container_width=True)
     if user_input:
         if db.can_user_make_request():
-            db.consume_request()
             st.session_state["chat_history"].append({"role":"user","content":user_input})
             history.append({"role":"model", "parts":st.session_state.response_ai})
             chat = model.start_chat(history = history)
@@ -64,6 +64,9 @@ if "image_analyzed" in st.session_state:
             st.session_state["chat_history"].append({"role":"assistant","content":response.text})
             history.append({"role":"user", "parts":user_input})
             history.append({"role":"model", "parts":response.text})
+            db.consume_request()
+            db.update_experience_points(points=30)
+
         else:
                 st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 if "chat_history" in st.session_state:
