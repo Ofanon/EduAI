@@ -1,7 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
-import db_manager as db_manager
+import db_manager as db
 from docx import Document
 from io import BytesIO
 
@@ -63,7 +63,7 @@ place_holder_button = st.empty()
 can_button = st.session_state.started
 if st.session_state.uploaded_files and len(st.session_state.uploaded_files) > 0 or st.session_state.started == True and st.session_state.chat_control != []:
     if place_holder_button.button("Créer un contrôle sur ce cours",disabled=can_button):
-        if db_manager.can_user_make_request():
+        if db.can_user_make_request():
             images = display_images(st.session_state.uploaded_files)
             if not st.session_state["analyze_image_finished"]:
                 with st.spinner("L'EtudIAnt reflechit..."):
@@ -72,6 +72,7 @@ if st.session_state.uploaded_files and len(st.session_state.uploaded_files) > 0 
                 st.session_state.response_download = response.text
                 st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
                 st.session_state.started = True
+                db.consume_request()
                 st.rerun()
         else:
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
