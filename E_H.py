@@ -63,12 +63,11 @@ if "image_analyzed" in st.session_state:
             history.append({"role":"model", "parts":st.session_state.response_ai})
             chat = model.start_chat(history = history)
             response = chat.send_message(user_input)
+            db.consume_request()
+            db.update_experience_points(points=30)
             st.session_state["chat_history"].append({"role":"assistant","content":response.text})
             history.append({"role":"user", "parts":user_input})
             history.append({"role":"model", "parts":response.text})
-            db.consume_request()
-            db.update_experience_points(points=30)
-
         else:
                 st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 if "chat_history" in st.session_state:
