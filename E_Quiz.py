@@ -38,6 +38,7 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state.subject = None
         st.session_state.difficulty = None
         st.session_state.user_prompt = None
+        st.session_state.xp_updated = False
         st.session_state.current_question = None
         st.session_state.question_count = 1
         st.session_state.started = False
@@ -82,6 +83,7 @@ if "started" in st.session_state:
 
     if st.session_state.started:
         if st.session_state.question_count < 9:
+            st.write(st.session_state.question_count)
             st.progress(st.session_state.question_count/10)
 
             disable_radio = st.session_state.verified
@@ -93,12 +95,13 @@ if "started" in st.session_state:
                 st.session_state.verified = True
                 st.rerun()
 
-            if st.session_state.verified == True:
-
+            if st.session_state.verified and not st.session_state.xp_updated:
                 if user_repsponse == st.session_state.correct_answer:
                     db.update_experience_points(points=20)
                     st.success("Bien joué, tu as trouvé la bonne réponse !")
                     st.session_state.correct_answers += 1
+                    st.session_state.xp_updated = True
+                    st.rerun()
 
                 else:
 
@@ -114,6 +117,7 @@ if "started" in st.session_state:
                     st.session_state.choices = st.session_state.current_question['choices']
                     st.session_state.correct_answer = st.session_state.current_question['correct_answer']
                     st.session_state.explanation = st.session_state.current_question['explanation']
+                    st.session_state.xp_updated = False
                     st.rerun()
         else:
             st.session_state.note = (st.session_state.correct_answers / 10) * 20
