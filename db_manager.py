@@ -36,17 +36,6 @@ if not db_exists:
     ''')
     conn.commit()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS revision_notes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT,
-            title TEXT,
-            content TEXT,
-            date TEXT
-        )
-    ''')
-    conn.commit()
-
 else:
     print("✅ [DEBUG] Base existante détectée, pas de recréation.")
 
