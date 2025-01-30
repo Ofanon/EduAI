@@ -129,5 +129,6 @@ if "started" in st.session_state:
             if st.button("Refaire un autre quiz"):
                 del st.session_state.started
                 st.session_state.can_start = False
+                st.rerun()
 
 
