@@ -19,9 +19,11 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state["message"] = []
         st.session_state["started"] = False
 
-uploaded_file = st.file_uploader("📥 Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
-st.session_state["uploaded_file"] = uploaded_file
-placeholder_button = st.empty()
+if st.session_state.started is not True:
+    st.write("**Prix : ⭐ 1 étoile**")
+    uploaded_file = st.file_uploader("📥 Télécharger une image", type=["png", "jpeg", "jpg", "bmp"])
+    st.session_state["uploaded_file"] = uploaded_file
+    placeholder_button = st.empty()
 
 if "image_analyzed" in st.session_state:
     if st.button("✨ Résoudre un autre devoir"):

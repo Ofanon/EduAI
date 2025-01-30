@@ -57,6 +57,7 @@ disable_buttons = False
 if "started" in st.session_state:
 
     if not st.session_state.started:
+        st.write("**Prix : ⭐ 1 étoile**")
         col1, col2 = st.columns(2)
         st.session_state.can_start = False
         with col1:

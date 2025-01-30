@@ -14,11 +14,13 @@ if "response_ai_revision" not in st.session_state:
     st.session_state["response_ai_revision"] = None
 if "last_prompt" not in st.session_state:
     st.session_state["last_prompt"] = None
+    st.session_state.started = False
 
 model = genai.GenerativeModel("gemini-1.5-flash-002")
 
 st.subheader("Sur quoi veux-tu créer une fiche de révision ?")
 
+st.write("**Prix : ⭐ 1 étoile**")
 level = st.selectbox("Sélectionne ton niveau : ", ["6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"], key="level")
 subject = st.selectbox("Sélectionne la matière de ta fiche de révision:", ["Français", "Mathématiques", "Histoire-Géographie-EMC", "Sciences et Vie de la Terre", "Physique Chimie", "Anglais","Allemand", "Espagnol"], key="subject")
 prompt = f"Crée une fiche de revision le plus précisement possible. La fiche de revision doit être au niveau :{level}. Adapte la fiche de révision en fonction du niveau. Cette fiche de revision est sur la matière: {subject}.En parlant en francais, jamais en anglais"
