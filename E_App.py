@@ -1,8 +1,8 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
-import requests
 import db_manager as db
-import uuid
+
+st.snow()
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db.get_requests_left()}")

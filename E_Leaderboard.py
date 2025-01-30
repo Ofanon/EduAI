@@ -4,7 +4,6 @@ import pandas as pd
 
 st.title("🏆 Classement des meilleurs joueurs")
 
-st.snow()
 def get_leaderboard():
     db.cursor.execute("SELECT user_id, experience_points FROM users ORDER BY experience_points DESC LIMIT 10")
     rows = db.cursor.fetchall()
