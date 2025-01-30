@@ -67,7 +67,6 @@ if "started" in st.session_state:
         
         if st.button("Créer le quiz", disabled=st.session_state.can_start):
             if db.can_user_make_request():
-                db.consume_request()
                 disable_buttons = True
                 st.session_state.can_start = True
                 st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
@@ -75,6 +74,7 @@ if "started" in st.session_state:
                 st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
         
         if "data" in st.session_state and st.session_state.data:
+            db.consume_request()
             st.session_state.current_question = st.session_state.data[st.session_state.question_count]
             st.session_state.question = st.session_state.current_question['question']
             st.session_state.choices = st.session_state.current_question['choices']
