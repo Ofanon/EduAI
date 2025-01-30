@@ -40,7 +40,7 @@ if uploaded_file:
                 st.image(st.session_state.st_image, use_container_width=True)
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
                 with st.spinner("L'EtudIAnt reflechit..."):
-                    response_ai = model.generate_content(prompt, [image])
+                    response_ai = model.generate_content([prompt, image])
                     st.session_state["response_ai"] = response_ai.text
                 st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                 st.session_state.image_analyzed = True
