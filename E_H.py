@@ -2,7 +2,7 @@ import PIL.Image
 import google.generativeai as genai
 import PIL
 import streamlit as st
-import db_manager as db_manager
+import db_manager as db
 
 st.title("EtudIAnt : 📚 Aide au devoirs")
 genai.configure(api_key=st.secrets["API_KEY"])
@@ -35,7 +35,7 @@ if uploaded_file:
         image = PIL.Image.open(uploaded_file)
         image.resize((512, 512))
         st.session_state["st_image"] = image
-        if db_manager.can_user_make_request():
+        if db.can_user_make_request():
             if "image_analyzed" not in st.session_state:
                 st.image(st.session_state.st_image, use_container_width=True)
                 prompt = "Répond à cette exercice le plus précisement possible. En parlant en francais, jamais en anglais"
@@ -44,6 +44,7 @@ if uploaded_file:
                     st.session_state["response_ai"] = response_ai.text
                 st.session_state["chat_history"].append({"role":"assistant","content":response_ai.text})
                 st.session_state.image_analyzed = True
+                db.consume_request()
                 st.rerun()
         else:
             st.session_state["chat_history"].append({"role": "assistant", "content" : "Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt."})
@@ -54,7 +55,8 @@ if "image_analyzed" in st.session_state:
     user_input = st.chat_input("ex : je n'ai pas compris ta réponse dans l'exercice B")
     st.image(st.session_state.st_image, use_container_width=True)
     if user_input:
-        if db_manager.can_user_make_request():
+        if db.can_user_make_request():
+            db.consume_request()
             st.session_state["chat_history"].append({"role":"user","content":user_input})
             history.append({"role":"model", "parts":st.session_state.response_ai})
             chat = model.start_chat(history = history)
