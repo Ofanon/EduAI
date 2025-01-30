@@ -126,6 +126,7 @@ if "started" in st.session_state:
             st.session_state.note = (st.session_state.correct_answers / 10) * 20
             st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
             st.subheader(f"Votre note est de {st.session_state.note}/20 !")
+            db.update_experience_points(points=50)
             st.balloons()
             if st.button("Refaire un autre quiz"):
                 del st.session_state.started
