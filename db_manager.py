@@ -3,35 +3,20 @@ from datetime import datetime
 import os
 import hashlib
 import streamlit as st
-import uuid
-import shutil
 import requests
 
-# 📂 Emplacement sécurisé de la base de données
+# 📂 Chemin sécurisé pour la base de données
 DB_FILE = os.path.join("data", "request_logs.db")
 
 # 🔒 Vérification et création du dossier "data"
 if not os.path.exists("data"):
     os.makedirs("data")
 
-# 🔍 Vérification si la base existe AVANT connexion
-db_exists = os.path.exists(DB_FILE)
-
-# 🔄 Connexion à SQLite
+# 🔍 Connexion à SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# 🔒 Sauvegarde automatique AVANT toute modification
-def backup_database():
-    """Crée une sauvegarde automatique de la base pour éviter toute perte."""
-    backup_path = DB_FILE + ".backup"
-    if os.path.exists(DB_FILE):
-        shutil.copy(DB_FILE, backup_path)
-        print(f"✅ [DEBUG] Sauvegarde effectuée : {backup_path}")
-
-backup_database()
-
-# 🛠 Création des tables si elles n'existent pas déjà
+# 🛠 Création de la table des utilisateurs avec l'IP comme identifiant
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
@@ -41,50 +26,23 @@ cursor.execute('''
         purchased_requests INTEGER DEFAULT 0
     )
 ''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS revision_notes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,
-        title TEXT,
-        content TEXT,
-        date TEXT
-    )
-''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS daily_stats (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,
-        date TEXT,
-        xp_earned INTEGER DEFAULT 0,
-        quizzes_completed INTEGER DEFAULT 0,
-        correct_answers INTEGER DEFAULT 0,
-        wrong_answers INTEGER DEFAULT 0
-    )
-''')
-
 conn.commit()
 
-# 🔍 Générer un ID stable basé sur l’Adresse MAC et l’IP (reste le même même après redémarrage)
+# 🔍 Fonction pour récupérer l’IP publique et créer un ID unique
 def get_user_id():
-    """Génère un ID unique pour chaque utilisateur basé sur son adresse MAC et son IP publique."""
+    """Génère un ID unique basé sur l'adresse IP publique."""
     if "user_id" not in st.session_state:
         try:
-            # 🔹 Récupération de l’adresse MAC
-            mac_address = str(uuid.getnode())
-
             # 🔹 Récupération de l’IP publique
             response = requests.get("https://api64.ipify.org?format=json", timeout=5)
             public_ip = response.json().get("ip", "Unknown")
 
-            # 🔹 Création d’un hash stable basé sur MAC + IP
-            unique_id = f"{mac_address}_{public_ip}"
-            hashed_id = hashlib.sha256(unique_id.encode()).hexdigest()
+            # 🔹 Création d’un hash sécurisé basé sur l’IP
+            hashed_id = hashlib.sha256(public_ip.encode()).hexdigest()
 
             st.session_state["user_id"] = hashed_id
         except Exception:
-            st.session_state["user_id"] = hashlib.sha256(str(uuid.getnode()).encode()).hexdigest()
+            st.session_state["user_id"] = "unknown_user"  # En cas d'erreur, utilisateur temporaire
 
     return st.session_state["user_id"]
 
@@ -156,11 +114,18 @@ def get_experience_points():
     row = cursor.fetchone()
     return row[0] if row else 0
 
+# 🔄 Récupération des requêtes restantes
 def get_requests_left():
     """Retourne le nombre total de requêtes disponibles."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] + row[1] if row else 5
+
+# 🔍 Debug : Afficher l'ID utilisateur
+def debug_show_user():
+    """Affiche l'ID utilisateur pour s'assurer qu'il est unique."""
+    user_id = get_user_id()
+    print(f"✅ [DEBUG] Utilisateur actuel : {user_id}")
 
 initialize_user()
