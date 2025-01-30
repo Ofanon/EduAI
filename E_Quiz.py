@@ -113,13 +113,14 @@ if "started" in st.session_state:
                 if st.button("Continuer"):
                     st.session_state.verified = False
                     st.session_state.question_count += 1
-                    st.session_state.current_question = st.session_state.data[st.session_state.question_count] 
-                    st.session_state.question = st.session_state.current_question['question']
-                    st.session_state.choices = st.session_state.current_question['choices']
-                    st.session_state.correct_answer = st.session_state.current_question['correct_answer']
-                    st.session_state.explanation = st.session_state.current_question['explanation']
-                    st.session_state.xp_updated = False
-                    st.rerun()
+                    if st.session_state.question_count != 11:
+                        st.session_state.current_question = st.session_state.data[st.session_state.question_count] 
+                        st.session_state.question = st.session_state.current_question['question']
+                        st.session_state.choices = st.session_state.current_question['choices']
+                        st.session_state.correct_answer = st.session_state.current_question['correct_answer']
+                        st.session_state.explanation = st.session_state.current_question['explanation']
+                        st.session_state.xp_updated = False
+                        st.rerun()
         else:
             st.session_state.note = (st.session_state.correct_answers / 10) * 20
             st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
