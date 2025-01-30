@@ -82,7 +82,7 @@ if "started" in st.session_state:
             st.rerun()
 
     if st.session_state.started:
-        if st.session_state.question_count < 9:
+        if st.session_state.question_count == 10:
             st.write(st.session_state.question_count)
             st.progress(st.session_state.question_count/10)
 
