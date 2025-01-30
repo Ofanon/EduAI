@@ -101,7 +101,6 @@ if "started" in st.session_state:
                     st.success("Bien joué, tu as trouvé la bonne réponse !")
                     st.session_state.correct_answers += 1
                     st.session_state.xp_updated = True
-                    st.rerun()
 
                 else:
 
