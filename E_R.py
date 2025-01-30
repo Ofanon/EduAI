@@ -1,7 +1,7 @@
 import google.generativeai as genai
 import streamlit as st
 import time
-import db_manager as db_manager
+import db_manager as db
 from streamlit_extras.streaming_write import st
 
 st.title("EtudIAnt : 📒 Créateur de fiche de révision")
@@ -26,7 +26,7 @@ prompt_user = st.chat_input("ex : sur la seconde guerre mondiale.")
 
 if prompt_user:
     if "created" not in st.session_state:
-        if db_manager.can_user_make_request():
+        if db.can_user_make_request():
             st.session_state["last_prompt"] = prompt_user
             with st.spinner("L'EtudIAnt reflechit..."):
                 response_ai = model.generate_content([prompt_user, prompt])
@@ -36,6 +36,7 @@ if prompt_user:
                 if response_ai_user:
                     time.sleep(2)
                     st.session_state["created"] = True
+            db.consume_request()
         else:
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
@@ -44,7 +45,7 @@ if prompt_user:
 if "created" in st.session_state:
     if prompt_user and prompt_user != st.session_state["last_prompt"]:
         history_chat = []
-        if db_manager.can_user_make_request():
+        if db.can_user_make_request():
             prompt_chat = "Répond à cette question en francais. La fiche de revision est de niveau :" + level +"adapte tes reponses au niveau."+"La matière est :"+subject+"Adapte tes reponses à la matière" + "Adapte toi au programme scolaire de l'Education Nationale en France. Si ce n'est pas possible, ne le fais pas et n'en dit rien."
             st.session_state["chat_add"].append({"role":"user", "content":prompt_user})
             history_chat.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
@@ -54,6 +55,7 @@ if "created" in st.session_state:
             history_chat.append({"role":"user", "parts":prompt_user})
             history_chat.append({"role":"model", "parts":response_chat.text})
             st.session_state["last_prompt"] = prompt_user
+            db.consume_request()
         else:
 
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
