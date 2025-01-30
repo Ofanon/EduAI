@@ -156,7 +156,6 @@ def get_experience_points():
     row = cursor.fetchone()
     return row[0] if row else 0
 
-# 🔄 Récupération des requêtes restantes
 def get_requests_left():
     """Retourne le nombre total de requêtes disponibles."""
     user_id = get_user_id()
