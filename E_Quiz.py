@@ -52,6 +52,7 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state.note = None
         st.session_state.points = None
 
+disable_buttons = False
 
 if "started" in st.session_state:
 
@@ -59,14 +60,15 @@ if "started" in st.session_state:
         col1, col2 = st.columns(2)
         st.session_state.can_start = False
         with col1:
-            st.session_state.subject = st.selectbox('Sélectionne la matière du quiz : ', ["Français", "Mathématiques", "Histoire","Géographie","EMC", "Sciences et Vie de la Terre", "Physique Chimie","Technologie", "Anglais","Allemand", "Espagnol"])
-            st.session_state.user_prompt = st.text_input("Le sujet du quiz (optionel) :", placeholder="Ex : sur la révolution")
+            st.session_state.subject = st.selectbox('Sélectionne la matière du quiz : ', ["Français", "Mathématiques", "Histoire","Géographie","EMC", "Sciences et Vie de la Terre", "Physique Chimie","Technologie", "Anglais","Allemand", "Espagnol"], disabled=disable_buttons)
+            st.session_state.user_prompt = st.text_input("Le sujet du quiz (optionel) :", placeholder="Ex : sur la révolution", disabled=disable_buttons)
         with col2:
-            st.session_state.level = st.selectbox('Sélectionne ton niveau : ', ["CP","6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"])
+            st.session_state.level = st.selectbox('Sélectionne ton niveau : ', ["CP","6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"], disabled=disable_buttons)
         
         if st.button("Créer le quiz", disabled=st.session_state.can_start):
             if db.can_user_make_request():
                 db.consume_request()
+                disable_buttons = True
                 st.session_state.can_start = True
                 st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
             else:
