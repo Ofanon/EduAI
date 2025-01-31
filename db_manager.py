@@ -4,10 +4,10 @@ import os
 import hashlib
 import uuid
 import platform
-import http.cookies as Cookie
+import socket
 
 DB_FILE = "data/request_logs.db"
-TOKEN_FILE = "data/device_token_{}.txt".format(platform.node())
+TOKEN_FILE = "data/device_token.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -43,19 +43,21 @@ if "user_token" not in columns:
     print("✅ Migration terminée : table users mise à jour avec user_token")
 conn.close()
 
+def get_mac_address():
+    try:
+        mac = ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 2 * 6, 8)][::-1])
+        return mac
+    except Exception:
+        return str(uuid.uuid4())
+
 def get_local_token():
-    if os.environ.get("HTTP_COOKIE"):
-        cookie = Cookie.SimpleCookie(os.environ["HTTP_COOKIE"])
-        if "device_token" in cookie:
-            return cookie["device_token"].value
-    
+    device_token = get_mac_address()
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, "r") as f:
             return f.read().strip()
-    new_token = str(uuid.uuid4())
     with open(TOKEN_FILE, "w") as f:
-        f.write(new_token)
-    return new_token
+        f.write(device_token)
+    return device_token
 
 def get_user_id():
     user_token = get_local_token()
