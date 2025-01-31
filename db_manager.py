@@ -2,27 +2,12 @@ import sqlite3
 from datetime import datetime
 import os
 import hashlib
-import streamlit as st
-import uuid
-import shutil
 import platform
 import socket
 
-DB_FILE = os.path.join("data", "request_logs.db")
-BACKUP_FILE = DB_FILE + ".backup"
-try:
-    with open("data/test_file.txt", "w") as f:
-        f.write("Test d'écriture réussi.")
-    print("✅ Écriture dans le dossier `data` réussie.")
-except Exception as e:
-    print(f"❌ Impossible d'écrire dans `data` : {e}")
+DB_FILE = "data/request_logs.db"
 if not os.path.exists("data"):
     os.makedirs("data")
-
-if not os.path.exists(DB_FILE) and os.path.exists(BACKUP_FILE):
-    print("⚠️ [WARNING] Base de données manquante ! Restauration automatique...")
-    shutil.copy(BACKUP_FILE, DB_FILE)
-    print("✅ Base de données restaurée depuis la sauvegarde.")
 
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
@@ -30,6 +15,7 @@ cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
+        ip_address TEXT,
         date TEXT,
         requests INTEGER DEFAULT 5,
         experience_points INTEGER DEFAULT 0,
@@ -38,88 +24,33 @@ cursor.execute('''
 ''')
 conn.commit()
 
-def backup_database():
-    """Crée une sauvegarde automatique de la base pour éviter toute perte."""
-    if os.path.exists(DB_FILE):
-        shutil.copy(DB_FILE, BACKUP_FILE)
-        print(f"✅ [DEBUG] Sauvegarde effectuée : {BACKUP_FILE}")
-
-backup_database()
-
 def get_private_ip():
-    """Récupère l'adresse IP privée réelle de l'appareil."""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))  # Connexion temporaire pour obtenir l’IP locale
+        s.connect(("8.8.8.8", 80))
         ip_address = s.getsockname()[0]
         s.close()
         return ip_address
-    except Exception as e:
-        print(f"❌ [ERROR] Impossible de récupérer l'adresse IP privée : {e}")
-        return "127.0.0.1"  # Adresse de secours
-
-def generate_unique_device_id():
-    """Génère un ID unique basé sur l’appareil pour assurer son unicité."""
-    private_ip = get_private_ip()  # 🔍 Adresse IP locale unique
-    device_name = platform.node()  # 🔹 Nom de l'appareil
-    os_name = platform.system()  # 🔹 Type de système (Windows, Mac, Linux, Android, iOS)
-    processor = platform.processor()  # 🔹 Type de processeur
-    unique_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
-
-    return unique_id
+    except Exception:
+        return "127.0.0.1"
 
 def get_user_id():
-    """Récupère un ID unique en base ou le génère si inexistant."""
-    
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-
-    # 🔹 1️⃣ Vérifier si l'ID est déjà stocké en session (utile pour éviter les recalculs)
-    if "user_id" in st.session_state:
-        return st.session_state["user_id"]
-
-    user_id = generate_unique_device_id()  # Génération basée sur l’appareil
-
-    # 🔹 2️⃣ Vérifier si cet ID existe déjà en base
-    cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-
-    if row:
-        user_id = row[0]  # 🔄 Récupérer l’ID existant en base
-        print(f"✅ [DEBUG] ID récupéré depuis SQLite : {user_id}")
-    else:
-        # 🔹 Insérer l’ID si c’est un nouvel utilisateur
-        cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
-        conn.commit()
-        print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
-
-    conn.close()
-
-    st.session_state["user_id"] = user_id  # 🔄 Stocker en session pour éviter de recalculer à chaque appel
-
-    return user_id
+    private_ip = get_private_ip()
+    device_name = platform.node()
+    unique_id = hashlib.sha256(f"{private_ip}_{device_name}".encode()).hexdigest()
+    return unique_id
 
 def initialize_user():
     user_id = get_user_id()
-
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
+    ip_address = get_private_ip()
+    today = datetime.now().strftime("%Y-%m-%d")
 
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
     exists = cursor.fetchone()[0]
 
     if not exists:
-        print(f"✅ [DEBUG] Nouvel utilisateur ajouté en base : {user_id}")
-        cursor.execute("""
-            INSERT INTO users (user_id, date, requests, experience_points, purchased_requests)
-            VALUES (?, ?, 5, 0, 0)
-        """, (user_id, None))
+        cursor.execute("INSERT INTO users (user_id, ip_address, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)", (user_id, ip_address, today))
         conn.commit()
-    else:
-        print(f"✅ [DEBUG] Utilisateur déjà existant en base : {user_id}")
-
-    conn.close()
-
 
 def can_user_make_request():
     user_id = get_user_id()
@@ -148,7 +79,6 @@ def consume_request():
         return False
 
     normal_requests, purchased_requests = row
-
     if purchased_requests > 0:
         cursor.execute("UPDATE users SET purchased_requests = purchased_requests - 1 WHERE user_id = ?", (user_id,))
     elif normal_requests > 0:
@@ -157,6 +87,7 @@ def consume_request():
         return False
 
     conn.commit()
+    return True
 
 def purchase_requests(cost_in_experience, requests_to_add):
     user_id = get_user_id()
@@ -164,11 +95,7 @@ def purchase_requests(cost_in_experience, requests_to_add):
     row = cursor.fetchone()
 
     if row and row[0] >= cost_in_experience:
-        cursor.execute("""
-            UPDATE users
-            SET experience_points = experience_points - ?, purchased_requests = purchased_requests + ?
-            WHERE user_id = ?
-        """, (cost_in_experience, requests_to_add, user_id))
+        cursor.execute("UPDATE users SET experience_points = experience_points - ?, purchased_requests = purchased_requests + ? WHERE user_id = ?", (cost_in_experience, requests_to_add, user_id))
         conn.commit()
         return True
     return False
@@ -190,23 +117,4 @@ def get_requests_left():
     row = cursor.fetchone()
     return row[0] + row[1] if row else 5
 
-try:
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        date TEXT,
-        requests INTEGER DEFAULT 5,
-        experience_points INTEGER DEFAULT 0,
-        purchased_requests INTEGER DEFAULT 0
-    )''')
-
-    conn.commit()
-    conn.close()
-    print("✅ Base de données créée avec succès.")
-except Exception as e:
-    print(f"❌ Erreur lors de la création de la base : {e}")
-
 initialize_user()
-
