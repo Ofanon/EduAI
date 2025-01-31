@@ -32,14 +32,14 @@ if prompt_user:
             st.session_state["last_prompt"] = prompt_user
             with st.spinner("L'EtudIAnt reflechit..."):
                 response_ai = model.generate_content([prompt_user, prompt])
+                db.consume_request()
+                db.update_experience_points(points=20)
                 response_ai_user = response_ai.text
                 st.session_state["response_ai_revision"] = response_ai.text
                 st.session_state["chat_add"].append({"role":"assistant", "content":response_ai_user})
                 if response_ai_user:
                     time.sleep(2)
                     st.session_state["created"] = True
-            db.consume_request()
-            db.update_experience_points(points=20)
         else:
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
@@ -54,12 +54,12 @@ if "created" in st.session_state:
             history_chat.append({"role":"model", "parts":st.session_state["response_ai_revision"]})
             chat = model.start_chat(history=history_chat)
             response_chat = chat.send_message([prompt_user, prompt_chat])
+            db.consume_request()
+            db.update_experience_points(points=50)
             st.session_state["chat_add"].append({"role":"assistant", "content":response_chat.text})
             history_chat.append({"role":"user", "parts":prompt_user})
             history_chat.append({"role":"model", "parts":response_chat.text})
             st.session_state["last_prompt"] = prompt_user
-            db.consume_request()
-            db.update_experience_points(points=50)
         else:
 
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")

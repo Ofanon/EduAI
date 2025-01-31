@@ -70,11 +70,11 @@ if st.session_state.uploaded_files and len(st.session_state.uploaded_files) > 0 
                 with st.spinner("L'EtudIAnt reflechit..."):
                     place_holder_button.empty()
                     response = model.generate_content([prompt]+ images)
+                db.consume_request()
+                db.update_experience_points(points=40)
                 st.session_state.response_download = response.text
                 st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
                 st.session_state.started = True
-                db.consume_request()
-                db.update_experience_points(points=40)
                 st.rerun()
         else:
             st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
