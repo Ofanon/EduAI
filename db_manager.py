@@ -14,11 +14,14 @@ def get_connection():
 conn = get_connection()
 cursor = conn.cursor()
 
-# Vérifier si la table users existe, sinon la créer
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
-if not cursor.fetchone():
+# Vérifier si la colonne user_token existe
+cursor.execute("PRAGMA table_info(users)")
+columns = [col[1] for col in cursor.fetchall()]
+
+if "user_token" not in columns:
+    print("🔄 Migration : Création d'une nouvelle table users avec user_token")
     cursor.execute('''
-        CREATE TABLE users (
+        CREATE TABLE IF NOT EXISTS users_new (
             user_id TEXT PRIMARY KEY,
             user_token TEXT UNIQUE,
             date TEXT,
@@ -27,16 +30,14 @@ if not cursor.fetchone():
             purchased_requests INTEGER DEFAULT 0
         )
     ''')
+    cursor.execute('''
+        INSERT INTO users_new (user_id, date, requests, experience_points, purchased_requests)
+        SELECT user_id, date, requests, experience_points, purchased_requests FROM users
+    ''')
+    cursor.execute("DROP TABLE users")
+    cursor.execute("ALTER TABLE users_new RENAME TO users")
     conn.commit()
-    print("✅ Table users créée avec succès")
-else:
-    # Vérifier si la colonne user_token existe, sinon l'ajouter
-    cursor.execute("PRAGMA table_info(users)")
-    columns = [col[1] for col in cursor.fetchall()]
-    if "user_token" not in columns:
-        cursor.execute("ALTER TABLE users ADD COLUMN user_token TEXT UNIQUE")
-        conn.commit()
-        print("✅ Colonne user_token ajoutée avec succès")
+    print("✅ Migration terminée : table users mise à jour avec user_token")
 conn.close()
 
 def generate_user_token():
