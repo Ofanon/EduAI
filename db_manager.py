@@ -41,36 +41,29 @@ def backup_database():
 
 backup_database()
 
-USER_ID_FILE = "data/user_id.txt"
-
 def get_user_id():
-    """Génère un ID unique pour chaque appareil et le stocke durablement."""
+    """Génère un ID unique par appareil et le stocke dans SQLite pour assurer qu'il soit persistant."""
     if "user_id" not in st.session_state:
-        try:
-            # Vérifier si un ID est déjà enregistré dans un fichier local
-            if os.path.exists(USER_ID_FILE):
-                with open(USER_ID_FILE, "r") as f:
-                    stored_id = f.read().strip()
-                    if stored_id:
-                        st.session_state["user_id"] = stored_id
-                        return stored_id
+        user_id = None
 
-            # Générer un ID unique basé sur UUID (évite les conflits d’IP ou MAC)
+        # Vérifier si un ID est déjà enregistré pour cet appareil dans SQLite
+        cursor.execute("SELECT user_id FROM users WHERE user_id LIKE 'device_%' ORDER BY rowid DESC LIMIT 1")
+        row = cursor.fetchone()
+
+        if row:
+            user_id = row[0]  # Récupérer l'ID existant
+        else:
+            # Générer un ID basé sur UUID (évite les conflits d’IP ou MAC)
             unique_device_id = str(uuid.uuid4())  
-            hashed_id = hashlib.sha256(unique_device_id.encode()).hexdigest()
+            user_id = f"device_{hashlib.sha256(unique_device_id.encode()).hexdigest()}"
 
-            # Sauvegarder l'ID dans un fichier pour chaque appareil
-            with open(USER_ID_FILE, "w") as f:
-                f.write(hashed_id)
+            # Stocker cet ID unique en base de données
+            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
+            conn.commit()
 
-            st.session_state["user_id"] = hashed_id
-            return hashed_id
-
-        except Exception as e:
-            print(f"❌ [ERROR] Impossible de générer l'ID utilisateur : {e}")
-            return None  # En cas d’erreur, retourne None
-
+        st.session_state["user_id"] = user_id  # Sauvegarde dans la session
     return st.session_state["user_id"]
+
 
 
 def initialize_user():
