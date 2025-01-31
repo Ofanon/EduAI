@@ -53,45 +53,43 @@ def get_private_ip():
         print(f"❌ [ERROR] Impossible de récupérer l'adresse IP privée : {e}")
         return "127.0.0.1"  # Adresse de secours
 
-
 def get_user_id():
-    """Génère un ID unique basé sur l'adresse IP privée réelle et un UUID propre à l'appareil."""
-    if "user_id" not in st.session_state:
-        user_id = None
+    """Génère un ID unique basé sur l'adresse IP privée et assure sa stabilité en base SQLite."""
+    
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    cursor = conn.cursor()
 
-        # 🔹 1️⃣ Essayer de récupérer un ID déjà existant en base
-        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-        cursor = conn.cursor()
+    # 🔹 1️⃣ Vérifier si l'ID est déjà stocké en session
+    if "user_id" in st.session_state:
+        return st.session_state["user_id"]
 
-        try:
-            private_ip = get_private_ip()  # 🔍 Adresse IP locale unique
-            device_name = platform.node()  # 🔹 Nom de l'appareil
-            os_name = platform.system()  # 🔹 Type de système (Windows, Mac, Linux, Android, iOS)
-            processor = platform.processor()  # 🔹 Type de processeur
-            unique_device_id = str(uuid.uuid4())  # Généré une seule fois par appareil
+    # 🔹 2️⃣ Essayer de récupérer l’ID en base SQLite
+    private_ip = get_private_ip()  # 🔍 Adresse IP locale unique
+    device_name = platform.node()  # 🔹 Nom de l'appareil
+    os_name = platform.system()  # 🔹 Type de système (Windows, Mac, Linux, Android, iOS)
+    processor = platform.processor()  # 🔹 Type de processeur
 
-            # 🔹 Générer un hash unique basé sur ces informations
-            user_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}_{unique_device_id}".encode()).hexdigest()
+    # Générer un ID unique basé sur ces infos
+    unique_device_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
 
-            # Vérifier si cet ID existe déjà en base
-            cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
-            row = cursor.fetchone()
+    # Vérifier si cet ID existe déjà en base
+    cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (unique_device_id,))
+    row = cursor.fetchone()
 
-            if row:
-                user_id = row[0]
-                print(f"✅ [DEBUG] ID existant trouvé en base : {user_id}")
-            else:
-                user_id = user_id
-                print(f"✅ [DEBUG] Nouvel ID généré : {user_id}")
+    if row:
+        user_id = row[0]
+        print(f"✅ [DEBUG] ID récupéré depuis SQLite : {user_id}")
+    else:
+        user_id = unique_device_id
+        cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
+        conn.commit()
+        print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
 
-        except Exception as e:
-            print(f"❌ [ERROR] Impossible de générer un ID unique : {e}")
-            user_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()  # Solution de secours
+    conn.close()
 
-        conn.close()
-        st.session_state["user_id"] = user_id  # 🔄 Stocker en session
-
-    return st.session_state["user_id"]
+    # 🔄 Stocker en session pour éviter de recalculer à chaque appel
+    st.session_state["user_id"] = user_id
+    return user_id
 
 def initialize_user():
     user_id = get_user_id()
