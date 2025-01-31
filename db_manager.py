@@ -21,7 +21,6 @@ if not os.path.exists(DB_FILE) and os.path.exists(BACKUP_FILE):
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# 🛠 Création des tables UNIQUEMENT si la base est nouvelle
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
@@ -33,7 +32,6 @@ cursor.execute('''
 ''')
 conn.commit()
 
-# 🔒 Sauvegarde automatique avant toute mise à jour
 def backup_database():
     """Crée une sauvegarde automatique de la base pour éviter toute perte."""
     if os.path.exists(DB_FILE):
@@ -43,8 +41,8 @@ def backup_database():
 backup_database()
 
 USER_ID_FILE = "data/user_id.txt"
-
 def get_user_id():
+
     if "user_id" not in st.session_state:
         user_id = None
 
@@ -59,22 +57,35 @@ def get_user_id():
             cursor = conn.cursor()
             cursor.execute("SELECT user_id FROM users ORDER BY rowid DESC LIMIT 1")
             row = cursor.fetchone()
+
             if row:
                 user_id = row[0]
 
         if not user_id:
             try:
+                browser_info = st.session_state.get("browser_fingerprint", str(uuid.uuid4()))
+                device_name = platform.node()
+                os_name = platform.system()
                 mac_address = str(uuid.getnode())
-            except:
-                mac_address = "unknown_mac"
 
-            unique_device_id = str(uuid.uuid4())
+                unique_device_id = hashlib.sha256(f"{browser_info}_{device_name}_{os_name}_{mac_address}".encode()).hexdigest()
 
-            user_id = hashlib.sha256(f"{mac_address}_{unique_device_id}".encode()).hexdigest()
+                with open(USER_ID_FILE, "w") as f:
+                    f.write(unique_device_id)
 
-            with open(USER_ID_FILE, "w") as f:
-                f.write(user_id)
+                user_id = unique_device_id
 
+            except Exception as e:
+                user_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+
+        cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
+        exists = cursor.fetchone()[0]
+
+        if not exists:
+            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
+            conn.commit()
+
+        conn.close()
         st.session_state["user_id"] = user_id
 
     return st.session_state["user_id"]
@@ -87,6 +98,7 @@ def initialize_user():
     exists = cursor.fetchone()[0]
 
     if not exists:
+        print(f"✅ [DEBUG] Nouvel utilisateur ajouté en base : {user_id}")
         cursor.execute("""
             INSERT INTO users (user_id, date, requests, experience_points, purchased_requests)
             VALUES (?, ?, 5, 0, 0)
