@@ -7,6 +7,7 @@ import socket
 import uuid
 
 DB_FILE = "data/request_logs.db"
+UUID_FILE = "data/device_uuid.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -24,7 +25,6 @@ cursor.execute('''
 ''')
 conn.commit()
 
-# Forcer la création de la base de données
 conn.execute("VACUUM")
 conn.commit()
 
@@ -43,14 +43,18 @@ def get_private_ip():
     except Exception:
         return "127.0.0.1"
 
-def get_mac_address():
-    return uuid.getnode()
+def get_or_create_device_uuid():
+    if os.path.exists(UUID_FILE):
+        with open(UUID_FILE, "r") as f:
+            return f.read().strip()
+    new_uuid = str(uuid.uuid4())
+    with open(UUID_FILE, "w") as f:
+        f.write(new_uuid)
+    return new_uuid
 
 def get_user_id():
-    private_ip = get_private_ip()
-    device_name = platform.node()
-    mac_address = get_mac_address()
-    unique_id = hashlib.sha256(f"{private_ip}_{device_name}_{mac_address}".encode()).hexdigest()
+    device_uuid = get_or_create_device_uuid()
+    unique_id = hashlib.sha256(device_uuid.encode()).hexdigest()
     return unique_id
 
 def initialize_user():
