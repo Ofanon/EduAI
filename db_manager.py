@@ -6,6 +6,7 @@ import uuid
 import platform
 
 DB_FILE = "data/request_logs.db"
+TOKEN_FILE = "data/device_token.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -25,21 +26,18 @@ if "device_uuid" not in columns:
     conn.commit()
 conn.close()
 
-def get_device_uuid():
-    """ Génère un UUID unique basé sur l’appareil et le stocke en base si nécessaire """
-    device_uuid = str(uuid.uuid4())
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT device_uuid FROM users WHERE device_uuid IS NOT NULL LIMIT 1")
-    row = cursor.fetchone()
-    if row:
-        conn.close()
-        return row[0]
-    conn.close()
-    return device_uuid
+def get_or_create_device_uuid():
+    """Génère un UUID unique pour chaque appareil et le stocke localement."""
+    if os.path.exists(TOKEN_FILE):
+        with open(TOKEN_FILE, "r") as f:
+            return f.read().strip()
+    new_uuid = str(uuid.uuid4())
+    with open(TOKEN_FILE, "w") as f:
+        f.write(new_uuid)
+    return new_uuid
 
 def get_user_id():
-    device_uuid = get_device_uuid()
+    device_uuid = get_or_create_device_uuid()
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
@@ -48,8 +46,6 @@ def get_user_id():
         conn.close()
         return row[0]
     new_user_id = hashlib.sha256(device_uuid.encode()).hexdigest()
-    conn = get_connection()
-    cursor = conn.cursor()
     cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
                    (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
     conn.commit()
