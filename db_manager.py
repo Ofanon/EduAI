@@ -15,7 +15,7 @@ cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
-        ip_address TEXT,
+        user_id TEXT,
         date TEXT,
         requests INTEGER DEFAULT 5,
         experience_points INTEGER DEFAULT 0,
