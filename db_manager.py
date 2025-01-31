@@ -7,7 +7,6 @@ import socket
 import uuid
 
 DB_FILE = "data/request_logs.db"
-UUID_FILE = "data/device_uuid.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -17,6 +16,7 @@ cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
+        device_uuid TEXT UNIQUE,
         date TEXT,
         requests INTEGER DEFAULT 5,
         experience_points INTEGER DEFAULT 0,
@@ -33,40 +33,25 @@ if os.path.exists(DB_FILE):
 else:
     print("❌ Erreur : le fichier de base de données n'a pas été créé.")
 
-def get_private_ip():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip_address = s.getsockname()[0]
-        s.close()
-        return ip_address
-    except Exception:
-        return "127.0.0.1"
-
-def get_or_create_device_uuid():
-    if os.path.exists(UUID_FILE):
-        with open(UUID_FILE, "r") as f:
-            return f.read().strip()
-    new_uuid = str(uuid.uuid4())
-    with open(UUID_FILE, "w") as f:
-        f.write(new_uuid)
-    return new_uuid
+def get_device_uuid():
+    return str(uuid.uuid4())
 
 def get_user_id():
-    device_uuid = get_or_create_device_uuid()
-    unique_id = hashlib.sha256(device_uuid.encode()).hexdigest()
-    return unique_id
+    device_uuid = platform.node()
+    cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
+    row = cursor.fetchone()
+
+    if row:
+        return row[0]
+    
+    new_user_id = hashlib.sha256(device_uuid.encode()).hexdigest()
+    cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
+                   (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
+    conn.commit()
+    return new_user_id
 
 def initialize_user():
-    user_id = get_user_id()
-    today = datetime.now().strftime("%Y-%m-%d")
-
-    cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
-    exists = cursor.fetchone()[0]
-
-    if not exists:
-        cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, today))
-        conn.commit()
+    get_user_id()
 
 def can_user_make_request():
     user_id = get_user_id()
