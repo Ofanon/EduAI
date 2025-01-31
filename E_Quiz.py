@@ -40,7 +40,7 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state.user_prompt = None
         st.session_state.xp_updated = False
         st.session_state.current_question = None
-        st.session_state.question_count = 1
+        st.session_state.question_count = 0
         st.session_state.started = False
         st.session_state.data = None
         st.session_state.question = None
@@ -85,7 +85,7 @@ if "started" in st.session_state:
             st.rerun()
 
     if st.session_state.started:
-        if st.session_state.question_count != 1:
+        if st.session_state.question_count != 10:
             st.write(st.session_state.question_count)
             st.progress(st.session_state.question_count/10)
 
@@ -114,7 +114,7 @@ if "started" in st.session_state:
                 if st.button("Continuer"):
                     st.session_state.verified = False
                     st.session_state.question_count += 1
-                    if st.session_state.question_count != 11:
+                    if st.session_state.question_count != 10:
                         st.session_state.current_question = st.session_state.data[st.session_state.question_count] 
                         st.session_state.question = st.session_state.current_question['question']
                         st.session_state.choices = st.session_state.current_question['choices']
