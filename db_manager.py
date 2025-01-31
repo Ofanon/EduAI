@@ -46,12 +46,6 @@ def get_user_id():
     if "user_id" not in st.session_state:
         user_id = None
 
-        if os.path.exists(USER_ID_FILE):
-            with open(USER_ID_FILE, "r") as f:
-                stored_id = f.read().strip()
-                if stored_id:
-                    user_id = stored_id
-
         if not user_id:
             conn = sqlite3.connect(DB_FILE, check_same_thread=False)
             cursor = conn.cursor()
