@@ -5,18 +5,13 @@ import hashlib
 import streamlit as st
 import requests
 
-# 📂 Chemin sécurisé pour la base de données
 DB_FILE = os.path.join("data", "request_logs.db")
-
-# 🔒 Vérification et création du dossier "data"
 if not os.path.exists("data"):
     os.makedirs("data")
-
-# 🔍 Connexion à SQLite
+    
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# 🛠 Création de la table des utilisateurs avec l'IP comme identifiant
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
@@ -28,21 +23,26 @@ cursor.execute('''
 ''')
 conn.commit()
 
-# 🔍 Fonction pour récupérer l’IP publique et créer un ID unique
+import requests
+import hashlib
+import streamlit as st
+import uuid
+
 def get_user_id():
-    """Génère un ID unique basé sur l'adresse IP publique."""
+    """Génère un ID unique basé sur l'adresse IP publique et l'adresse MAC."""
     if "user_id" not in st.session_state:
         try:
-            # 🔹 Récupération de l’IP publique
             response = requests.get("https://api64.ipify.org?format=json", timeout=5)
             public_ip = response.json().get("ip", "Unknown")
 
-            # 🔹 Création d’un hash sécurisé basé sur l’IP
-            hashed_id = hashlib.sha256(public_ip.encode()).hexdigest()
+            mac_address = str(uuid.getnode())
+
+            unique_id = f"{public_ip}_{mac_address}"
+            hashed_id = hashlib.sha256(unique_id.encode()).hexdigest()
 
             st.session_state["user_id"] = hashed_id
         except Exception:
-            st.session_state["user_id"] = "unknown_user"  # En cas d'erreur, utilisateur temporaire
+            st.session_state["user_id"] = hashlib.sha256(str(uuid.getnode()).encode()).hexdigest()
 
     return st.session_state["user_id"]
 
