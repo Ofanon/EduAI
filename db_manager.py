@@ -51,31 +51,38 @@ def get_private_ip():
         return ip_address
     except Exception as e:
         print(f"❌ [ERROR] Impossible de récupérer l'adresse IP privée : {e}")
-        return "127.0.0.1"  # Adresse de secours
+        return str(uuid.uuid4())  # Générer un ID de secours si l'IP est introuvable
 
 def generate_unique_device_id():
     """Génère un ID unique basé sur l’appareil pour assurer son unicité."""
+    try:
+        mac_address = str(uuid.getnode())  # 🔍 Adresse MAC unique de l’appareil
+    except:
+        mac_address = "unknown_mac"
+
     private_ip = get_private_ip()  # 🔍 Adresse IP locale unique
     device_name = platform.node()  # 🔹 Nom de l'appareil
     os_name = platform.system()  # 🔹 Type de système (Windows, Mac, Linux, Android, iOS)
     processor = platform.processor()  # 🔹 Type de processeur
-    unique_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
+    architecture = platform.machine()  # 🔹 Architecture de l’appareil (ex: x86_64, arm64)
+
+    # 🔹 Générer un hash unique basé sur ces informations
+    unique_id = hashlib.sha256(f"{mac_address}_{private_ip}_{device_name}_{os_name}_{processor}_{architecture}".encode()).hexdigest()
 
     return unique_id
 
 def get_user_id():
     """Récupère un ID unique en base ou le génère si inexistant."""
     
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-
-    # 🔹 1️⃣ Vérifier si l'ID est déjà stocké en session (utile pour éviter les recalculs)
     if "user_id" in st.session_state:
-        return st.session_state["user_id"]
+        return st.session_state["user_id"]  # 🔄 Retourne l'ID stocké en session
 
     user_id = generate_unique_device_id()  # Génération basée sur l’appareil
 
-    # 🔹 2️⃣ Vérifier si cet ID existe déjà en base
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    cursor = conn.cursor()
+
+    # 🔍 Vérifier si cet ID existe déjà en base
     cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
 
