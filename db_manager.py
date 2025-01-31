@@ -53,36 +53,43 @@ def get_private_ip():
         print(f"❌ [ERROR] Impossible de récupérer l'adresse IP privée : {e}")
         return "127.0.0.1"  # Adresse de secours
 
+
 def get_user_id():
+    """Génère un ID unique basé sur l'adresse IP privée réelle et un UUID propre à l'appareil."""
     if "user_id" not in st.session_state:
         user_id = None
 
+        # 🔹 1️⃣ Essayer de récupérer un ID déjà existant en base
         conn = sqlite3.connect(DB_FILE, check_same_thread=False)
         cursor = conn.cursor()
+
         try:
-            private_ip = socket.gethostbyname(socket.gethostname())
-            device_name = platform.node()
-            os_name = platform.system()
-            processor = platform.processor()
+            private_ip = get_private_ip()  # 🔍 Adresse IP locale unique
+            device_name = platform.node()  # 🔹 Nom de l'appareil
+            os_name = platform.system()  # 🔹 Type de système (Windows, Mac, Linux, Android, iOS)
+            processor = platform.processor()  # 🔹 Type de processeur
+            unique_device_id = str(uuid.uuid4())  # Généré une seule fois par appareil
 
-            unique_device_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
+            # 🔹 Générer un hash unique basé sur ces informations
+            user_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}_{unique_device_id}".encode()).hexdigest()
 
-            cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (unique_device_id,))
+            # Vérifier si cet ID existe déjà en base
+            cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
             row = cursor.fetchone()
 
             if row:
                 user_id = row[0]
                 print(f"✅ [DEBUG] ID existant trouvé en base : {user_id}")
             else:
-                user_id = unique_device_id
+                user_id = user_id
                 print(f"✅ [DEBUG] Nouvel ID généré : {user_id}")
 
         except Exception as e:
-            print(f"❌ [ERROR] Impossible de récupérer l'adresse IP privée : {e}")
-            user_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+            print(f"❌ [ERROR] Impossible de générer un ID unique : {e}")
+            user_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()  # Solution de secours
 
         conn.close()
-        st.session_state["user_id"] = user_id
+        st.session_state["user_id"] = user_id  # 🔄 Stocker en session
 
     return st.session_state["user_id"]
 
