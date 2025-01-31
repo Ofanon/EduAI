@@ -97,7 +97,8 @@ def get_user_id():
     conn.close()
 
     # 5. Stocker l'ID utilisateur dans un cookie et la session state
-    st.experimental_set_query_params(**{cookie_name: user_id})
+    st.experimental_set_query_params(**{cookie_name: user_id})  # Remplacer par la ligne suivante
+    # st.query_params[cookie_name] = user_id  # Définir le cookie avec st.query_params
     st.session_state["user_id"] = user_id
 
     return user_id
