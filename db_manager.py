@@ -7,7 +7,8 @@ import uuid
 import shutil
 import platform
 import socket
-from streamlit_js_eval import get_local_storage, set_local_storage
+from streamlit_js_eval import streamlit_js_eval
+
 
 # 📌 Chemin de la base de données et de sa sauvegarde
 DB_FILE = os.path.join("data", "request_logs.db")
@@ -76,7 +77,7 @@ def get_user_id():
     """Récupère un ID unique depuis le stockage local ou le génère si inexistant."""
 
     # 🔍 Vérifier dans le stockage local du navigateur
-    user_id = get_local_storage("user_id")
+    user_id = streamlit_js_eval(js_code="localStorage.getItem('user_id')")
 
     if user_id:
         st.session_state["user_id"] = user_id
@@ -98,7 +99,7 @@ def get_user_id():
     conn.close()
 
     # ✅ Stocker l'ID utilisateur dans le stockage local du navigateur
-    set_local_storage("user_id", user_id)
+    streamlit_js_eval(js_code=f"localStorage.setItem('user_id', '{user_id}')")
 
     st.session_state["user_id"] = user_id
     return user_id
