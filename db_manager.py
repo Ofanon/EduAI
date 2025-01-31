@@ -45,28 +45,26 @@ backup_database()
 USER_ID_FILE = "data/user_id.txt"
 
 def get_user_id():
-    """Génère un ID unique et stable pour chaque appareil en le stockant localement."""
+    """Génère un ID unique et le stocke dans SQLite pour ne pas utiliser user_id.txt."""
     if "user_id" not in st.session_state:
-        try:
-            # Vérifier si un ID existe déjà dans un fichier local
-            if os.path.exists(USER_ID_FILE):
-                with open(USER_ID_FILE, "r") as f:
-                    stored_id = f.read().strip()
-                    st.session_state["user_id"] = stored_id
-            else:
-                # Générer un ID unique basé sur l’adresse MAC et un UUID
-                mac_address = str(uuid.getnode())
-                unique_device_id = str(uuid.uuid4())  # Généré une seule fois par appareil
-                hashed_id = hashlib.sha256(f"{mac_address}_{unique_device_id}".encode()).hexdigest()
+        user_id = None
 
-                # Sauvegarder cet ID localement
-                with open(USER_ID_FILE, "w") as f:
-                    f.write(hashed_id)
+        # Vérifie si un ID existe déjà dans la base de données
+        cursor.execute("SELECT user_id FROM users ORDER BY rowid ASC LIMIT 1")
+        row = cursor.fetchone()
 
-                st.session_state["user_id"] = hashed_id
-        except Exception:
-            # En cas d’erreur, générer un ID aléatoire unique
-            st.session_state["user_id"] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+        if row:
+            user_id = row[0]  # On récupère l'ID existant
+        else:
+            # Générer un ID unique pour l’utilisateur
+            unique_device_id = str(uuid.uuid4())
+            user_id = hashlib.sha256(unique_device_id.encode()).hexdigest()
+
+            # Insérer cet utilisateur dans la base
+            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
+            conn.commit()
+
+        st.session_state["user_id"] = user_id
 
     return st.session_state["user_id"]
 
