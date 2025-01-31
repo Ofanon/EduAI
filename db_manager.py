@@ -66,7 +66,7 @@ def get_user_id():
     if not user_id:
         # 2. Si aucun ID en session, chercher dans les cookies
         cookie_name = "user_id"
-        query_params = st.experimental_get_query_params()
+        query_params = st.query_params
         user_id = query_params.get(cookie_name, [None])  # Extraire l'ID du cookie
 
     if user_id:
@@ -80,6 +80,11 @@ def get_user_id():
     # 4. Vérifier si l'ID existe déjà en base
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
+    
+    # --- Débogage ---
+    print(f"user_id avant la requête: {user_id}")
+    # ---------------
+
     cursor.execute("SELECT user_id FROM users WHERE user_id =?", (user_id,))
     row = cursor.fetchone()
 
