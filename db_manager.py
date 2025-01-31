@@ -20,9 +20,20 @@ db_exists = os.path.exists(DB_FILE)
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# 🔒 Création de sauvegarde automatique AVANT toute modification
+BACKUP_FILE = DB_FILE + ".backup"
+
+def restore_database():
+    if os.path.exists(BACKUP_FILE):
+        shutil.copy(BACKUP_FILE, DB_FILE)
+        print("✅ Base de données restaurée depuis la sauvegarde !")
+    else:
+        print("❌ Aucune sauvegarde trouvée, restauration impossible.")
+
+if not os.path.exists(DB_FILE) and os.path.exists(BACKUP_FILE):
+    print("⚠️ [WARNING] Base manquante ! Restauration en cours...")
+    restore_database()
+    
 def backup_database():
-    """Crée une sauvegarde automatique de la base pour éviter toute perte."""
     backup_path = DB_FILE + ".backup"
     if os.path.exists(DB_FILE):
         shutil.copy(DB_FILE, backup_path)
@@ -30,9 +41,7 @@ def backup_database():
 
 backup_database()
 
-# 🛠 Création des tables UNIQUEMENT si la base est nouvelle
 if not db_exists:
-    print("✅ [DEBUG] Base de données créée pour la première fois.")
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id TEXT PRIMARY KEY,
@@ -43,12 +52,8 @@ if not db_exists:
         )
     ''')
     conn.commit()
-else:
-    print("✅ [DEBUG] Base existante détectée, pas de recréation.")
 
-# 🔍 Fonction pour générer un ID utilisateur stable
 def get_user_id():
-    """Génère un ID stable basé sur l'adresse MAC et l'IP publique."""
     if "user_id" not in st.session_state:
         try:
             mac_address = str(uuid.getnode())
@@ -62,9 +67,7 @@ def get_user_id():
             st.session_state["user_id"] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
     return st.session_state["user_id"]
 
-# 🛠 Initialisation de l'utilisateur
 def initialize_user():
-    """Ajoute l'utilisateur s'il n'existe pas encore."""
     user_id = get_user_id()
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
     if cursor.fetchone()[0] == 0:
@@ -75,9 +78,7 @@ def initialize_user():
         """, (user_id, None))
         conn.commit()
 
-# 🔍 Vérification des requêtes disponibles
 def can_user_make_request():
-    """Vérifie si l'utilisateur peut faire une requête aujourd'hui."""
     user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
@@ -96,9 +97,7 @@ def can_user_make_request():
 
     return normal_requests > 0 or purchased_requests > 0
 
-# 🔄 Consommer une requête
 def consume_request():
-    """Diminue le nombre de requêtes disponibles pour l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -116,9 +115,7 @@ def consume_request():
 
     conn.commit()
 
-# 🛍 Achat de requêtes supplémentaires
 def purchase_requests(cost_in_experience, requests_to_add):
-    """Ajoute des requêtes en échange d'XP."""
     user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -133,37 +130,22 @@ def purchase_requests(cost_in_experience, requests_to_add):
         return True
     return False
 
-# 🌟 Mise à jour des points d'expérience
 def update_experience_points(points):
-    """Ajoute des XP à l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
     conn.commit()
 
-# 🎯 Récupération des XP
 def get_experience_points():
-    """Retourne les XP de l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] if row else 0
 
-# 🔄 Récupération des requêtes restantes
 def get_requests_left():
-    """Retourne le nombre total de requêtes disponibles."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] + row[1] if row else 5
 
-# 🔍 Vérification et affichage des utilisateurs enregistrés
-def debug_show_users():
-    """Affiche tous les utilisateurs enregistrés pour vérifier la persistance des données."""
-    cursor.execute("SELECT * FROM users")
-    rows = cursor.fetchall()
-    print("[DEBUG] Liste des utilisateurs enregistrés :")
-    for row in rows:
-        print(row)
-
 initialize_user()
-debug_show_users()
+
