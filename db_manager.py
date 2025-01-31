@@ -60,13 +60,14 @@ def generate_unique_device_id():
 def get_user_id():
     """Récupère l'ID utilisateur depuis un cookie ou le génère si inexistant."""
 
-    # 1. Essayer de récupérer l'ID utilisateur depuis un cookie
-    user_id = st.session_state.get("user_id")  # Accéder à la session state
+    # 1. Essayer de récupérer l'ID utilisateur depuis la session state
+    user_id = st.session_state.get("user_id")
 
     if not user_id:
         # 2. Si aucun ID en session, chercher dans les cookies
         cookie_name = "user_id"
-        user_id = st.cookies.get(cookie_name)
+        query_params = st.experimental_get_query_params()
+        user_id = query_params.get(cookie_name, [None])  # Extraire l'ID du cookie
 
     if user_id:
         # Si l'ID est trouvé dans les cookies, le stocker dans la session state
@@ -89,10 +90,11 @@ def get_user_id():
     conn.close()
 
     # 5. Stocker l'ID utilisateur dans un cookie et la session state
-    st.cookies.set(cookie_name, user_id)
+    st.experimental_set_query_params(**{cookie_name: user_id})  # Définir le cookie
     st.session_state["user_id"] = user_id
 
     return user_id
+
 
 def initialize_user():
     user_id = get_user_id()
