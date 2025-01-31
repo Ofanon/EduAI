@@ -24,7 +24,6 @@ def backup_database():
     backup_path = DB_FILE + ".backup"
     if os.path.exists(DB_FILE):
         shutil.copy(DB_FILE, backup_path)
-        print(f"✅ [DEBUG] Sauvegarde effectuée : {backup_path}")
 
 backup_database()
 
@@ -62,41 +61,70 @@ cursor.execute('''
 
 conn.commit()
 
+import sqlite3
+from datetime import datetime
+import os
+import hashlib
+import streamlit as st
+import uuid
+import platform
+import requests
+
+DB_FILE = os.path.join("data", "request_logs.db")
+
+if not os.path.exists("data"):
+    os.makedirs("data")
+
+conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+cursor = conn.cursor()
+
+# 📌 Création de la table des utilisateurs avec stockage de l'ID unique
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        user_id TEXT PRIMARY KEY,
+        device_hash TEXT UNIQUE,
+        date TEXT,
+        requests INTEGER DEFAULT 5,
+        experience_points INTEGER DEFAULT 0,
+        purchased_requests INTEGER DEFAULT 0
+    )
+''')
+
+conn.commit()
+
 def get_user_id():
-    
-    if "user_id" not in st.session_state:
+    if "user_id" in st.session_state:
+        return st.session_state["user_id"]
+
+    try:
         try:
-            if os.path.exists(USER_ID_FILE):
-                with open(USER_ID_FILE, "r") as file:
-                    stored_id = file.read().strip()
-                st.session_state["user_id"] = stored_id
-                return stored_id
-
-            try:
-                response = requests.get("https://api64.ipify.org?format=json", timeout=5)
-                public_ip = response.json().get("ip", "Unknown")
-            except Exception:
-                public_ip = "NoIP"
-
-            device_id = str(uuid.getnode())
-
-            os_info = platform.system() + "_" + platform.release()
-
-            unique_id = f"{public_ip}_{device_id}_{os_info}"
-            hashed_id = hashlib.sha256(unique_id.encode()).hexdigest()
-
-            with open(USER_ID_FILE, "w") as file:
-                file.write(hashed_id)
-
-            st.session_state["user_id"] = hashed_id
-            return hashed_id
-
+            response = requests.get("https://api64.ipify.org?format=json", timeout=5)
+            public_ip = response.json().get("ip", "Unknown")
         except Exception:
-            temp_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
-            st.session_state["user_id"] = temp_id
-            return temp_id
+            public_ip = "NoIP"
+        os_info = platform.system() + "_" + platform.release()
 
-    return st.session_state["user_id"]
+        device_hash = hashlib.sha256(f"{uuid.getnode()}_{public_ip}_{os_info}".encode()).hexdigest()
+
+        cursor.execute("SELECT user_id FROM users WHERE device_hash = ?", (device_hash,))
+        row = cursor.fetchone()
+
+        if row:
+            user_id = row[0]
+        else:
+            user_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+            cursor.execute("INSERT INTO users (user_id, device_hash, date) VALUES (?, ?, ?)",
+                           (user_id, device_hash, None))
+            conn.commit()
+
+        st.session_state["user_id"] = user_id
+        return user_id
+
+    except Exception:
+        temp_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+        st.session_state["user_id"] = temp_id
+        return temp_id
+
 
 
 def initialize_user():
