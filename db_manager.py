@@ -3,10 +3,9 @@ from datetime import datetime
 import os
 import hashlib
 import uuid
-import platform
+import streamlit as st
 
 DB_FILE = "data/request_logs.db"
-TOKEN_FILE = "data/device_token.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -23,7 +22,7 @@ if not cursor.fetchone():
     cursor.execute('''
         CREATE TABLE users (
             user_id TEXT PRIMARY KEY,
-            device_uuid TEXT UNIQUE,
+            session_id TEXT UNIQUE,
             date TEXT,
             requests INTEGER DEFAULT 5,
             experience_points INTEGER DEFAULT 0,
@@ -31,44 +30,27 @@ if not cursor.fetchone():
         )
     ''')
     conn.commit()
-
-# Vérifier si la colonne device_uuid existe
-cursor.execute("PRAGMA table_info(users)")
-columns = [col[1] for col in cursor.fetchall()]
-if "device_uuid" not in columns:
-    print("🔄 Migration : Ajout de la colonne device_uuid")
-    cursor.execute("ALTER TABLE users ADD COLUMN device_uuid TEXT UNIQUE")
-    conn.commit()
 conn.close()
 
-def get_or_create_device_uuid():
-    """Génère un UUID unique et l'associe à l'appareil s'il n'existe pas."""
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, "r") as f:
-            return f.read().strip()
-    new_uuid = str(uuid.uuid4())
-    with open(TOKEN_FILE, "w") as f:
-        f.write(new_uuid)
-    return new_uuid
+def get_or_create_session_id():
+    """Utilise Streamlit session_state pour stocker un identifiant unique."""
+    if "session_id" not in st.session_state:
+        st.session_state["session_id"] = str(uuid.uuid4())
+    return st.session_state["session_id"]
 
 def get_user_id():
-    device_uuid = get_or_create_device_uuid()
+    session_id = get_or_create_session_id()
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
+    cursor.execute("SELECT user_id FROM users WHERE session_id = ?", (session_id,))
     row = cursor.fetchone()
     if row:
         conn.close()
         return row[0]
-    new_user_id = hashlib.sha256(device_uuid.encode()).hexdigest()
-    try:
-        cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
-                       (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
-        row = cursor.fetchone()
-        new_user_id = row[0] if row else None
+    new_user_id = hashlib.sha256(session_id.encode()).hexdigest()
+    cursor.execute("INSERT INTO users (user_id, session_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
+                   (new_user_id, session_id, datetime.now().strftime("%Y-%m-%d")))
+    conn.commit()
     conn.close()
     return new_user_id
 
