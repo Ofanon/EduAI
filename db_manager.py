@@ -30,6 +30,14 @@ if not cursor.fetchone():
         )
     ''')
     conn.commit()
+
+# Vérifier si la colonne session_id existe
+cursor.execute("PRAGMA table_info(users)")
+columns = [col[1] for col in cursor.fetchall()]
+if "session_id" not in columns:
+    print("🔄 Migration : Ajout de la colonne session_id")
+    cursor.execute("ALTER TABLE users ADD COLUMN session_id TEXT UNIQUE")
+    conn.commit()
 conn.close()
 
 def get_or_create_session_id():
@@ -55,11 +63,7 @@ def get_user_id():
     except sqlite3.IntegrityError:
         cursor.execute("SELECT user_id FROM users WHERE session_id = ?", (session_id,))
         row = cursor.fetchone()
-        if row:
-            new_user_id = row[0]
-        else:
-            print("❌ Erreur critique : Impossible de récupérer user_id après IntegrityError")
-            new_user_id = None
+        new_user_id = row[0] if row else None
     conn.close()
     return new_user_id
 
