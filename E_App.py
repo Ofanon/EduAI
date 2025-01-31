@@ -4,7 +4,7 @@ import db_manager as db
 user_id = db.get_user_id()
 
 st.write(f"🔍 DEBUG - Votre ID utilisateur : `{user_id}`")
-
+db.initialize_user()
 if not user_id:
     st.error("❌ Aucun ID utilisateur généré ! Vérifiez `db_manager.py`.")
 else:

@@ -41,6 +41,17 @@ def backup_database():
 
 backup_database()
 
+def get_private_ip():
+    """Récupère l'adresse IP privée réelle de l'appareil."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # Connexion temporaire pour obtenir l’IP locale
+        ip_address = s.getsockname()[0]
+        s.close()
+        return ip_address
+    except Exception as e:
+        print(f"❌ [ERROR] Impossible de récupérer l'adresse IP privée : {e}")
+        return "127.0.0.1"  # Adresse de secours
 
 def get_user_id():
     if "user_id" not in st.session_state:
