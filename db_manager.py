@@ -20,53 +20,41 @@ cursor.execute("PRAGMA table_info(users)")
 columns = [col[1] for col in cursor.fetchall()]
 
 if "device_uuid" not in columns:
-    print("🔄 Migration : Création d'une nouvelle table users avec device_uuid")
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users_new (
-            user_id TEXT PRIMARY KEY,
-            device_uuid TEXT UNIQUE,
-            date TEXT,
-            requests INTEGER DEFAULT 5,
-            experience_points INTEGER DEFAULT 0,
-            purchased_requests INTEGER DEFAULT 0
-        )
-    ''')
-    cursor.execute('''
-        INSERT INTO users_new (user_id, date, requests, experience_points, purchased_requests)
-        SELECT user_id, date, requests, experience_points, purchased_requests FROM users
-    ''')
-    cursor.execute("DROP TABLE users")
-    cursor.execute("ALTER TABLE users_new RENAME TO users")
+    print("🔄 Migration : Ajout de la colonne device_uuid")
+    cursor.execute("ALTER TABLE users ADD COLUMN device_uuid TEXT UNIQUE")
     conn.commit()
-    print("✅ Migration terminée : table users mise à jour avec device_uuid")
 conn.close()
 
-def get_or_create_device_uuid():
+def get_device_uuid():
+    """ Génère un UUID unique basé sur l’appareil et le stocke en base si nécessaire """
+    device_uuid = str(uuid.uuid4())
     conn = get_connection()
     cursor = conn.cursor()
-    device_uuid = str(uuid.uuid4())
-    device_name = platform.node()
-    
-    cursor.execute("SELECT device_uuid FROM users WHERE device_uuid = ?", (device_name,))
+    cursor.execute("SELECT device_uuid FROM users WHERE device_uuid IS NOT NULL LIMIT 1")
     row = cursor.fetchone()
     if row:
         conn.close()
         return row[0]
-    
-    cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
-                   (hashlib.sha256(device_uuid.encode()).hexdigest(), device_name, datetime.now().strftime("%Y-%m-%d")))
-    conn.commit()
     conn.close()
     return device_uuid
 
 def get_user_id():
-    device_uuid = get_or_create_device_uuid()
+    device_uuid = get_device_uuid()
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
     row = cursor.fetchone()
+    if row:
+        conn.close()
+        return row[0]
+    new_user_id = hashlib.sha256(device_uuid.encode()).hexdigest()
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
+                   (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
+    conn.commit()
     conn.close()
-    return row[0] if row else None
+    return new_user_id
 
 def initialize_user():
     get_user_id()
