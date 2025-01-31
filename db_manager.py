@@ -22,6 +22,8 @@ cursor.execute('''
     )
 ''')
 conn.commit()
+conn.execute("VACUUM")
+conn.commit()
 
 def get_private_ip():
     try:
