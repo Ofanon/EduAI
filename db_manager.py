@@ -28,20 +28,34 @@ import hashlib
 import streamlit as st
 import uuid
 
+import requests
+import hashlib
+import streamlit as st
+import uuid
+import platform
+
 def get_user_id():
-    """Génère un ID unique basé sur l'adresse IP publique et l'adresse MAC."""
+    """Génère un ID unique basé sur l'adresse MAC + IP + Type d'appareil."""
     if "user_id" not in st.session_state:
         try:
+            # 🔹 Récupération de l'adresse MAC (unique par appareil)
+            mac_address = str(uuid.getnode())
+
+            # 🔹 Récupération de l'IP publique
             response = requests.get("https://api64.ipify.org?format=json", timeout=5)
             public_ip = response.json().get("ip", "Unknown")
 
-            mac_address = str(uuid.getnode())
+            # 🔹 Récupération du type d'appareil (Windows, iOS, Android...)
+            device_info = platform.system() + "_" + platform.release()
 
-            unique_id = f"{public_ip}_{mac_address}"
+            # 🔹 Création d'un ID unique basé sur MAC + IP + Type d'appareil
+            unique_id = f"{mac_address}_{public_ip}_{device_info}"
             hashed_id = hashlib.sha256(unique_id.encode()).hexdigest()
 
+            # 🔹 Stocke l'ID utilisateur dans la session
             st.session_state["user_id"] = hashed_id
         except Exception:
+            # 🔹 Si erreur, utilise seulement la MAC (toujours unique par appareil)
             st.session_state["user_id"] = hashlib.sha256(str(uuid.getnode()).encode()).hexdigest()
 
     return st.session_state["user_id"]
