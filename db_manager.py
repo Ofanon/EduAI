@@ -6,7 +6,7 @@ import uuid
 import platform
 
 DB_FILE = "data/request_logs.db"
-TOKEN_FILE = "data/device_token.txt"
+TOKEN_FILE = f"data/device_token_{platform.node()}.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -53,7 +53,7 @@ def get_user_id():
     if row:
         conn.close()
         return row[0]
-    new_user_id = hashlib.sha256(device_uuid.encode()).hexdigest()
+    new_user_id = hashlib.sha256((device_uuid + str(uuid.uuid4())).encode()).hexdigest()
     try:
         cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
                        (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
