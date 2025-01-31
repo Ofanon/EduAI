@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
 import db_manager as db
+import sqlite3
 user_id = db.get_user_id()
 db.initialize_user()  # 🔄 Assure l’initialisation de l’utilisateur
 
