@@ -51,31 +51,31 @@ def get_private_ip():
         return ip_address
     except Exception as e:
         print(f"❌ [ERROR] Impossible de récupérer l'adresse IP privée : {e}")
-        return str(uuid.uuid4())  # Générer un ID de secours si l'IP est introuvable
+        return "127.0.0.1"  # Adresse de secours
 
 def generate_unique_device_id():
-    """Génère un ID unique basé sur l’appareil pour assurer son unicité sans utiliser uniquement l'adresse IP."""
-    private_ip = get_private_ip()  # 🔍 Adresse IP locale unique (sera différente sur téléphone et PC)
+    """Génère un ID unique basé sur l’appareil pour assurer son unicité."""
+    private_ip = get_private_ip()  # 🔍 Adresse IP locale unique
     device_name = platform.node()  # 🔹 Nom de l'appareil
     os_name = platform.system()  # 🔹 Type de système (Windows, Mac, Linux, Android, iOS)
     processor = platform.processor()  # 🔹 Type de processeur
-    unique_id = str(uuid.uuid4())  # 🔹 Généré une seule fois par appareil
+    unique_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
 
-    # 🔹 Générer un hash unique basé sur ces informations
-    return hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}_{unique_id}".encode()).hexdigest()
+    return unique_id
 
 def get_user_id():
     """Récupère un ID unique en base ou le génère si inexistant."""
     
-    if "user_id" in st.session_state:
-        return st.session_state["user_id"]  # 🔄 Retourne l'ID stocké en session
-
-    user_id = generate_unique_device_id()  # Génération basée sur l’appareil
-
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
 
-    # 🔍 Vérifier si l’ID existe déjà en base
+    # 🔹 1️⃣ Vérifier si l'ID est déjà stocké en session (utile pour éviter les recalculs)
+    if "user_id" in st.session_state:
+        return st.session_state["user_id"]
+
+    user_id = generate_unique_device_id()  # Génération basée sur l’appareil
+
+    # 🔹 2️⃣ Vérifier si cet ID existe déjà en base
     cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
 
