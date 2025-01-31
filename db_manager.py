@@ -41,25 +41,87 @@ def backup_database():
 backup_database()
 
 
+USER_ID_FILE = "data/user_id.txt"
+
 def get_user_id():
-    """Génère un ID unique pour chaque utilisateur."""
+    """Génère un ID unique et l’enregistre de manière persistante pour qu’il ne change pas à chaque session."""
     if "user_id" not in st.session_state:
-        unique_device_id = str(uuid.uuid4())  # Génère un ID unique basé sur UUID
-        user_id = hashlib.sha256(unique_device_id.encode()).hexdigest()
+        user_id = None
+
+        # 1️⃣ Vérifier si un ID est déjà stocké localement
+        if os.path.exists(USER_ID_FILE):
+            with open(USER_ID_FILE, "r") as f:
+                stored_id = f.read().strip()
+                if stored_id:
+                    user_id = stored_id
+                    print(f"✅ [DEBUG] ID récupéré depuis user_id.txt : {user_id}")
+
+        # 2️⃣ Si aucun ID trouvé localement, essayer de récupérer en base
+        if not user_id:
+            conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+            cursor = conn.cursor()
+            cursor.execute("SELECT user_id FROM users ORDER BY rowid DESC LIMIT 1")
+            row = cursor.fetchone()
+
+            if row:
+                user_id = row[0]
+                print(f"✅ [DEBUG] ID récupéré depuis SQLite : {user_id}")
+
+        # 3️⃣ Si toujours aucun ID trouvé, générer un ID unique
+        if not user_id:
+            try:
+                device_name = platform.node()  # Nom de l'appareil
+                os_name = platform.system()  # Windows, MacOS, Linux, Android, iOS
+                processor = platform.processor()  # Type de processeur
+                unique_device_id = str(uuid.uuid4())  # Un UUID propre à cet appareil
+
+                # 🔹 Générer un hash unique basé sur ces informations
+                user_id = hashlib.sha256(f"{device_name}_{os_name}_{processor}_{unique_device_id}".encode()).hexdigest()
+
+                # 🔒 Sauvegarder cet ID localement pour qu'il soit stable après fermeture
+                with open(USER_ID_FILE, "w") as f:
+                    f.write(user_id)
+
+            except Exception as e:
+                print(f"❌ [ERROR] Impossible de générer un ID unique : {e}")
+                user_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()  # Solution de secours
+
+        # 4️⃣ Vérifier si cet ID existe déjà en base, sinon l’ajouter
+        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
+        exists = cursor.fetchone()[0]
+
+        if not exists:
+            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
+            conn.commit()
+            print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
+
+        conn.close()
+
+        # 🔄 Stocker en session pour éviter de recalculer à chaque appel
         st.session_state["user_id"] = user_id
+
     return st.session_state["user_id"]
 
-# 📌 Initialisation de l'utilisateur dans la base
+
+
 def initialize_user():
-    """Ajoute l'utilisateur s'il n'existe pas encore dans la base."""
     user_id = get_user_id()
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
-    if cursor.fetchone()[0] == 0:
+    exists = cursor.fetchone()[0]
+
+    if not exists:
+        print(f"✅ [DEBUG] Nouvel utilisateur ajouté en base : {user_id}")
         cursor.execute("""
             INSERT INTO users (user_id, date, requests, experience_points, purchased_requests)
             VALUES (?, ?, 5, 0, 0)
         """, (user_id, None))
         conn.commit()
+
+    conn.close()
 
 def can_user_make_request():
     user_id = get_user_id()
