@@ -13,6 +13,14 @@ if not os.path.exists("data"):
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
+# Vérifier si la colonne device_uuid existe
+cursor.execute("PRAGMA table_info(users)")
+columns = [col[1] for col in cursor.fetchall()]
+if "device_uuid" not in columns:
+    cursor.execute("ALTER TABLE users ADD COLUMN device_uuid TEXT UNIQUE")
+    conn.commit()
+    print("✅ Colonne device_uuid ajoutée à la table users")
+
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
