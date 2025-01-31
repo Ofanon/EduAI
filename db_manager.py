@@ -59,7 +59,7 @@ def get_user_id():
         # 🔹 2️⃣ Si aucun ID trouvé localement, essayer de récupérer un identifiant du navigateur
         if not user_id:
             try:
-                query_params = st.experimental_get_query_params()
+                query_params = st.query_params()
                 browser_fingerprint = query_params.get("device_id", [str(uuid.uuid4())])[0]  # Génère un ID par navigateur
                 device_name = platform.node()  # Nom de l'appareil
                 os_name = platform.system()  # Type de système (Windows, MacOS, Linux, Android, iOS)
