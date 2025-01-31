@@ -6,7 +6,7 @@ import uuid
 import streamlit as st
 
 DB_FILE = "data/request_logs.db"
-SESSION_FILE = "data/session_id.txt"
+TOKEN_FILE = "data/device_token.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -16,7 +16,7 @@ def get_connection():
 conn = get_connection()
 cursor = conn.cursor()
 
-# Vérifier si la table users existe et recréer proprement si nécessaire
+# Vérifier et créer proprement la table users
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
 if not cursor.fetchone():
     print("🛠 Création de la table users")
@@ -33,28 +33,31 @@ if not cursor.fetchone():
     conn.commit()
 conn.close()
 
-def get_or_create_session_id():
-    """Stocke `session_id` dans un fichier local pour éviter qu'il change à chaque exécution."""
-    if os.path.exists(SESSION_FILE):
-        with open(SESSION_FILE, "r") as f:
+def get_or_create_device_id():
+    """Utilise Streamlit session_state pour les sessions web, sinon stocke un ID local."""
+    if "session_id" in st.session_state:
+        return st.session_state["session_id"]
+    if os.path.exists(TOKEN_FILE):
+        with open(TOKEN_FILE, "r") as f:
             return f.read().strip()
-    session_id = str(uuid.uuid4())
-    with open(SESSION_FILE, "w") as f:
-        f.write(session_id)
-    return session_id
+    new_id = str(uuid.uuid4())
+    with open(TOKEN_FILE, "w") as f:
+        f.write(new_id)
+    st.session_state["session_id"] = new_id
+    return new_id
 
 def get_user_id():
-    session_id = get_or_create_session_id()
+    device_id = get_or_create_device_id()
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT user_id FROM users WHERE session_id = ?", (session_id,))
+    cursor.execute("SELECT user_id FROM users WHERE session_id = ?", (device_id,))
     row = cursor.fetchone()
     if row:
         conn.close()
         return row[0]
-    new_user_id = hashlib.sha256(session_id.encode()).hexdigest()
+    new_user_id = hashlib.sha256(device_id.encode()).hexdigest()
     cursor.execute("INSERT INTO users (user_id, session_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
-                   (new_user_id, session_id, datetime.now().strftime("%Y-%m-%d")))
+                   (new_user_id, device_id, datetime.now().strftime("%Y-%m-%d")))
     conn.commit()
     conn.close()
     return new_user_id
