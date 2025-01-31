@@ -4,7 +4,7 @@ import os
 import hashlib
 import platform
 import socket
-import streamlit as st
+import uuid
 
 DB_FILE = "data/request_logs.db"
 if not os.path.exists("data"):
@@ -24,12 +24,14 @@ cursor.execute('''
 ''')
 conn.commit()
 
+# Forcer la création de la base de données
 conn.execute("VACUUM")
 conn.commit()
+
 if os.path.exists(DB_FILE):
-    st.write(f"✅ Base de données créée avec succès : {DB_FILE}")
+    print(f"✅ Base de données créée avec succès : {DB_FILE}")
 else:
-    st.write("❌ Erreur : le fichier de base de données n'a pas été créé.")
+    print("❌ Erreur : le fichier de base de données n'a pas été créé.")
 
 def get_private_ip():
     try:
@@ -41,10 +43,14 @@ def get_private_ip():
     except Exception:
         return "127.0.0.1"
 
+def get_mac_address():
+    return uuid.getnode()
+
 def get_user_id():
     private_ip = get_private_ip()
     device_name = platform.node()
-    unique_id = hashlib.sha256(f"{private_ip}_{device_name}".encode()).hexdigest()
+    mac_address = get_mac_address()
+    unique_id = hashlib.sha256(f"{private_ip}_{device_name}_{mac_address}".encode()).hexdigest()
     return unique_id
 
 def initialize_user():
