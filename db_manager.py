@@ -16,22 +16,26 @@ cursor = conn.cursor()
 # Vérifier si la colonne device_uuid existe
 cursor.execute("PRAGMA table_info(users)")
 columns = [col[1] for col in cursor.fetchall()]
-if "device_uuid" not in columns:
-    cursor.execute("ALTER TABLE users ADD COLUMN device_uuid TEXT UNIQUE")
-    conn.commit()
-    print("✅ Colonne device_uuid ajoutée à la table users")
 
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        device_uuid TEXT UNIQUE,
-        date TEXT,
-        requests INTEGER DEFAULT 5,
-        experience_points INTEGER DEFAULT 0,
-        purchased_requests INTEGER DEFAULT 0
-    )
-''')
-conn.commit()
+if "device_uuid" not in columns:
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users_new (
+            user_id TEXT PRIMARY KEY,
+            device_uuid TEXT UNIQUE,
+            date TEXT,
+            requests INTEGER DEFAULT 5,
+            experience_points INTEGER DEFAULT 0,
+            purchased_requests INTEGER DEFAULT 0
+        )
+    ''')
+    cursor.execute('''
+        INSERT INTO users_new (user_id, date, requests, experience_points, purchased_requests)
+        SELECT user_id, date, requests, experience_points, purchased_requests FROM users
+    ''')
+    cursor.execute("DROP TABLE users")
+    cursor.execute("ALTER TABLE users_new RENAME TO users")
+    conn.commit()
+    print("✅ Colonne device_uuid ajoutée à la table users avec migration des données")
 
 conn.execute("VACUUM")
 conn.commit()
