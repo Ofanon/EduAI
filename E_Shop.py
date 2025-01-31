@@ -14,7 +14,7 @@ with col1:
     with st.container(key=1):
         st.image("5_Stars.png", use_container_width=True)
         st.write("⭐ Acheter 5 étoiles")
-        if st.button("🎁 **Prix** : 💎 1000 points d'expérience", key="buy_5"):
+        if st.button("🎁 **Prix** : 💎 **1000** points d'expérience", key="buy_5"):
             success = db.purchase_requests(cost_in_experience=1000, requests_to_add=5)
             if success:
                 st.success("✨ 5 étoiles ajoutées !")
@@ -27,7 +27,7 @@ with col2:
     with st.container(key=2):
         st.image("10_Stars.png", use_container_width=True)
         st.write("⭐⭐ Acheter 10 étoiles")
-        if st.button("🎁 **Prix** : 💎 2800 points d'expérience", key="buy_10"):
+        if st.button("🎁 **Prix** : 💎 **2800** points d'expérience", key="buy_10"):
             success = db.purchase_requests(cost_in_experience=2800, requests_to_add=10)
             if success:
                 st.success("✨ 10 étoiles ajoutées !")
@@ -40,7 +40,7 @@ with col3:
     with st.container(key=3):
         st.image("20_Stars.png", use_container_width=True)
         st.write("⭐⭐⭐ Acheter 20 étoiles")
-        if st.button("🎁 **Prix** : 💎 5700 points d'expérience", key="buy_20"):
+        if st.button("🎁 **Prix** : 💎 **5700** points d'expérience", key="buy_20"):
             success = db.purchase_requests(cost_in_experience=5700, requests_to_add=20)
             if success:
                 st.success("✨ 20 étoiles ajoutées !")
