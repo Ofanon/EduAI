@@ -93,9 +93,7 @@ cursor.execute('''
 conn.commit()
 
 def get_user_id():
-    if "user_id" in st.session_state:
-        return st.session_state["user_id"]
-
+    
     try:
         os_info = platform.system() + "_" + platform.release()
 
@@ -112,14 +110,10 @@ def get_user_id():
                            (user_id, device_hash, None))
             conn.commit()
 
-        st.session_state["user_id"] = user_id
         return user_id
-
     except Exception:
-        temp_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
-        st.session_state["user_id"] = temp_id
-        return temp_id
 
+        return hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
 
 
 def initialize_user():
