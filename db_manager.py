@@ -6,6 +6,7 @@ import uuid
 import streamlit as st
 
 DB_FILE = "data/request_logs.db"
+SESSION_FILE = "data/session_id.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -30,35 +31,17 @@ if not cursor.fetchone():
         )
     ''')
     conn.commit()
-else:
-    cursor.execute("PRAGMA table_info(users)")
-    columns = [col[1] for col in cursor.fetchall()]
-    if "session_id" not in columns:
-        print("🔄 Migration : Recréation de la table users avec session_id")
-        cursor.execute('''
-            CREATE TABLE users_new (
-                user_id TEXT PRIMARY KEY,
-                session_id TEXT UNIQUE,
-                date TEXT,
-                requests INTEGER DEFAULT 5,
-                experience_points INTEGER DEFAULT 0,
-                purchased_requests INTEGER DEFAULT 0
-            )
-        ''')
-        cursor.execute('''
-            INSERT INTO users_new (user_id, date, requests, experience_points, purchased_requests)
-            SELECT user_id, date, requests, experience_points, purchased_requests FROM users
-        ''')
-        cursor.execute("DROP TABLE users")
-        cursor.execute("ALTER TABLE users_new RENAME TO users")
-        conn.commit()
 conn.close()
 
 def get_or_create_session_id():
-    """Utilise Streamlit session_state pour stocker un identifiant unique."""
-    if "session_id" not in st.session_state:
-        st.session_state["session_id"] = str(uuid.uuid4())
-    return st.session_state["session_id"]
+    """Stocke `session_id` dans un fichier local pour éviter qu'il change à chaque exécution."""
+    if os.path.exists(SESSION_FILE):
+        with open(SESSION_FILE, "r") as f:
+            return f.read().strip()
+    session_id = str(uuid.uuid4())
+    with open(SESSION_FILE, "w") as f:
+        f.write(session_id)
+    return session_id
 
 def get_user_id():
     session_id = get_or_create_session_id()
