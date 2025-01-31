@@ -46,19 +46,22 @@ else:
     print("❌ Erreur : le fichier de base de données n'a pas été créé.")
 
 def get_device_uuid():
-    return str(uuid.uuid4())
+    device_uuid = str(uuid.uuid4())
+    return device_uuid
 
 def get_user_id():
-    device_uuid = platform.node()
-    cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
-    row = cursor.fetchone()
-
-    if row:
-        return row[0]
+    cursor.execute("SELECT device_uuid, user_id FROM users")
+    devices = cursor.fetchall()
+    current_device = platform.node()
     
-    new_user_id = hashlib.sha256(device_uuid.encode()).hexdigest()
+    for device_uuid, user_id in devices:
+        if device_uuid == current_device:
+            return user_id
+    
+    new_device_uuid = get_device_uuid()
+    new_user_id = hashlib.sha256(new_device_uuid.encode()).hexdigest()
     cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
-                   (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
+                   (new_user_id, new_device_uuid, datetime.now().strftime("%Y-%m-%d")))
     conn.commit()
     return new_user_id
 
