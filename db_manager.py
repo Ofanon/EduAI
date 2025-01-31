@@ -54,52 +54,46 @@ def get_private_ip():
         return "127.0.0.1"  # Adresse de secours
 
 def generate_unique_device_id():
-    """Génère un ID unique en utilisant uuid.uuid4()."""
-    return str(uuid.uuid4())  # Générer un UUID et le convertir en chaîne
+    """Génère un ID unique basé sur les caractéristiques de l'appareil."""
+
+    mac_address = uuid.getnode()
+    os_name = platform.system()
+    os_version = platform.release()
+    # Ajoutez d'autres caractéristiques si nécessaire
+
+    # Combinez les informations pour créer une chaîne unique
+    unique_string = f"{mac_address}-{os_name}-{os_version}"
+
+    # Hachez la chaîne pour obtenir un ID plus court et plus sécurisé
+    hashed_id = hashlib.sha256(unique_string.encode()).hexdigest()
+
+    return hashed_id
 
 def get_user_id():
-    """Récupère l'ID utilisateur depuis un cookie ou le génère si inexistant."""
+    """Récupère l'ID utilisateur depuis la base de données ou le génère si inexistant."""
 
     # 1. Essayer de récupérer l'ID utilisateur depuis la session state
     user_id = st.session_state.get("user_id")
 
     if not user_id:
-        # 2. Si aucun ID en session, chercher dans les cookies
-        cookie_name = "user_id"
-        query_params = st.query_params
-        user_id_list = query_params.get(cookie_name)  # Récupérer la liste
-        user_id = user_id_list if user_id_list else None  # Extraire la première valeur
+        # 2. Si aucun ID en session, générer un ID unique basé sur l'appareil
+        user_id = generate_unique_device_id()
 
-        # --- Débogage ---
-        print(f"user_id_list: {user_id_list}")
-        print(f"user_id: {user_id}")
-        print(f"type(user_id): {type(user_id)}")
-        # ---------------
+        # 3. Vérifier si l'ID existe déjà en base
+        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute("SELECT user_id FROM users WHERE user_id =?", (user_id,))
+        row = cursor.fetchone()
 
-    if user_id:
-        # Si l'ID est trouvé dans les cookies, le stocker dans la session state
+        if not row:
+            # 4. Si l'ID n'existe pas, l'insérer dans la base de données
+            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?,?, 5, 0, 0)", (user_id, None))
+            conn.commit()
+
+        conn.close()
+
+        # 5. Stocker l'ID utilisateur dans la session state
         st.session_state["user_id"] = user_id
-        return user_id
-
-    # 3. Si aucun cookie trouvé, générer un nouvel ID unique
-    user_id = str(uuid.uuid4())
-
-    # 4. Vérifier si l'ID existe déjà en base
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-    cursor.execute("SELECT user_id FROM users WHERE user_id =?", (user_id,))
-    row = cursor.fetchone()
-
-    if not row:
-        cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?,?, 5, 0, 0)", (user_id, None))
-        conn.commit()
-
-    conn.close()
-
-    # 5. Stocker l'ID utilisateur dans un cookie et la session state
-    st.experimental_set_query_params(**{cookie_name: user_id})  # Remplacer par la ligne suivante
-    # st.query_params[cookie_name] = user_id  # Définir le cookie avec st.query_params
-    st.session_state["user_id"] = user_id
 
     return user_id
 
