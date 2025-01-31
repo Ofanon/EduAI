@@ -15,7 +15,6 @@ cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
-        user_id TEXT,
         date TEXT,
         requests INTEGER DEFAULT 5,
         experience_points INTEGER DEFAULT 0,
@@ -42,14 +41,13 @@ def get_user_id():
 
 def initialize_user():
     user_id = get_user_id()
-    ip_address = get_private_ip()
     today = datetime.now().strftime("%Y-%m-%d")
 
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
     exists = cursor.fetchone()[0]
 
     if not exists:
-        cursor.execute("INSERT INTO users (user_id, ip_address, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)", (user_id, ip_address, today))
+        cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, today))
         conn.commit()
 
 def can_user_make_request():
