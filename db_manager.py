@@ -1,74 +1,9 @@
 import sqlite3
-from datetime import datetime
 import os
 import hashlib
-import streamlit as st
-import uuid
-import shutil
-import requests
-import platform
-
-DB_FILE = os.path.join("data", "request_logs.db")
-
-USER_ID_FILE = "data/user_id.txt"
-
-if not os.path.exists("data"):
-    os.makedirs("data")
-
-db_exists = os.path.exists(DB_FILE)
-
-conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-cursor = conn.cursor()
-
-def backup_database():
-    backup_path = DB_FILE + ".backup"
-    if os.path.exists(DB_FILE):
-        shutil.copy(DB_FILE, backup_path)
-
-backup_database()
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        date TEXT,
-        requests INTEGER DEFAULT 5,
-        experience_points INTEGER DEFAULT 0,
-        purchased_requests INTEGER DEFAULT 0
-    )
-''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS revision_notes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,
-        title TEXT,
-        content TEXT,
-        date TEXT
-    )
-''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS daily_stats (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,
-        date TEXT,
-        xp_earned INTEGER DEFAULT 0,
-        quizzes_completed INTEGER DEFAULT 0,
-        correct_answers INTEGER DEFAULT 0,
-        wrong_answers INTEGER DEFAULT 0
-    )
-''')
-
-conn.commit()
-
-import sqlite3
-from datetime import datetime
-import os
-import hashlib
-import streamlit as st
 import uuid
 import platform
-import requests
+import datetime
 
 DB_FILE = os.path.join("data", "request_logs.db")
 
@@ -78,7 +13,6 @@ if not os.path.exists("data"):
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# 📌 Création de la table des utilisateurs avec stockage de l'ID unique
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
@@ -93,7 +27,7 @@ cursor.execute('''
 conn.commit()
 
 def get_user_id():
-    
+
     try:
         os_info = platform.system() + "_" + platform.release()
 
@@ -103,17 +37,17 @@ def get_user_id():
         row = cursor.fetchone()
 
         if row:
-            user_id = row[0]
+            return row[0]
         else:
             user_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
             cursor.execute("INSERT INTO users (user_id, device_hash, date) VALUES (?, ?, ?)",
                            (user_id, device_hash, None))
             conn.commit()
+            return user_id
 
-        return user_id
     except Exception:
-
         return hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+
 
 
 def initialize_user():
