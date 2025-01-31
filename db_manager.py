@@ -54,18 +54,28 @@ if not db_exists:
     conn.commit()
 
 def get_user_id():
+    """Génère un ID unique et stable pour chaque appareil."""
     if "user_id" not in st.session_state:
         try:
-            mac_address = str(uuid.getnode())
-            import requests
-            response = requests.get("https://api64.ipify.org?format=json", timeout=5)
-            public_ip = response.json().get("ip", "Unknown")
-            unique_id = f"{mac_address}_{public_ip}"
-            hashed_id = hashlib.sha256(unique_id.encode()).hexdigest()
-            st.session_state["user_id"] = hashed_id
+            # 🔹 Vérifier si un ID existe déjà dans `st.secrets`
+            if "user_id" in st.secrets:
+                st.session_state["user_id"] = st.secrets["user_id"]
+            else:
+                # 🔹 Générer un ID basé sur l’adresse MAC + UUID aléatoire
+                unique_device_id = str(uuid.uuid4())
+                hashed_id = hashlib.sha256(unique_device_id.encode()).hexdigest()
+
+                # 🔒 Sauvegarder l’ID dans les secrets pour le rendre persistant
+                with open(".streamlit/secrets.toml", "w") as f:
+                    f.write(f'user_id = "{hashed_id}"')
+
+                st.session_state["user_id"] = hashed_id
         except Exception:
+            # 🔹 En cas d’erreur, générer un ID aléatoire unique
             st.session_state["user_id"] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+
     return st.session_state["user_id"]
+
 
 def initialize_user():
     user_id = get_user_id()
