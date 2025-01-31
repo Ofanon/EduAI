@@ -4,10 +4,8 @@ import os
 import hashlib
 import uuid
 import platform
-import socket
 
 DB_FILE = "data/request_logs.db"
-TOKEN_FILE = "data/device_token.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -17,16 +15,16 @@ def get_connection():
 conn = get_connection()
 cursor = conn.cursor()
 
-# Vérifier si la colonne user_token existe
+# Vérifier si la colonne device_uuid existe
 cursor.execute("PRAGMA table_info(users)")
 columns = [col[1] for col in cursor.fetchall()]
 
-if "user_token" not in columns:
-    print("🔄 Migration : Création d'une nouvelle table users avec user_token")
+if "device_uuid" not in columns:
+    print("🔄 Migration : Création d'une nouvelle table users avec device_uuid")
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users_new (
             user_id TEXT PRIMARY KEY,
-            user_token TEXT UNIQUE,
+            device_uuid TEXT UNIQUE,
             date TEXT,
             requests INTEGER DEFAULT 5,
             experience_points INTEGER DEFAULT 0,
@@ -40,40 +38,35 @@ if "user_token" not in columns:
     cursor.execute("DROP TABLE users")
     cursor.execute("ALTER TABLE users_new RENAME TO users")
     conn.commit()
-    print("✅ Migration terminée : table users mise à jour avec user_token")
+    print("✅ Migration terminée : table users mise à jour avec device_uuid")
 conn.close()
 
-def get_mac_address():
-    try:
-        mac = ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 2 * 6, 8)][::-1])
-        return mac
-    except Exception:
-        return str(uuid.uuid4())
-
-def get_local_token():
-    device_token = get_mac_address()
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, "r") as f:
-            return f.read().strip()
-    with open(TOKEN_FILE, "w") as f:
-        f.write(device_token)
-    return device_token
-
-def get_user_id():
-    user_token = get_local_token()
+def get_or_create_device_uuid():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT user_id FROM users WHERE user_token = ?", (user_token,))
+    device_uuid = str(uuid.uuid4())
+    device_name = platform.node()
+    
+    cursor.execute("SELECT device_uuid FROM users WHERE device_uuid = ?", (device_name,))
     row = cursor.fetchone()
     if row:
         conn.close()
         return row[0]
-    new_user_id = hashlib.sha256(user_token.encode()).hexdigest()
-    cursor.execute("INSERT INTO users (user_id, user_token, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
-                   (new_user_id, user_token, datetime.now().strftime("%Y-%m-%d")))
+    
+    cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
+                   (hashlib.sha256(device_uuid.encode()).hexdigest(), device_name, datetime.now().strftime("%Y-%m-%d")))
     conn.commit()
     conn.close()
-    return new_user_id
+    return device_uuid
+
+def get_user_id():
+    device_uuid = get_or_create_device_uuid()
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row else None
 
 def initialize_user():
     get_user_id()
