@@ -6,78 +6,72 @@ import streamlit as st
 import uuid
 import shutil
 
-# 📂 Chemin sécurisé pour la base de données
 DB_FILE = os.path.join("data", "request_logs.db")
+BACKUP_FILE = DB_FILE + ".backup"
 
-# 🔒 Vérification et création du dossier "data" si nécessaire
 if not os.path.exists("data"):
     os.makedirs("data")
 
-# 🔍 Vérification si la base existe déjà AVANT d'ouvrir la connexion
-db_exists = os.path.exists(DB_FILE)
+if not os.path.exists(DB_FILE) and os.path.exists(BACKUP_FILE):
+    print("⚠️ [WARNING] Base de données manquante ! Restauration automatique...")
+    shutil.copy(BACKUP_FILE, DB_FILE)
+    print("✅ Base de données restaurée depuis la sauvegarde.")
 
-# 🔄 Connexion à SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-BACKUP_FILE = DB_FILE + ".backup"
+# 🛠 Création des tables UNIQUEMENT si la base est nouvelle
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        user_id TEXT PRIMARY KEY,
+        date TEXT,
+        requests INTEGER DEFAULT 5,
+        experience_points INTEGER DEFAULT 0,
+        purchased_requests INTEGER DEFAULT 0
+    )
+''')
+conn.commit()
 
-def restore_database():
-    if os.path.exists(BACKUP_FILE):
-        shutil.copy(BACKUP_FILE, DB_FILE)
-        print("✅ Base de données restaurée depuis la sauvegarde !")
-    else:
-        print("❌ Aucune sauvegarde trouvée, restauration impossible.")
-
-if not os.path.exists(DB_FILE) and os.path.exists(BACKUP_FILE):
-    print("⚠️ [WARNING] Base manquante ! Restauration en cours...")
-    restore_database()
-    
+# 🔒 Sauvegarde automatique avant toute mise à jour
 def backup_database():
-    backup_path = DB_FILE + ".backup"
+    """Crée une sauvegarde automatique de la base pour éviter toute perte."""
     if os.path.exists(DB_FILE):
-        shutil.copy(DB_FILE, backup_path)
-        print(f"✅ [DEBUG] Sauvegarde effectuée : {backup_path}")
+        shutil.copy(DB_FILE, BACKUP_FILE)
+        print(f"✅ [DEBUG] Sauvegarde effectuée : {BACKUP_FILE}")
 
 backup_database()
 
-if not db_exists:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            user_id TEXT PRIMARY KEY,
-            date TEXT,
-            requests INTEGER DEFAULT 5,
-            experience_points INTEGER DEFAULT 0,
-            purchased_requests INTEGER DEFAULT 0
-        )
-    ''')
-    conn.commit()
+# 📂 Fichier pour stocker l’ID utilisateur localement
+USER_ID_FILE = "data/user_id.txt"
 
 def get_user_id():
-    """Génère un ID unique et stable pour chaque appareil."""
+    """Génère un ID unique et stable pour chaque appareil en le stockant localement."""
     if "user_id" not in st.session_state:
         try:
-            # 🔹 Vérifier si un ID existe déjà dans `st.secrets`
-            if "user_id" in st.secrets:
-                st.session_state["user_id"] = st.secrets["user_id"]
+            # Vérifier si un ID existe déjà dans un fichier local
+            if os.path.exists(USER_ID_FILE):
+                with open(USER_ID_FILE, "r") as f:
+                    stored_id = f.read().strip()
+                    st.session_state["user_id"] = stored_id
             else:
-                # 🔹 Générer un ID basé sur l’adresse MAC + UUID aléatoire
-                unique_device_id = str(uuid.uuid4())
-                hashed_id = hashlib.sha256(unique_device_id.encode()).hexdigest()
+                # Générer un ID unique basé sur l’adresse MAC et un UUID
+                mac_address = str(uuid.getnode())
+                unique_device_id = str(uuid.uuid4())  # Généré une seule fois par appareil
+                hashed_id = hashlib.sha256(f"{mac_address}_{unique_device_id}".encode()).hexdigest()
 
-                # 🔒 Sauvegarder l’ID dans les secrets pour le rendre persistant
-                with open(".streamlit/secrets.toml", "w") as f:
-                    f.write(f'user_id = "{hashed_id}"')
+                # Sauvegarder cet ID localement
+                with open(USER_ID_FILE, "w") as f:
+                    f.write(hashed_id)
 
                 st.session_state["user_id"] = hashed_id
         except Exception:
-            # 🔹 En cas d’erreur, générer un ID aléatoire unique
+            # En cas d’erreur, générer un ID aléatoire unique
             st.session_state["user_id"] = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
 
     return st.session_state["user_id"]
 
-
 def initialize_user():
+    """Ajoute l'utilisateur s'il n'existe pas encore."""
     user_id = get_user_id()
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
     if cursor.fetchone()[0] == 0:
@@ -89,6 +83,7 @@ def initialize_user():
         conn.commit()
 
 def can_user_make_request():
+    """Vérifie si l'utilisateur peut faire une requête aujourd'hui."""
     user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
@@ -108,6 +103,7 @@ def can_user_make_request():
     return normal_requests > 0 or purchased_requests > 0
 
 def consume_request():
+    """Diminue le nombre de requêtes disponibles pour l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -126,6 +122,7 @@ def consume_request():
     conn.commit()
 
 def purchase_requests(cost_in_experience, requests_to_add):
+    """Ajoute des requêtes en échange d'XP."""
     user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -141,21 +138,23 @@ def purchase_requests(cost_in_experience, requests_to_add):
     return False
 
 def update_experience_points(points):
+    """Ajoute des XP à l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
     conn.commit()
 
 def get_experience_points():
+    """Retourne les XP de l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] if row else 0
 
 def get_requests_left():
+    """Retourne le nombre total de requêtes disponibles."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] + row[1] if row else 5
 
 initialize_user()
-
