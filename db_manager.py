@@ -30,9 +30,7 @@ if not cursor.fetchone():
     ''')
     conn.commit()
     print("✅ Table users créée avec succès")
-
-conn.execute("VACUUM")
-conn.commit()
+conn.close()
 
 def get_stored_uuid():
     if os.path.exists(UUID_FILE):
