@@ -45,18 +45,18 @@ backup_database()
 USER_ID_FILE = "data/user_id.txt"
 
 def get_user_id():
-    """Génère un ID unique et le stocke dans SQLite pour ne pas utiliser user_id.txt."""
+    """Génère un ID unique et le stocke dans la base de données pour éviter les doublons."""
     if "user_id" not in st.session_state:
         user_id = None
 
-        # Vérifie si un ID existe déjà dans la base de données
-        cursor.execute("SELECT user_id FROM users ORDER BY rowid ASC LIMIT 1")
+        # Vérifie si l'utilisateur a déjà un ID stocké dans la session
+        cursor.execute("SELECT user_id FROM users ORDER BY rowid DESC LIMIT 1")
         row = cursor.fetchone()
 
         if row:
             user_id = row[0]  # On récupère l'ID existant
         else:
-            # Générer un ID unique pour l’utilisateur
+            # Générer un ID unique basé sur UUID (stable pour chaque utilisateur)
             unique_device_id = str(uuid.uuid4())
             user_id = hashlib.sha256(unique_device_id.encode()).hexdigest()
 
@@ -64,9 +64,10 @@ def get_user_id():
             cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
             conn.commit()
 
-        st.session_state["user_id"] = user_id
+        st.session_state["user_id"] = user_id  # Sauvegarde dans la session
 
     return st.session_state["user_id"]
+
 
 def initialize_user():
     """Ajoute l'utilisateur s'il n'existe pas encore."""
