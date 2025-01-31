@@ -16,10 +16,25 @@ def get_connection():
 conn = get_connection()
 cursor = conn.cursor()
 
+# Vérifier et créer la table users si elle n'existe pas
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+if not cursor.fetchone():
+    print("🛠 Création de la table users")
+    cursor.execute('''
+        CREATE TABLE users (
+            user_id TEXT PRIMARY KEY,
+            device_uuid TEXT UNIQUE,
+            date TEXT,
+            requests INTEGER DEFAULT 5,
+            experience_points INTEGER DEFAULT 0,
+            purchased_requests INTEGER DEFAULT 0
+        )
+    ''')
+    conn.commit()
+
 # Vérifier si la colonne device_uuid existe
 cursor.execute("PRAGMA table_info(users)")
 columns = [col[1] for col in cursor.fetchall()]
-
 if "device_uuid" not in columns:
     print("🔄 Migration : Ajout de la colonne device_uuid")
     cursor.execute("ALTER TABLE users ADD COLUMN device_uuid TEXT UNIQUE")
@@ -27,7 +42,7 @@ if "device_uuid" not in columns:
 conn.close()
 
 def get_or_create_device_uuid():
-    """Génère un UUID unique pour chaque appareil et le stocke localement."""
+    """Génère un UUID unique et l'associe à l'appareil s'il n'existe pas."""
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, "r") as f:
             return f.read().strip()
@@ -46,9 +61,14 @@ def get_user_id():
         conn.close()
         return row[0]
     new_user_id = hashlib.sha256(device_uuid.encode()).hexdigest()
-    cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
-                   (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
-    conn.commit()
+    try:
+        cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
+                       (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
+        row = cursor.fetchone()
+        new_user_id = row[0] if row else None
     conn.close()
     return new_user_id
 
