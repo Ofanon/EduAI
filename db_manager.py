@@ -67,8 +67,14 @@ def get_user_id():
         # 2. Si aucun ID en session, chercher dans les cookies
         cookie_name = "user_id"
         query_params = st.query_params
-        user_id_list = query_params.get(cookie_name, [None])  # Récupérer la liste
+        user_id_list = query_params.get(cookie_name)  # Récupérer la liste
         user_id = user_id_list if user_id_list else None  # Extraire la première valeur
+
+        # --- Débogage ---
+        print(f"user_id_list: {user_id_list}")
+        print(f"user_id: {user_id}")
+        print(f"type(user_id): {type(user_id)}")
+        # ---------------
 
     if user_id:
         # Si l'ID est trouvé dans les cookies, le stocker dans la session state
