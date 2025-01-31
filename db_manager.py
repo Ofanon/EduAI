@@ -67,7 +67,8 @@ def get_user_id():
         # 2. Si aucun ID en session, chercher dans les cookies
         cookie_name = "user_id"
         query_params = st.query_params
-        user_id = query_params.get(cookie_name, [None])  # Extraire l'ID du cookie
+        user_id_list = query_params.get(cookie_name, [None])  # Récupérer la liste
+        user_id = user_id_list if user_id_list else None  # Extraire la première valeur
 
     if user_id:
         # Si l'ID est trouvé dans les cookies, le stocker dans la session state
@@ -80,11 +81,6 @@ def get_user_id():
     # 4. Vérifier si l'ID existe déjà en base
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
-    
-    # --- Débogage ---
-    print(f"user_id avant la requête: {user_id}")
-    # ---------------
-
     cursor.execute("SELECT user_id FROM users WHERE user_id =?", (user_id,))
     row = cursor.fetchone()
 
@@ -95,7 +91,7 @@ def get_user_id():
     conn.close()
 
     # 5. Stocker l'ID utilisateur dans un cookie et la session state
-    st.experimental_set_query_params(**{cookie_name: user_id})  # Définir le cookie
+    st.experimental_set_query_params(**{cookie_name: user_id})
     st.session_state["user_id"] = user_id
 
     return user_id
