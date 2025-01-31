@@ -4,6 +4,7 @@ import os
 import hashlib
 import streamlit as st
 import requests
+import uuid
 
 DB_FILE = os.path.join("data", "request_logs.db")
 if not os.path.exists("data"):
@@ -22,17 +23,6 @@ cursor.execute('''
     )
 ''')
 conn.commit()
-
-import requests
-import hashlib
-import streamlit as st
-import uuid
-
-import requests
-import hashlib
-import streamlit as st
-import uuid
-import platform
 
 def get_user_id():
     """Génère un ID unique basé sur l'adresse MAC + IP + Type d'appareil."""
