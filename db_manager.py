@@ -126,6 +126,25 @@ def get_requests_left():
     row = cursor.fetchone()
     return row[0] + row[1] if row else 5
 
+def purchase_requests(cost_in_experience, requests_to_add):
+    """Ajoute des requêtes supplémentaires à l'utilisateur en échange d'XP."""
+    user_id = get_user_id()
+    
+    # 🔍 Vérifier le solde XP actuel
+    cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+
+    if row and row[0] >= cost_in_experience:
+        # ✅ Déduction des XP et ajout des requêtes achetées
+        cursor.execute("""
+            UPDATE users
+            SET experience_points = experience_points - ?, purchased_requests = purchased_requests + ?
+            WHERE user_id = ?
+        """, (cost_in_experience, requests_to_add, user_id))
+        conn.commit()
+        return True  # ✅ Achat réussi
+    return False  # ❌ Achat refusé (pas assez d'XP)
+    
 # 🔍 Debug : Afficher l'ID utilisateur
 def debug_show_user():
     """Affiche l'ID utilisateur pour s'assurer qu'il est unique."""
