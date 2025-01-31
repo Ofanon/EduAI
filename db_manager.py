@@ -9,6 +9,7 @@ import requests
 import platform
 
 DB_FILE = os.path.join("data", "request_logs.db")
+
 USER_ID_FILE = "data/user_id.txt"
 
 if not os.path.exists("data"):
@@ -62,6 +63,7 @@ cursor.execute('''
 conn.commit()
 
 def get_user_id():
+    
     if "user_id" not in st.session_state:
         try:
             if os.path.exists(USER_ID_FILE):
@@ -77,6 +79,7 @@ def get_user_id():
                 public_ip = "NoIP"
 
             device_id = str(uuid.getnode())
+
             os_info = platform.system() + "_" + platform.release()
 
             unique_id = f"{public_ip}_{device_id}_{os_info}"
@@ -94,6 +97,7 @@ def get_user_id():
             return temp_id
 
     return st.session_state["user_id"]
+
 
 def initialize_user():
     user_id = get_user_id()
