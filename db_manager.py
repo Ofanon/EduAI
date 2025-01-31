@@ -52,7 +52,12 @@ def get_user_id():
         conn.commit()
     except sqlite3.IntegrityError:
         cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
-        new_user_id = cursor.fetchone()[0]
+        row = cursor.fetchone()
+        if row:
+            new_user_id = row[0]
+        else:
+            print("❌ Erreur critique : Impossible de récupérer user_id après IntegrityError")
+            new_user_id = None
     conn.close()
     return new_user_id
 
@@ -61,6 +66,8 @@ def initialize_user():
 
 def can_user_make_request():
     user_id = get_user_id()
+    if user_id is None:
+        return False
     today = datetime.now().strftime("%Y-%m-%d")
     conn = get_connection()
     cursor = conn.cursor()
@@ -81,6 +88,8 @@ def can_user_make_request():
 
 def consume_request():
     user_id = get_user_id()
+    if user_id is None:
+        return False
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
@@ -102,6 +111,8 @@ def consume_request():
 
 def purchase_requests(cost_in_experience, requests_to_add):
     user_id = get_user_id()
+    if user_id is None:
+        return False
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
@@ -116,6 +127,8 @@ def purchase_requests(cost_in_experience, requests_to_add):
 
 def update_experience_points(points):
     user_id = get_user_id()
+    if user_id is None:
+        return
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
@@ -124,6 +137,8 @@ def update_experience_points(points):
 
 def get_experience_points():
     user_id = get_user_id()
+    if user_id is None:
+        return 0
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
@@ -133,6 +148,8 @@ def get_experience_points():
 
 def get_requests_left():
     user_id = get_user_id()
+    if user_id is None:
+        return 0
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
