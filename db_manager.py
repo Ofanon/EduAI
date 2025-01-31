@@ -50,7 +50,6 @@ def get_user_id():
 
     return st.session_state["user_id"]
 
-# 🔄 Vérification si l'utilisateur existe et création si nécessaire
 def initialize_user():
     """Ajoute l'utilisateur s'il n'existe pas déjà."""
     user_id = get_user_id()
