@@ -2,9 +2,8 @@ import sqlite3
 from datetime import datetime
 import os
 import hashlib
-import platform
-import socket
 import uuid
+import socket
 
 DB_FILE = "data/request_logs.db"
 if not os.path.exists("data"):
@@ -37,9 +36,16 @@ if os.path.exists(DB_FILE):
 else:
     print("❌ Erreur : le fichier de base de données n'a pas été créé.")
 
+def get_mac_address():
+    try:
+        mac = ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 2 * 6, 8)][::-1])
+        return mac
+    except Exception:
+        return str(uuid.uuid4())
+
 def get_device_uuid():
-    device_uuid = platform.node()
-    return hashlib.sha256(device_uuid.encode()).hexdigest()
+    mac_address = get_mac_address()
+    return hashlib.sha256(mac_address.encode()).hexdigest()
 
 def get_user_id():
     device_uuid = get_device_uuid()
