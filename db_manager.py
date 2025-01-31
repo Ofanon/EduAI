@@ -6,7 +6,6 @@ import uuid
 import platform
 
 DB_FILE = "data/request_logs.db"
-TOKEN_FILE = f"data/device_token_{platform.node()}.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -26,27 +25,12 @@ if "device_uuid" not in columns:
     conn.commit()
 conn.close()
 
-def get_mac_address():
-    """Récupère l'adresse MAC de l'appareil."""
-    try:
-        return ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(0, 2 * 6, 8)][::-1])
-    except Exception:
-        return None
-
-def get_or_create_device_uuid():
-    """Génère un UUID unique combinant la MAC, le nom de l'appareil et un UUID local."""
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, "r") as f:
-            return f.read().strip()
-    mac_address = get_mac_address()
-    device_name = platform.node()
-    new_uuid = hashlib.sha256(f"{mac_address}_{device_name}_{uuid.uuid4()}".encode()).hexdigest()
-    with open(TOKEN_FILE, "w") as f:
-        f.write(new_uuid)
-    return new_uuid
+def generate_device_uuid():
+    """Génère un UUID unique pour identifier l'appareil."""
+    return str(uuid.uuid4())
 
 def get_user_id():
-    device_uuid = get_or_create_device_uuid()
+    device_uuid = generate_device_uuid()
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
@@ -54,19 +38,10 @@ def get_user_id():
     if row:
         conn.close()
         return row[0]
-    new_user_id = hashlib.sha256((device_uuid + str(uuid.uuid4())).encode()).hexdigest()
-    try:
-        cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
-                       (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
-        row = cursor.fetchone()
-        if row:
-            new_user_id = row[0]
-        else:
-            print("❌ Erreur critique : Impossible de récupérer user_id après IntegrityError")
-            new_user_id = None
+    new_user_id = hashlib.sha256(device_uuid.encode()).hexdigest()
+    cursor.execute("INSERT INTO users (user_id, device_uuid, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
+                   (new_user_id, device_uuid, datetime.now().strftime("%Y-%m-%d")))
+    conn.commit()
     conn.close()
     return new_user_id
 
