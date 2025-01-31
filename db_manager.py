@@ -48,9 +48,18 @@ def get_user_id():
         conn.close()
         return row[0]
     new_user_id = hashlib.sha256(session_id.encode()).hexdigest()
-    cursor.execute("INSERT INTO users (user_id, session_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
-                   (new_user_id, session_id, datetime.now().strftime("%Y-%m-%d")))
-    conn.commit()
+    try:
+        cursor.execute("INSERT INTO users (user_id, session_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
+                       (new_user_id, session_id, datetime.now().strftime("%Y-%m-%d")))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        cursor.execute("SELECT user_id FROM users WHERE session_id = ?", (session_id,))
+        row = cursor.fetchone()
+        if row:
+            new_user_id = row[0]
+        else:
+            print("❌ Erreur critique : Impossible de récupérer user_id après IntegrityError")
+            new_user_id = None
     conn.close()
     return new_user_id
 
