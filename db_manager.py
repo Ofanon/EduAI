@@ -5,6 +5,7 @@ import hashlib
 import streamlit as st
 import uuid
 import shutil
+import platform
 
 DB_FILE = os.path.join("data", "request_logs.db")
 BACKUP_FILE = DB_FILE + ".backup"
@@ -41,29 +42,35 @@ def backup_database():
 
 backup_database()
 
+USER_ID_FILE = "data/user_id.txt"
+
 def get_user_id():
-    """Génère un ID unique par appareil et le stocke dans SQLite pour assurer qu'il soit persistant."""
+    """Génère un ID unique basé sur l'appareil et le stocke durablement."""
     if "user_id" not in st.session_state:
         user_id = None
 
-        # Vérifier si un ID est déjà enregistré pour cet appareil dans SQLite
-        cursor.execute("SELECT user_id FROM users WHERE user_id LIKE 'device_%' ORDER BY rowid DESC LIMIT 1")
+        # Récupérer des infos sur l'appareil
+        device_name = platform.node()  # Nom de l'appareil
+        os_name = platform.system()  # Windows, Linux, Android, iOS, etc.
+        unique_device_id = str(uuid.uuid4())  # Généré une seule fois par appareil
+
+        # Générer un hash unique basé sur ces informations
+        hashed_id = hashlib.sha256(f"{device_name}_{os_name}_{unique_device_id}".encode()).hexdigest()
+
+        # Vérifier si l’ID existe déjà en base
+        cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (hashed_id,))
         row = cursor.fetchone()
 
-        if row:
-            user_id = row[0]  # Récupérer l'ID existant
-        else:
-            # Générer un ID basé sur UUID (évite les conflits d’IP ou MAC)
-            unique_device_id = str(uuid.uuid4())  
-            user_id = f"device_{hashlib.sha256(unique_device_id.encode()).hexdigest()}"
-
-            # Stocker cet ID unique en base de données
-            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
+        if not row:
+            # Insérer l’ID unique en base s’il n’existe pas déjà
+            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (hashed_id, None))
             conn.commit()
+            print(f"✅ [DEBUG] Nouvel ID enregistré en base : {hashed_id}")
+        else:
+            print(f"✅ [DEBUG] ID existant trouvé : {hashed_id}")
 
-        st.session_state["user_id"] = user_id  # Sauvegarde dans la session
+        st.session_state["user_id"] = hashed_id  # Stocker en session
     return st.session_state["user_id"]
-
 
 
 def initialize_user():
