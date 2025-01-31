@@ -1,111 +1,136 @@
-import sqlite3
-from datetime import datetime
-import os
-import hashlib
 import streamlit as st
+import google.generativeai as genai
+import re
+import json
+from streamlit_lottie import st_lottie
 import requests
+import db_manager as db
+
+def load_lottieurl(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+lottie_quiz = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_jcikwtux.json")
+
+st.title("EtudIAnt : 🎯 Quiz interactif")
+
+genai.configure(api_key=st.secrets["API_KEY"])
+
+model = genai.GenerativeModel(model_name="gemini-1.5-flash-002")
+
+def get_questions(level, subject, prompt):
+        with st.spinner("La création du quiz est en cours...") :
+            response_ai = model.generate_content(f"Crée un QCM de 10 questions de niveau {level} en {subject}, de sujet : {prompt}. Toutes les réponses doivent etre dans un container JSON avec : question_number , question , choices , correct_answer , explanation.")
+        match = re.search(r'\[.*\]', response_ai.text, re.DOTALL)
+        if match:
+                json_text = match.group(0)
+                data = json.loads(json_text)
+                return data
+        else:
+            st.error("Erreur lors de la création des questions.")
+            return []
+
+with st.spinner("La page est en cours de chargement..."):
+    if "started" not in st.session_state:
+        st.session_state.level = None
+        st.session_state.subject = None
+        st.session_state.difficulty = None
+        st.session_state.user_prompt = None
+        st.session_state.xp_updated = False
+        st.session_state.current_question = None
+        st.session_state.question_count = 0
+        st.session_state.started = False
+        st.session_state.data = None
+        st.session_state.question = None
+        st.session_state.choices = None
+        st.session_state.correct_answer = 0
+        st.session_state.correct_answers = 0
+        st.session_state.verified = False
+        st.session_state.explanation = None
+        st.session_state.note = None
+        st.session_state.points = None
+
+disable_buttons = False
+
+if "started" in st.session_state:
+
+    if not st.session_state.started:
+        st.write("**Prix : ⭐ 1 étoile**")
+        col1, col2 = st.columns(2)
+        st.session_state.can_start = False
+        with col1:
+            st.session_state.subject = st.selectbox('Sélectionne la matière du quiz : ', ["Français", "Mathématiques", "Histoire","Géographie","EMC", "Sciences et Vie de la Terre", "Physique Chimie","Technologie", "Anglais","Allemand", "Espagnol"], disabled=disable_buttons)
+            st.session_state.user_prompt = st.text_input("Le sujet du quiz (optionel) :", placeholder="Ex : sur la révolution", disabled=disable_buttons)
+        with col2:
+            st.session_state.level = st.selectbox('Sélectionne ton niveau : ', ["CP","6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"], disabled=disable_buttons)
+        
+        if st.button("Créer le quiz", disabled=st.session_state.can_start):
+            if db.can_user_make_request():
+                disable_buttons = True
+                st.session_state.can_start = True
+                st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
+            else:
+                st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
+        
+        if "data" in st.session_state and st.session_state.data:
+            db.consume_request()
+            st.session_state.current_question = st.session_state.data[st.session_state.question_count]
+            st.session_state.question = st.session_state.current_question['question']
+            st.session_state.choices = st.session_state.current_question['choices']
+            st.session_state.correct_answer = st.session_state.current_question['correct_answer']
+            st.session_state.explanation = st.session_state.current_question['explanation']
+            st.session_state.started = True
+            st.rerun()
+
+    if st.session_state.started:
+        if st.session_state.question_count != 10:
+            st.write(st.session_state.question_count)
+            st.progress(st.session_state.question_count/10)
+
+            disable_radio = st.session_state.verified
+            disable_verify = st.session_state.verified
+            st.subheader(st.session_state.question)
+            user_repsponse = st.radio("Sélectionne ta réponse :", st.session_state.choices, disabled=disable_radio)
+
+            if st.button("Verifier", disabled=disable_verify):
+                st.session_state.verified = True
+                st.rerun()
+
+            if st.session_state.verified and not st.session_state.xp_updated:
+                if user_repsponse == st.session_state.correct_answer:
+                    db.update_experience_points(points=20)
+                    st.success("Bien joué, tu as trouvé la bonne réponse !")
+                    st.session_state.correct_answers += 1
+                    st.session_state.xp_updated = True
+
+                else:
+
+                    st.error(f"Raté, la bonne réponse était : {st.session_state.correct_answer}")
+                st.write(st.session_state.explanation)
+
+            if st.session_state.verified == True:
+                if st.button("Continuer"):
+                    st.session_state.verified = False
+                    st.session_state.question_count += 1
+                    if st.session_state.question_count != 10:
+                        st.session_state.current_question = st.session_state.data[st.session_state.question_count] 
+                        st.session_state.question = st.session_state.current_question['question']
+                        st.session_state.choices = st.session_state.current_question['choices']
+                        st.session_state.correct_answer = st.session_state.current_question['correct_answer']
+                        st.session_state.explanation = st.session_state.current_question['explanation']
+                        st.session_state.xp_updated = False
+                        st.rerun()
+        else:
+            st.session_state.note = (st.session_state.correct_answers / 10) * 20
+            st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
+            st.subheader(f"Votre note est de {st.session_state.note}/20 !")
+            db.update_experience_points(points=50)
+            st.balloons()
+            if st.button("Refaire un autre quiz"):
+                del st.session_state.started
+                st.session_state.can_start = False
+                st.rerun()
 
 
-DB_FILE = os.path.join("data", "request_logs.db")
-
-if not os.path.exists("data"):
-    os.makedirs("data")
-
-
-conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-cursor = conn.cursor()
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        date TEXT,
-        requests INTEGER DEFAULT 5,
-        experience_points INTEGER DEFAULT 0,
-        purchased_requests INTEGER DEFAULT 0
-    )
-''')
-conn.commit()
-
-def get_user_id():
-
-    if "user_id" not in st.session_state:
-        try:
-            response = requests.get("https://api64.ipify.org?format=json", timeout=5)
-            public_ip = response.json().get("ip", "Unknown")
-
-            hashed_id = hashlib.sha256(public_ip.encode()).hexdigest()
-
-            st.session_state["user_id"] = hashed_id
-        except Exception:
-            st.session_state["user_id"] = "unknown_user"
-
-    return st.session_state["user_id"]
-
-def initialize_user():
-
-    user_id = get_user_id()
-    cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
-    if cursor.fetchone()[0] == 0:
-        cursor.execute("""
-            INSERT INTO users (user_id, date, requests, experience_points, purchased_requests)
-            VALUES (?, ?, 5, 0, 0)
-        """, (user_id, None))
-        conn.commit()
-
-def can_user_make_request():
-    user_id = get_user_id()
-    today = datetime.now().strftime("%Y-%m-%d")
-    cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-
-    if not row:
-        initialize_user()
-        return True
-
-    date_last_request, normal_requests, purchased_requests = row
-
-    if date_last_request != today:
-        cursor.execute("UPDATE users SET date = ?, requests = 5 WHERE user_id = ?", (today, user_id))
-        conn.commit()
-        return True
-
-    return normal_requests > 0 or purchased_requests > 0
-
-def consume_request():
-
-    user_id = get_user_id()
-    cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-    if not row:
-        return False
-
-    normal_requests, purchased_requests = row
-
-    if purchased_requests > 0:
-        cursor.execute("UPDATE users SET purchased_requests = purchased_requests - 1 WHERE user_id = ?", (user_id,))
-    elif normal_requests > 0:
-        cursor.execute("UPDATE users SET requests = requests - 1 WHERE user_id = ?", (user_id,))
-    else:
-        return False
-
-    conn.commit()
-
-def update_experience_points(points):
-    user_id = get_user_id()
-    cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
-    conn.commit()
-
-def get_experience_points():
-    user_id = get_user_id()
-    cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-    return row[0] if row else 0
-
-def get_requests_left():
-    user_id = get_user_id()
-    cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-    return row[0] + row[1] if row else 5
-
-
-initialize_user()
