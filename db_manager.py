@@ -6,24 +6,20 @@ import streamlit as st
 import uuid
 import shutil
 import requests
+import platform
 
-# 📂 Emplacement sécurisé de la base de données
 DB_FILE = os.path.join("data", "request_logs.db")
+USER_ID_FILE = "data/user_id.txt"
 
-# 🔒 Vérification et création du dossier "data"
 if not os.path.exists("data"):
     os.makedirs("data")
 
-# 🔍 Vérification si la base existe AVANT connexion
 db_exists = os.path.exists(DB_FILE)
 
-# 🔄 Connexion à SQLite
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# 🔒 Sauvegarde automatique AVANT toute modification
 def backup_database():
-    """Crée une sauvegarde automatique de la base pour éviter toute perte."""
     backup_path = DB_FILE + ".backup"
     if os.path.exists(DB_FILE):
         shutil.copy(DB_FILE, backup_path)
@@ -31,7 +27,6 @@ def backup_database():
 
 backup_database()
 
-# 🛠 Création des tables si elles n'existent pas déjà
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
@@ -66,31 +61,41 @@ cursor.execute('''
 
 conn.commit()
 
-# 🔍 Générer un ID stable basé sur l’Adresse MAC et l’IP (reste le même même après redémarrage)
 def get_user_id():
-    """Génère un ID unique pour chaque utilisateur basé sur son adresse MAC et son IP publique."""
     if "user_id" not in st.session_state:
         try:
-            # 🔹 Récupération de l’adresse MAC
-            mac_address = str(uuid.getnode())
+            if os.path.exists(USER_ID_FILE):
+                with open(USER_ID_FILE, "r") as file:
+                    stored_id = file.read().strip()
+                st.session_state["user_id"] = stored_id
+                return stored_id
 
-            # 🔹 Récupération de l’IP publique
-            response = requests.get("https://api64.ipify.org?format=json", timeout=5)
-            public_ip = response.json().get("ip", "Unknown")
+            try:
+                response = requests.get("https://api64.ipify.org?format=json", timeout=5)
+                public_ip = response.json().get("ip", "Unknown")
+            except Exception:
+                public_ip = "NoIP"
 
-            # 🔹 Création d’un hash stable basé sur MAC + IP
-            unique_id = f"{mac_address}_{public_ip}"
+            device_id = str(uuid.getnode())
+            os_info = platform.system() + "_" + platform.release()
+
+            unique_id = f"{public_ip}_{device_id}_{os_info}"
             hashed_id = hashlib.sha256(unique_id.encode()).hexdigest()
 
+            with open(USER_ID_FILE, "w") as file:
+                file.write(hashed_id)
+
             st.session_state["user_id"] = hashed_id
+            return hashed_id
+
         except Exception:
-            st.session_state["user_id"] = hashlib.sha256(str(uuid.getnode()).encode()).hexdigest()
+            temp_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+            st.session_state["user_id"] = temp_id
+            return temp_id
 
     return st.session_state["user_id"]
 
-# 🔄 Vérification si l'utilisateur existe et création si nécessaire
 def initialize_user():
-    """Ajoute l'utilisateur s'il n'existe pas déjà."""
     user_id = get_user_id()
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
     if cursor.fetchone()[0] == 0:
@@ -100,9 +105,7 @@ def initialize_user():
         """, (user_id, None))
         conn.commit()
 
-# 🔍 Vérification des requêtes disponibles
 def can_user_make_request():
-    """Vérifie si l'utilisateur peut faire une requête aujourd'hui."""
     user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
@@ -121,9 +124,7 @@ def can_user_make_request():
 
     return normal_requests > 0 or purchased_requests > 0
 
-# 🔄 Consommer une requête
 def consume_request():
-    """Diminue le nombre de requêtes disponibles pour l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -141,23 +142,18 @@ def consume_request():
 
     conn.commit()
 
-# 🌟 Mise à jour des points d'expérience
 def update_experience_points(points):
-    """Ajoute des XP à l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
     conn.commit()
 
-# 🎯 Récupération des XP
 def get_experience_points():
-    """Retourne les XP de l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] if row else 0
 
 def get_requests_left():
-    """Retourne le nombre total de requêtes disponibles."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
