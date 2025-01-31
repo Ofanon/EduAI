@@ -93,18 +93,13 @@ cursor.execute('''
 conn.commit()
 
 def get_user_id():
-    if "user_id" in st.session_state:
+    if "user_id" not in st.session_state:
         return st.session_state["user_id"]
 
     try:
-        try:
-            response = requests.get("https://api64.ipify.org?format=json", timeout=5)
-            public_ip = response.json().get("ip", "Unknown")
-        except Exception:
-            public_ip = "NoIP"
         os_info = platform.system() + "_" + platform.release()
 
-        device_hash = hashlib.sha256(f"{uuid.getnode()}_{public_ip}_{os_info}".encode()).hexdigest()
+        device_hash = hashlib.sha256(f"{uuid.getnode()}_{os_info}".encode()).hexdigest()
 
         cursor.execute("SELECT user_id FROM users WHERE device_hash = ?", (device_hash,))
         row = cursor.fetchone()
