@@ -6,6 +6,7 @@ import uuid
 import platform
 
 DB_FILE = "data/request_logs.db"
+TOKEN_FILE = "data/device_token.txt"
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -25,12 +26,18 @@ if "device_uuid" not in columns:
     conn.commit()
 conn.close()
 
-def generate_device_uuid():
-    """Génère un UUID unique pour identifier l'appareil."""
-    return str(uuid.uuid4())
+def get_or_create_device_uuid():
+    """Génère un UUID unique pour chaque appareil et le stocke localement."""
+    if os.path.exists(TOKEN_FILE):
+        with open(TOKEN_FILE, "r") as f:
+            return f.read().strip()
+    new_uuid = str(uuid.uuid4())
+    with open(TOKEN_FILE, "w") as f:
+        f.write(new_uuid)
+    return new_uuid
 
 def get_user_id():
-    device_uuid = generate_device_uuid()
+    device_uuid = get_or_create_device_uuid()
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT user_id FROM users WHERE device_uuid = ?", (device_uuid,))
