@@ -1,14 +1,16 @@
 import sqlite3
+from datetime import datetime
 import os
 import hashlib
-import uuid
-import platform
-from datetime import datetime
+import streamlit as st
+import requests
+
 
 DB_FILE = os.path.join("data", "request_logs.db")
 
 if not os.path.exists("data"):
     os.makedirs("data")
+
 
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
@@ -16,41 +18,31 @@ cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id TEXT PRIMARY KEY,
-        device_hash TEXT UNIQUE,
         date TEXT,
         requests INTEGER DEFAULT 5,
         experience_points INTEGER DEFAULT 0,
         purchased_requests INTEGER DEFAULT 0
     )
 ''')
-
 conn.commit()
 
 def get_user_id():
 
-    try:
-        os_info = platform.system() + "_" + platform.release()
+    if "user_id" not in st.session_state:
+        try:
+            response = requests.get("https://api64.ipify.org?format=json", timeout=5)
+            public_ip = response.json().get("ip", "Unknown")
 
-        device_hash = hashlib.sha256(f"{uuid.getnode()}_{os_info}".encode()).hexdigest()
+            hashed_id = hashlib.sha256(public_ip.encode()).hexdigest()
 
-        cursor.execute("SELECT user_id FROM users WHERE device_hash = ?", (device_hash,))
-        row = cursor.fetchone()
+            st.session_state["user_id"] = hashed_id
+        except Exception:
+            st.session_state["user_id"] = "unknown_user"
 
-        if row:
-            return row[0]
-        else:
-            user_id = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
-            cursor.execute("INSERT INTO users (user_id, device_hash, date) VALUES (?, ?, ?)",
-                           (user_id, device_hash, None))
-            conn.commit()
-            return user_id
-
-    except Exception:
-        return hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
-
-
+    return st.session_state["user_id"]
 
 def initialize_user():
+
     user_id = get_user_id()
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
     if cursor.fetchone()[0] == 0:
@@ -80,6 +72,7 @@ def can_user_make_request():
     return normal_requests > 0 or purchased_requests > 0
 
 def consume_request():
+
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -108,25 +101,11 @@ def get_experience_points():
     row = cursor.fetchone()
     return row[0] if row else 0
 
-def purchase_requests(cost_in_experience, requests_to_add):
-    user_id = get_user_id()
-    cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-
-    if row and row[0] >= cost_in_experience:
-        cursor.execute("""
-            UPDATE users
-            SET experience_points = experience_points - ?, purchased_requests = purchased_requests + ?
-            WHERE user_id = ?
-        """, (cost_in_experience, requests_to_add, user_id))
-        conn.commit()
-        return True
-    return False
-
 def get_requests_left():
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] + row[1] if row else 5
+
 
 initialize_user()
