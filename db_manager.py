@@ -8,38 +8,38 @@ import shutil
 import platform
 import socket
 
-DB_FILE = os.path.join("data", "request_logs.db")
-BACKUP_FILE = DB_FILE + ".backup"
+DB_FILE = "data/request_logs.db"
 
+# 📂 Vérifie et crée le dossier "data" s'il n'existe pas
 if not os.path.exists("data"):
     os.makedirs("data")
 
-if not os.path.exists(DB_FILE) and os.path.exists(BACKUP_FILE):
-    print("⚠️ [WARNING] Base de données manquante ! Restauration automatique...")
-    shutil.copy(BACKUP_FILE, DB_FILE)
-    print("✅ Base de données restaurée depuis la sauvegarde.")
+def create_database():
+    """Crée la base de données SQLite si elle n'existe pas."""
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    cursor = conn.cursor()
 
-conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            date TEXT,
+            requests INTEGER DEFAULT 5,
+            experience_points INTEGER DEFAULT 0,
+            purchased_requests INTEGER DEFAULT 0
+        )
+    ''')
 
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        date TEXT,
-        requests INTEGER DEFAULT 5,
-        experience_points INTEGER DEFAULT 0,
-        purchased_requests INTEGER DEFAULT 0
-    )
-''')
-conn.commit()
+    conn.commit()
+    conn.close()
+    print("✅ Base de données créée avec succès !")
 
-def backup_database():
-    """Crée une sauvegarde automatique de la base pour éviter toute perte."""
-    if os.path.exists(DB_FILE):
-        shutil.copy(DB_FILE, BACKUP_FILE)
-        print(f"✅ [DEBUG] Sauvegarde effectuée : {BACKUP_FILE}")
+# 🔄 Vérifier si `request_logs.db` existe, sinon la créer
+if not os.path.exists(DB_FILE):
+    print("⚠️ [WARNING] Base de données absente, création en cours...")
+    create_database()
+else:
+    print("✅ [DEBUG] Base de données existante.")
 
-backup_database()
 
 def get_private_ip():
     """Récupère l'adresse IP privée réelle de l'appareil."""
