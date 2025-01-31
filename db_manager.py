@@ -34,12 +34,13 @@ def get_mac_address():
         return None
 
 def get_or_create_device_uuid():
-    """Génère un UUID unique pour chaque appareil et le stocke localement."""
+    """Génère un UUID unique combinant la MAC, le nom de l'appareil et un UUID local."""
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, "r") as f:
             return f.read().strip()
     mac_address = get_mac_address()
-    new_uuid = mac_address if mac_address else str(uuid.uuid4())
+    device_name = platform.node()
+    new_uuid = hashlib.sha256(f"{mac_address}_{device_name}_{uuid.uuid4()}".encode()).hexdigest()
     with open(TOKEN_FILE, "w") as f:
         f.write(new_uuid)
     return new_uuid
