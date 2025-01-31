@@ -45,73 +45,57 @@ backup_database()
 USER_ID_FILE = "data/user_id.txt"
 
 def get_user_id():
-    """Génère un ID unique pour chaque appareil et le rend persistant."""
     if "user_id" not in st.session_state:
         user_id = None
 
-        # 🔹 1️⃣ Vérifier si un ID est déjà stocké localement
         if os.path.exists(USER_ID_FILE):
             with open(USER_ID_FILE, "r") as f:
                 stored_id = f.read().strip()
                 if stored_id:
                     user_id = stored_id
-                    print(f"✅ [DEBUG] ID récupéré depuis user_id.txt : {user_id}")
 
-        # 🔹 2️⃣ Si aucun ID trouvé localement, chercher en base SQLite
         if not user_id:
             conn = sqlite3.connect(DB_FILE, check_same_thread=False)
             cursor = conn.cursor()
             cursor.execute("SELECT user_id FROM users ORDER BY rowid DESC LIMIT 1")
             row = cursor.fetchone()
-
             if row:
-                user_id = row[0]  # Récupérer l'ID existant en base
-                print(f"✅ [DEBUG] ID récupéré depuis la base SQLite : {user_id}")
+                user_id = row[0]
 
-        # 🔹 3️⃣ Si toujours aucun ID trouvé, générer un nouvel ID unique
         if not user_id:
-            device_name = platform.node()  # Nom de l'appareil
-            os_name = platform.system()  # Windows, Linux, Android, iOS, etc.
-            unique_device_id = str(uuid.uuid4())  # Généré une seule fois par appareil
+            try:
+                mac_address = str(uuid.getnode())
+            except:
+                mac_address = "unknown_mac"
 
-            # Générer un hash unique
-            user_id = hashlib.sha256(f"{device_name}_{os_name}_{unique_device_id}".encode()).hexdigest()
+            unique_device_id = str(uuid.uuid4())
 
-            # 🔒 Sauvegarder cet ID en local pour qu'il soit stable même après fermeture
+            user_id = hashlib.sha256(f"{mac_address}_{unique_device_id}".encode()).hexdigest()
+
             with open(USER_ID_FILE, "w") as f:
                 f.write(user_id)
 
-            # 🔍 Vérifier si l’ID est déjà en base, sinon l’ajouter
-            cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
-            exists = cursor.fetchone()[0]
-
-            if not exists:
-                cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
-                conn.commit()
-                print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
-
-            conn.close()
-
-        # 🔄 Stocker en session pour éviter de le recalculer à chaque appel
         st.session_state["user_id"] = user_id
 
     return st.session_state["user_id"]
 
-
 def initialize_user():
-    """Ajoute l'utilisateur s'il n'existe pas encore."""
     user_id = get_user_id()
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = ?", (user_id,))
-    if cursor.fetchone()[0] == 0:
-        print(f"✅ [DEBUG] Nouvel utilisateur ajouté : {user_id}")
+    exists = cursor.fetchone()[0]
+
+    if not exists:
         cursor.execute("""
             INSERT INTO users (user_id, date, requests, experience_points, purchased_requests)
             VALUES (?, ?, 5, 0, 0)
         """, (user_id, None))
         conn.commit()
 
+    conn.close()
+
 def can_user_make_request():
-    """Vérifie si l'utilisateur peut faire une requête aujourd'hui."""
     user_id = get_user_id()
     today = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
@@ -131,7 +115,6 @@ def can_user_make_request():
     return normal_requests > 0 or purchased_requests > 0
 
 def consume_request():
-    """Diminue le nombre de requêtes disponibles pour l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -150,7 +133,6 @@ def consume_request():
     conn.commit()
 
 def purchase_requests(cost_in_experience, requests_to_add):
-    """Ajoute des requêtes en échange d'XP."""
     user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
@@ -166,20 +148,17 @@ def purchase_requests(cost_in_experience, requests_to_add):
     return False
 
 def update_experience_points(points):
-    """Ajoute des XP à l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
     conn.commit()
 
 def get_experience_points():
-    """Retourne les XP de l'utilisateur."""
     user_id = get_user_id()
     cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     return row[0] if row else 0
 
 def get_requests_left():
-    """Retourne le nombre total de requêtes disponibles."""
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
