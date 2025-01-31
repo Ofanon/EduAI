@@ -53,43 +53,41 @@ def get_private_ip():
         print(f"❌ [ERROR] Impossible de récupérer l'adresse IP privée : {e}")
         return "127.0.0.1"  # Adresse de secours
 
-def get_user_id():
-    """Génère un ID unique basé sur l'adresse IP privée et assure sa stabilité en base SQLite."""
-    
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-
-    # 🔹 1️⃣ Vérifier si l'ID est déjà stocké en session
-    if "user_id" in st.session_state:
-        return st.session_state["user_id"]
-
-    # 🔹 2️⃣ Essayer de récupérer l’ID en base SQLite
+def generate_unique_device_id():
+    """Génère un ID basé sur l'appareil"""
     private_ip = get_private_ip()  # 🔍 Adresse IP locale unique
     device_name = platform.node()  # 🔹 Nom de l'appareil
     os_name = platform.system()  # 🔹 Type de système (Windows, Mac, Linux, Android, iOS)
     processor = platform.processor()  # 🔹 Type de processeur
 
     # Générer un ID unique basé sur ces infos
-    unique_device_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
+    return hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
 
-    # Vérifier si cet ID existe déjà en base
-    cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (unique_device_id,))
-    row = cursor.fetchone()
+def get_user_id():
+    """Récupère l’ID unique de l’utilisateur en base ou le génère s’il n’existe pas encore."""
+    if "user_id" not in st.session_state:
+        user_id = generate_unique_device_id()  # 🔍 Générer un ID propre à cet appareil
 
-    if row:
-        user_id = row[0]
-        print(f"✅ [DEBUG] ID récupéré depuis SQLite : {user_id}")
-    else:
-        user_id = unique_device_id
-        cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
-        conn.commit()
-        print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
+        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+        cursor = conn.cursor()
 
-    conn.close()
+        # 🔹 Vérifier si cet ID existe déjà en base
+        cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
+        row = cursor.fetchone()
 
-    # 🔄 Stocker en session pour éviter de recalculer à chaque appel
-    st.session_state["user_id"] = user_id
-    return user_id
+        if row:
+            user_id = row[0]
+            print(f"✅ [DEBUG] ID existant trouvé en base : {user_id}")
+        else:
+            # 🔹 Insérer un nouvel utilisateur s’il n’existe pas encore
+            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
+            conn.commit()
+            print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
+
+        conn.close()
+        st.session_state["user_id"] = user_id  # 🔄 Stocker en session pour éviter de recalculer à chaque appel
+
+    return st.session_state["user_id"]
 
 def initialize_user():
     user_id = get_user_id()
