@@ -13,13 +13,11 @@ if not os.path.exists("data"):
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
-# Vérifier si la colonne device_uuid existe
-cursor.execute("PRAGMA table_info(users)")
-columns = [col[1] for col in cursor.fetchall()]
-
-if "device_uuid" not in columns:
+# Vérifier si la table users existe, sinon la créer
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+if not cursor.fetchone():
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users_new (
+        CREATE TABLE users (
             user_id TEXT PRIMARY KEY,
             device_uuid TEXT UNIQUE,
             date TEXT,
@@ -28,14 +26,8 @@ if "device_uuid" not in columns:
             purchased_requests INTEGER DEFAULT 0
         )
     ''')
-    cursor.execute('''
-        INSERT INTO users_new (user_id, date, requests, experience_points, purchased_requests)
-        SELECT user_id, date, requests, experience_points, purchased_requests FROM users
-    ''')
-    cursor.execute("DROP TABLE users")
-    cursor.execute("ALTER TABLE users_new RENAME TO users")
     conn.commit()
-    print("✅ Colonne device_uuid ajoutée à la table users avec migration des données")
+    print("✅ Table users créée avec succès")
 
 conn.execute("VACUUM")
 conn.commit()
