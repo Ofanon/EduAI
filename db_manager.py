@@ -93,7 +93,7 @@ cursor.execute('''
 conn.commit()
 
 def get_user_id():
-    if "user_id" not in st.session_state:
+    if "user_id" in st.session_state:
         return st.session_state["user_id"]
 
     try:
