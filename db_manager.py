@@ -8,30 +8,35 @@ import shutil
 import platform
 import socket
 
-DB_FILE = os.path.join("data", "request_logs.db")
+DB_FILE = "data/request_logs.db"
 BACKUP_FILE = DB_FILE + ".backup"
 
 if not os.path.exists("data"):
     os.makedirs("data")
 
-if not os.path.exists(DB_FILE) and os.path.exists(BACKUP_FILE):
-    print("⚠️ [WARNING] Base de données manquante ! Restauration automatique...")
-    shutil.copy(BACKUP_FILE, DB_FILE)
-    print("✅ Base de données restaurée depuis la sauvegarde.")
+def create_database():
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    cursor = conn.cursor()
 
-conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-cursor = conn.cursor()
+    # 📌 Création de la table des utilisateurs
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            date TEXT,
+            requests INTEGER DEFAULT 5,
+            experience_points INTEGER DEFAULT 0,
+            purchased_requests INTEGER DEFAULT 0
+        )
+    ''')
 
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        date TEXT,
-        requests INTEGER DEFAULT 5,
-        experience_points INTEGER DEFAULT 0,
-        purchased_requests INTEGER DEFAULT 0
-    )
-''')
-conn.commit()
+    conn.commit()
+    conn.close()
+    print("✅ Nouvelle base de données créée avec succès !")
+
+if not os.path.exists(DB_FILE):
+    create_database()
+else:
+    print("✅ [DEBUG] La base de données est déjà présente.")
 
 def backup_database():
     """Crée une sauvegarde automatique de la base pour éviter toute perte."""
@@ -54,44 +59,40 @@ def get_private_ip():
         return "127.0.0.1"  # Adresse de secours
 
 def generate_unique_device_id():
-    """Génère un ID unique basé sur l’appareil pour assurer son unicité."""
+    """Génère un ID basé sur l'appareil"""
     private_ip = get_private_ip()  # 🔍 Adresse IP locale unique
     device_name = platform.node()  # 🔹 Nom de l'appareil
     os_name = platform.system()  # 🔹 Type de système (Windows, Mac, Linux, Android, iOS)
     processor = platform.processor()  # 🔹 Type de processeur
-    unique_device_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
 
-    return unique_device_id
+    # Générer un ID unique basé sur ces infos
+    return hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
 
 def get_user_id():
-    """Récupère un ID unique en base ou le génère si inexistant."""
-    
-    if "user_id" in st.session_state:
-        return st.session_state["user_id"]  # 🔄 Retourne l'ID stocké en session
+    """Récupère l’ID unique de l’utilisateur en base ou le génère s’il n’existe pas encore."""
+    if "user_id" not in st.session_state:
+        user_id = generate_unique_device_id()  # 🔍 Générer un ID propre à cet appareil
 
-    user_id = generate_unique_device_id()  # Génération basée sur l’appareil
+        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+        cursor = conn.cursor()
 
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
+        # 🔹 Vérifier si cet ID existe déjà en base
+        cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
+        row = cursor.fetchone()
 
-    # 🔍 Vérifier si l’ID existe déjà en base
-    cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
+        if row:
+            user_id = row[0]
+            print(f"✅ [DEBUG] ID existant trouvé en base : {user_id}")
+        else:
+            # 🔹 Insérer un nouvel utilisateur s’il n’existe pas encore
+            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
+            conn.commit()
+            print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
 
-    if row:
-        user_id = row[0]  # 🔄 Récupérer l’ID existant en base
-        print(f"✅ [DEBUG] ID récupéré depuis SQLite : {user_id}")
-    else:
-        # 🔹 Insérer l’ID si c’est un nouvel utilisateur
-        cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
-        conn.commit()
-        print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
+        conn.close()
+        st.session_state["user_id"] = user_id  # 🔄 Stocker en session pour éviter de recalculer à chaque appel
 
-    conn.close()
-
-    st.session_state["user_id"] = user_id  # 🔄 Stocker en session pour éviter de recalculer à chaque appel
-
-    return user_id
+    return st.session_state["user_id"]
 
 def initialize_user():
     user_id = get_user_id()
