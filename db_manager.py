@@ -15,7 +15,7 @@ def get_connection():
 conn = get_connection()
 cursor = conn.cursor()
 
-# Vérifier et créer la table users si elle n'existe pas
+# Vérifier si la table users existe et recréer proprement si nécessaire
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
 if not cursor.fetchone():
     print("🛠 Création de la table users")
@@ -30,14 +30,28 @@ if not cursor.fetchone():
         )
     ''')
     conn.commit()
-
-# Vérifier si la colonne session_id existe
-cursor.execute("PRAGMA table_info(users)")
-columns = [col[1] for col in cursor.fetchall()]
-if "session_id" not in columns:
-    print("🔄 Migration : Ajout de la colonne session_id")
-    cursor.execute("ALTER TABLE users ADD COLUMN session_id TEXT UNIQUE")
-    conn.commit()
+else:
+    cursor.execute("PRAGMA table_info(users)")
+    columns = [col[1] for col in cursor.fetchall()]
+    if "session_id" not in columns:
+        print("🔄 Migration : Recréation de la table users avec session_id")
+        cursor.execute('''
+            CREATE TABLE users_new (
+                user_id TEXT PRIMARY KEY,
+                session_id TEXT UNIQUE,
+                date TEXT,
+                requests INTEGER DEFAULT 5,
+                experience_points INTEGER DEFAULT 0,
+                purchased_requests INTEGER DEFAULT 0
+            )
+        ''')
+        cursor.execute('''
+            INSERT INTO users_new (user_id, date, requests, experience_points, purchased_requests)
+            SELECT user_id, date, requests, experience_points, purchased_requests FROM users
+        ''')
+        cursor.execute("DROP TABLE users")
+        cursor.execute("ALTER TABLE users_new RENAME TO users")
+        conn.commit()
 conn.close()
 
 def get_or_create_session_id():
@@ -56,14 +70,9 @@ def get_user_id():
         conn.close()
         return row[0]
     new_user_id = hashlib.sha256(session_id.encode()).hexdigest()
-    try:
-        cursor.execute("INSERT INTO users (user_id, session_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
-                       (new_user_id, session_id, datetime.now().strftime("%Y-%m-%d")))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        cursor.execute("SELECT user_id FROM users WHERE session_id = ?", (session_id,))
-        row = cursor.fetchone()
-        new_user_id = row[0] if row else None
+    cursor.execute("INSERT INTO users (user_id, session_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)",
+                   (new_user_id, session_id, datetime.now().strftime("%Y-%m-%d")))
+    conn.commit()
     conn.close()
     return new_user_id
 
