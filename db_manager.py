@@ -41,30 +41,34 @@ def backup_database():
 
 backup_database()
 
-# 📂 Fichier pour stocker l’ID utilisateur localement
 USER_ID_FILE = "data/user_id.txt"
 
 def get_user_id():
-    """Génère un ID unique et le stocke dans la base de données pour éviter les doublons."""
+    """Génère un ID unique pour chaque appareil et le stocke durablement."""
     if "user_id" not in st.session_state:
-        user_id = None
+        try:
+            # Vérifier si un ID est déjà enregistré dans un fichier local
+            if os.path.exists(USER_ID_FILE):
+                with open(USER_ID_FILE, "r") as f:
+                    stored_id = f.read().strip()
+                    if stored_id:
+                        st.session_state["user_id"] = stored_id
+                        return stored_id
 
-        # Vérifie si l'utilisateur a déjà un ID stocké dans la session
-        cursor.execute("SELECT user_id FROM users ORDER BY rowid DESC LIMIT 1")
-        row = cursor.fetchone()
+            # Générer un ID unique basé sur UUID (évite les conflits d’IP ou MAC)
+            unique_device_id = str(uuid.uuid4())  
+            hashed_id = hashlib.sha256(unique_device_id.encode()).hexdigest()
 
-        if row:
-            user_id = row[0]  # On récupère l'ID existant
-        else:
-            # Générer un ID unique basé sur UUID (stable pour chaque utilisateur)
-            unique_device_id = str(uuid.uuid4())
-            user_id = hashlib.sha256(unique_device_id.encode()).hexdigest()
+            # Sauvegarder l'ID dans un fichier pour chaque appareil
+            with open(USER_ID_FILE, "w") as f:
+                f.write(hashed_id)
 
-            # Insérer cet utilisateur dans la base
-            cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
-            conn.commit()
+            st.session_state["user_id"] = hashed_id
+            return hashed_id
 
-        st.session_state["user_id"] = user_id  # Sauvegarde dans la session
+        except Exception as e:
+            print(f"❌ [ERROR] Impossible de générer l'ID utilisateur : {e}")
+            return None  # En cas d’erreur, retourne None
 
     return st.session_state["user_id"]
 
