@@ -3,7 +3,7 @@ import os
 import hashlib
 import uuid
 import platform
-import datetime
+from datetime import datetime
 
 DB_FILE = os.path.join("data", "request_logs.db")
 
