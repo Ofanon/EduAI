@@ -153,6 +153,21 @@ def get_experience_points():
     row = cursor.fetchone()
     return row[0] if row else 0
 
+def purchase_requests(cost_in_experience, requests_to_add):
+    user_id = get_user_id()
+    cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+
+    if row and row[0] >= cost_in_experience:
+        cursor.execute("""
+            UPDATE users
+            SET experience_points = experience_points - ?, purchased_requests = purchased_requests + ?
+            WHERE user_id = ?
+        """, (cost_in_experience, requests_to_add, user_id))
+        conn.commit()
+        return True
+    return False
+
 def get_requests_left():
     user_id = get_user_id()
     cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
