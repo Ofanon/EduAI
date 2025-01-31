@@ -4,6 +4,7 @@ import os
 import hashlib
 import platform
 import socket
+import streamlit as st
 
 DB_FILE = "data/request_logs.db"
 if not os.path.exists("data"):
@@ -22,8 +23,13 @@ cursor.execute('''
     )
 ''')
 conn.commit()
+
 conn.execute("VACUUM")
 conn.commit()
+if os.path.exists(DB_FILE):
+    st.write(f"✅ Base de données créée avec succès : {DB_FILE}")
+else:
+    st.write("❌ Erreur : le fichier de base de données n'a pas été créé.")
 
 def get_private_ip():
     try:
