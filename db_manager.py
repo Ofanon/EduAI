@@ -3,9 +3,11 @@ from datetime import datetime
 import os
 import hashlib
 import uuid
+import platform
+import http.cookies as Cookie
 
 DB_FILE = "data/request_logs.db"
-TOKEN_FILE = "data/device_token.txt"
+TOKEN_FILE = "data/device_token_{}.txt".format(platform.node())
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -42,6 +44,11 @@ if "user_token" not in columns:
 conn.close()
 
 def get_local_token():
+    if os.environ.get("HTTP_COOKIE"):
+        cookie = Cookie.SimpleCookie(os.environ["HTTP_COOKIE"])
+        if "device_token" in cookie:
+            return cookie["device_token"].value
+    
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, "r") as f:
             return f.read().strip()
