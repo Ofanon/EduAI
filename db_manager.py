@@ -41,7 +41,7 @@ def backup_database():
 
 backup_database()
 
-def get_user():
+def get_user_id():
     """Récupère un user_id persistant basé sur un cookie pour éviter les pertes."""
     
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
