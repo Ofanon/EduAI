@@ -13,42 +13,20 @@ def initialize_database():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
 
-    # ✅ Vérifier si la colonne `device_id` existe déjà
-    cursor.execute("PRAGMA table_info(users)")
-    columns = [column[1] for column in cursor.fetchall()]
-
-    if "device_id" not in columns:
-        print("⚠️ [WARNING] `device_id` absent. Migration de la base...")
-
-        # ✅ Étape 1 : Créer une nouvelle table avec `device_id`
-        cursor.execute('''
-            CREATE TABLE users_new (
-                user_id TEXT PRIMARY KEY,
-                email TEXT UNIQUE,
-                password TEXT,
-                device_id TEXT UNIQUE,
-                experience_points INTEGER DEFAULT 0,
-                requests INTEGER DEFAULT 5
-            )
-        ''')
-        
-        # ✅ Étape 2 : Copier les anciennes données dans la nouvelle table
-        cursor.execute('''
-            INSERT INTO users_new (user_id, email, password, experience_points, requests)
-            SELECT user_id, email, password, experience_points, requests FROM users
-        ''')
-
-        # ✅ Étape 3 : Supprimer l'ancienne table et renommer la nouvelle
-        cursor.execute("DROP TABLE users")
-        cursor.execute("ALTER TABLE users_new RENAME TO users")
-
-        conn.commit()
-        print("✅ [DEBUG] Migration terminée, `device_id` ajouté.")
-
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            email TEXT UNIQUE,
+            password TEXT,
+            device_id TEXT UNIQUE,
+            experience_points INTEGER DEFAULT 0,
+            requests INTEGER DEFAULT 5
+        )
+    ''')
+    conn.commit()
     conn.close()
 
 initialize_database()
-
 
 # ✅ Gestion des cookies pour stocker les sessions utilisateur
 cookie_manager_instance = None
@@ -60,7 +38,7 @@ def get_cookie_manager():
     return cookie_manager_instance
 
 def generate_device_id():
-    """Génère un ID unique basé sur l’appareil et le stocke en cookie."""
+    """Génère un `device_id` unique basé sur l’appareil et le stocke en cookie."""
     cookie_manager = get_cookie_manager()
 
     # ✅ Vérifier si un `device_id` est déjà stocké dans les cookies
@@ -71,7 +49,7 @@ def generate_device_id():
     # 🎯 Générer un `device_id` unique basé sur un UUID aléatoire
     device_id = str(uuid.uuid4())
 
-    # ✅ Stocker dans un cookie
+    # ✅ Stocker dans un cookie spécifique à l’appareil
     cookie_manager.set("device_id", device_id)
 
     return device_id
@@ -110,11 +88,16 @@ def login_user(email, password):
     cursor = conn.cursor()
 
     # Vérifier si l'utilisateur existe
-    cursor.execute("SELECT user_id, password FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT user_id, password, device_id FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
 
     if user and bcrypt.checkpw(password.encode(), user[1]):  # Vérifier le mot de passe
         device_id = generate_device_id()  # Générer un `device_id` unique
+
+        # ✅ Vérifier si l'appareil correspond à celui enregistré
+        if user[2] and user[2] != device_id:
+            conn.close()
+            return None  # Refuser la connexion si l’appareil ne correspond pas
 
         # ✅ Mettre à jour l'appareil associé à l'utilisateur
         cursor.execute("UPDATE users SET device_id = ? WHERE user_id = ?", (device_id, user[0]))
