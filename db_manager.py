@@ -5,6 +5,9 @@ import streamlit as st
 import extra_streamlit_components as stx
 from datetime import datetime, timedelta
 import shutil
+import socket
+import platform
+import hashlib
 
 DB_FILE = os.path.join("data", "request_logs.db")
 
@@ -55,20 +58,34 @@ def get_cookie_manager():
     if cookie_manager_instance is None:
         cookie_manager_instance = stx.CookieManager()
     return cookie_manager_instance
+def generate_device_id():
+    """Génère un ID unique basé sur plusieurs caractéristiques de l’appareil."""
+    try:
+        private_ip = socket.gethostbyname(socket.gethostname())  # IP locale
+        device_name = platform.node()  # Nom de l'appareil
+        os_name = platform.system()  # OS (Windows, Linux, Mac, Android, iOS)
+        processor = platform.processor()  # Type de processeur
 
+        raw_id = f"{private_ip}_{device_name}_{os_name}_{processor}"
+        hashed_id = hashlib.sha256(raw_id.encode()).hexdigest()  # Hash pour anonymisation
+
+        return hashed_id
+    except Exception as e:
+        print(f"❌ [ERROR] Impossible de générer un device_id : {e}")
+        return str(uuid.uuid4())  # En secours, générer un UUID aléatoire
 def get_or_create_user_id():
-    """Récupère ou génère un `user_id` unique pour chaque appareil et le stocke dans un cookie."""
+    """Récupère ou génère un `user_id` unique et le stocke dans un cookie une seule fois."""
     
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
     cookie_manager = get_cookie_manager()
 
-    # ✅ Vérifier si un `device_id` unique est déjà stocké dans les cookies
+    # ✅ Vérifier si un `device_id` est déjà stocké dans les cookies
     device_id = cookie_manager.get("device_id")
 
     if not device_id:
         device_id = str(uuid.uuid4())  # Génère un identifiant unique pour cet appareil
-        cookie_manager.set("device_id", device_id, expires_at=datetime.now() + timedelta(days=365 * 20))
+        cookie_manager.set("device_id", device_id, expires_at=datetime.now() + timedelta(days=365 * 20), key="device_id")
 
     # ✅ Vérifier si ce `device_id` existe déjà en base
     cursor.execute("SELECT user_id FROM users WHERE device_id = ?", (device_id,))
@@ -77,7 +94,7 @@ def get_or_create_user_id():
     if row:
         user_id = row[0]  # L'utilisateur existant garde son ID
     else:
-        user_id = str(uuid.uuid4())  # Générer un nouvel ID unique pour cet appareil
+        user_id = str(uuid.uuid4())  # Générer un nouvel ID unique
         cursor.execute("INSERT INTO users (user_id, device_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, ?, 5, 0, 0)", 
                        (user_id, device_id, None))
         conn.commit()
@@ -85,9 +102,10 @@ def get_or_create_user_id():
 
     conn.close()
 
-    # ✅ Stocker l'`user_id` dans un cookie de longue durée (20 ans)
-    expires_at = datetime.now() + timedelta(days=365 * 20)
-    cookie_manager.set("user_id", user_id, expires_at=expires_at)
+    # ✅ Stocker l'`user_id` dans un cookie uniquement s'il n'existe pas encore
+    if not cookie_manager.get("user_id"):
+        expires_at = datetime.now() + timedelta(days=365 * 20)
+        cookie_manager.set("user_id", user_id, expires_at=expires_at, key="user_id")
 
     # ✅ Stocker en session pour éviter les requêtes répétées
     st.session_state["user_id"] = user_id
