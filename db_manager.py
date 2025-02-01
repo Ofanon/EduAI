@@ -13,16 +13,27 @@ def initialize_database():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
 
+    # ✅ Vérifier si `device_id` existe déjà
+    cursor.execute("PRAGMA table_info(users)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    if "device_id" not in columns:
+        print("⚠️ [WARNING] `device_id` manquant. Ajout en cours...")
+        cursor.execute("ALTER TABLE users ADD COLUMN device_id TEXT UNIQUE")
+        conn.commit()
+        print("✅ [DEBUG] Colonne `device_id` ajoutée avec succès.")
+
+    # ✅ Vérifier et créer la table `users` si elle n'existe pas
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id TEXT PRIMARY KEY,
             email TEXT UNIQUE,
             password TEXT,
-            device_id TEXT UNIQUE,
             experience_points INTEGER DEFAULT 0,
             requests INTEGER DEFAULT 5
         )
     ''')
+    
     conn.commit()
     conn.close()
 
