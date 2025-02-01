@@ -3,8 +3,6 @@ from streamlit_lottie import st_lottie
 import db_manager as db
 import sqlite3
 
-
-
 st.write(db.get_user_id())
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db.get_requests_left()}")
