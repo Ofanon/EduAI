@@ -1,32 +1,37 @@
 import streamlit as st
-from streamlit_lottie import st_lottie
 import db_manager as db
-import sqlite3
-import streamlit as st
-import db_manager
-import streamlit as st
-import db_manager
-
-import streamlit as st
 
 st.title("Bienvenue sur EtudIAnt 🚀")
 
-# 📌 JavaScript pour stocker le `user_id` dans le navigateur (localStorage)
+# 📌 JavaScript pour stocker le `device_id` dans le navigateur (localStorage)
 st.markdown("""
 <script>
-    function getOrCreateUserId() {
-        let userId = localStorage.getItem("user_id");
-        if (!userId) {
-            userId = crypto.randomUUID();  // ✅ Générer un UUID unique
-            localStorage.setItem("user_id", userId);
+    function getOrCreateDeviceId() {
+        let deviceId = localStorage.getItem("device_id");
+        if (!deviceId) {
+            deviceId = crypto.randomUUID();  // ✅ Générer un UUID unique
+            localStorage.setItem("device_id", deviceId);
         }
-        return userId;
+        return deviceId;
     }
-    const userId = getOrCreateUserId();
-    document.write(`<p style="font-size:18px">✅ Votre user_id : <strong>${userId}</strong></p>`);
+    const deviceId = getOrCreateDeviceId();
+    document.write(`<p style="font-size:18px">✅ Votre device_id : <strong>${deviceId}</strong></p>`);
+
+    // Envoyer le device_id à Streamlit
+    window.parent.postMessage({type: "device_id", value: deviceId}, "*");
 </script>
 """, unsafe_allow_html=True)
 
+# ✅ Récupérer le `device_id` envoyé par le navigateur
+device_id = st.session_state.get("device_id", None)
+
+if device_id is None:
+    device_id = st.experimental_get_query_params().get("device_id", [None])[0]
+
+if device_id:
+    st.session_state["device_id"] = device_id
+    user_id = db.get_or_create_user_id(device_id)
+    st.write(f"✅ Votre user_id : `{user_id}`")
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db.get_requests_left()}")
