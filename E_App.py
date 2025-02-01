@@ -1,40 +1,26 @@
 import streamlit as st
-import db_manager as db
+import db_manager
+user_id = db_manager.get_or_create_user_id()
 
 st.title("Bienvenue sur EtudIAnt 🚀")
+st.write(f"✅ Votre user_id : `{user_id}`")
 
-# 📌 JavaScript pour stocker le `device_id` dans le navigateur (localStorage)
-st.markdown("""
-<script>
-    function getOrCreateDeviceId() {
-        let deviceId = localStorage.getItem("device_id");
-        if (!deviceId) {
-            deviceId = crypto.randomUUID();  // ✅ Générer un UUID unique
-            localStorage.setItem("device_id", deviceId);
-        }
-        return deviceId;
-    }
-    const deviceId = getOrCreateDeviceId();
-    document.write(`<p style="font-size:18px">✅ Votre device_id : <strong>${deviceId}</strong></p>`);
+# ✅ Afficher les infos de l'utilisateur
+requests_left = db_manager.get_requests_left()
+experience_points = db_manager.get_experience_points()
 
-    // Envoyer le device_id à Streamlit
-    window.parent.postMessage({type: "device_id", value: deviceId}, "*");
-</script>
-""", unsafe_allow_html=True)
+st.write(f"⭐ Requêtes IA restantes : `{requests_left}`")
+st.write(f"🎓 Points d'expérience : `{experience_points}`")
 
-# ✅ Récupérer le `device_id` envoyé par le navigateur
-device_id = st.session_state.get("device_id", None)
-
-if device_id is None:
-    device_id = st.experimental_get_query_params().get("device_id", [None])[0]
-
-if device_id:
-    st.session_state["device_id"] = device_id
-    user_id = db.get_or_create_user_id(device_id)
-    st.write(f"✅ Votre user_id : `{user_id}`")
+# ✅ Ajouter un bouton pour utiliser une requête
+if st.button("🤖 Utiliser une requête IA"):
+    if db_manager.consume_request():
+        st.success("✅ Requête utilisée avec succès !")
+    else:
+        st.error("❌ Plus de requêtes disponibles. Achetez-en avec vos points d'expérience !")
 
 with st.sidebar:
-    st.write(f"⭐ Etoiles restantes : {db.get_requests_left()}")
+    st.write(f"⭐ Etoiles restantes : {db_manager.get_requests_left()}")
     pg = st.navigation([st.Page("E_Shop.py", title="🛒 Boutique"),st.Page("E_Quiz.py", title = "🎯 Quiz interactif"), st.Page("E_H.py", title = "📚 Aide aux devoirs"), st.Page("E_R.py", title = "📒 Créateur de fiches de révision"), st.Page("E_T.py", title= "📝 Créateur de contrôle"), st.Page("E_Help.py", title= "⭐💎 Aide")])
 
 pg.run()
