@@ -9,3 +9,4 @@ streamlit-extras
 python-docx
 hydralit-components
 streamlit_js_eval
+streamlit-extras-components
