@@ -21,65 +21,67 @@ def get_public_ip():
         ip = "Inconnue"
     return ip
 
-def generate_device_id():
-    """Génère un identifiant unique pour chaque appareil basé sur l'adresse MAC et l'IP publique."""
-    mac = get_mac_address()
-    ip = get_public_ip()
-    device_id = hashlib.sha256(f"{mac}_{ip}".encode()).hexdigest()
-    return device_id
+def generate_user_id(first_name, mac, ip):
+    """Génère un identifiant unique basé sur le prénom, l'adresse MAC et l'IP publique."""
+    user_id = hashlib.sha256(f"{first_name}_{mac}_{ip}".encode()).hexdigest()
+    return user_id
 
-# Récupérer ou créer un identifiant unique pour l'utilisateur
-user_id = db_manager.get_user_id()
-mac_address = get_mac_address()
-ip_address = get_public_ip()
-device_id = generate_device_id()
-
-# Vérifier si un identifiant de session existe déjà, sinon en créer un
-if "session_id" not in st.session_state:
-    st.session_state["session_id"] = str(uuid.uuid4())
-
-session_id = st.session_state["session_id"]
-
-st.session_state["user_id"] = user_id
-
-st.title("Bienvenue sur l'App EtudIAnt")
-st.write(f"Votre identifiant unique : `{user_id}`")
-st.write(f"Votre identifiant de session : `{session_id}`")
-st.write(f"Votre adresse MAC : `{mac_address}`")
-st.write(f"Votre adresse IP publique : `{ip_address}`")
-st.write(f"Votre identifiant d'appareil unique : `{device_id}`")
-
-# Afficher les points d'expérience et les requêtes restantes
-points = db_manager.get_experience_points(user_id)
-requests_left = db_manager.get_requests_left(user_id)
-
-st.write(f"Points d'expérience : `{points}`")
-st.write(f"Requêtes restantes : `{requests_left}`")
-
-# Ajouter des points et des requêtes (exemple d'interaction)
-if st.button("Gagner 10 points d'expérience"):
-    db_manager.update_experience_points(user_id, 10)
-    st.success("10 points ajoutés !")
-    st.rerun()
-
-if st.button("Acheter 1 requête avec 20 points"):
-    if points >= 20:
-        db_manager.update_experience_points(user_id, -20)
-        db_manager.update_requests(user_id, 1)
-        st.success("1 requête ajoutée !")
+# Demander le prénom lors de la première connexion
+if "first_name" not in st.session_state:
+    st.session_state["first_name"] = st.text_input("Entrez votre prénom :", key="first_name_input")
+    if st.session_state["first_name"]:
+        st.session_state["user_confirmed"] = True
         st.rerun()
-    else:
-        st.error("Pas assez de points pour acheter une requête.")
 
-if st.button("Utiliser une requête"):
-    if requests_left > 0:
-        db_manager.update_requests(user_id, -1)
-        st.success("Requête utilisée !")
+if "user_confirmed" in st.session_state and st.session_state["first_name"]:
+    first_name = st.session_state["first_name"]
+    mac_address = get_mac_address()
+    ip_address = get_public_ip()
+    user_id = generate_user_id(first_name, mac_address, ip_address)
+
+    # Vérifier si un identifiant de session existe déjà, sinon en créer un
+    if "session_id" not in st.session_state:
+        st.session_state["session_id"] = str(uuid.uuid4())
+
+    session_id = st.session_state["session_id"]
+    st.session_state["user_id"] = user_id
+
+    st.title("Bienvenue sur l'App EtudIAnt")
+    st.write(f"Bonjour {first_name}!")
+    st.write(f"Votre identifiant unique : `{user_id}`")
+    st.write(f"Votre identifiant de session : `{session_id}`")
+    st.write(f"Votre adresse MAC : `{mac_address}`")
+    st.write(f"Votre adresse IP publique : `{ip_address}`")
+
+    # Afficher les points d'expérience et les requêtes restantes
+    points = db_manager.get_experience_points(user_id)
+    requests_left = db_manager.get_requests_left(user_id)
+
+    st.write(f"Points d'expérience : `{points}`")
+    st.write(f"Requêtes restantes : `{requests_left}`")
+
+    # Ajouter des points et des requêtes (exemple d'interaction)
+    if st.button("Gagner 10 points d'expérience"):
+        db_manager.update_experience_points(user_id, 10)
+        st.success("10 points ajoutés !")
         st.rerun()
-    else:
-        st.error("Vous n'avez plus de requêtes disponibles.")
 
+    if st.button("Acheter 1 requête avec 20 points"):
+        if points >= 20:
+            db_manager.update_experience_points(user_id, -20)
+            db_manager.update_requests(user_id, 1)
+            st.success("1 requête ajoutée !")
+            st.rerun()
+        else:
+            st.error("Pas assez de points pour acheter une requête.")
 
+    if st.button("Utiliser une requête"):
+        if requests_left > 0:
+            db_manager.update_requests(user_id, -1)
+            st.success("Requête utilisée !")
+            st.rerun()
+        else:
+            st.error("Vous n'avez plus de requêtes disponibles.")
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db_manager.get_requests_left()}")
