@@ -16,7 +16,10 @@ if user_id:
     user_info = db_manager.get_user_info(user_id)
 
     if user_info:
-        email, experience_points, requests_left = user_info
+        email = user_info["email"]
+        experience_points = user_info["experience_points"]
+        requests_left = user_info["requests"]
+
         st.sidebar.success(f"Connecté en tant que : {email}")
         st.sidebar.write(f"🎓 Points d'expérience : `{experience_points}`")
         st.sidebar.write(f"⭐ Requêtes IA restantes : `{requests_left}`")
@@ -28,25 +31,6 @@ if user_id:
             st.sidebar.write(f"🔒 Appareil associé : `{stored_device_id}`")
         else:
             st.sidebar.error("❌ Cet appareil n'est pas autorisé à accéder à ce compte.")
-        
-        # ✅ Navigation entre les pages
-        page = st.sidebar.radio("📂 Accès Rapide", [
-            "🛒 Boutique", "🎯 Quiz interactif", "📚 Aide aux devoirs", 
-            "📒 Créateur de fiches de révision", "📝 Créateur de contrôle", "⭐💎 Aide"
-        ])
-
-        if page == "🛒 Boutique":
-            st.Page("E_Shop.py")
-        elif page == "🎯 Quiz interactif":
-            st.set_query_params(page="E_Quiz.py")
-        elif page == "📚 Aide aux devoirs":
-            st.set_query_params(page="E_H.py")
-        elif page == "📒 Créateur de fiches de révision":
-            st.set_query_params(page="E_R.py")
-        elif page == "📝 Créateur de contrôle":
-            st.set_query_params(page="E_T.py")
-        elif page == "⭐💎 Aide":
-            st.set_query_params(page="E_Help.py")
 
         # ✅ Bouton pour se déconnecter
         if st.sidebar.button("🚪 Déconnexion"):
@@ -83,4 +67,3 @@ else:
                 st.experimental_rerun()
             else:
                 st.sidebar.error("❌ Email ou mot de passe incorrect ou appareil non autorisé.")
-
