@@ -41,56 +41,35 @@ def backup_database():
 
 backup_database()
 
-def get_private_ip():
-    """Récupère l'adresse IP privée réelle de l'appareil."""
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))  # Connexion temporaire pour obtenir l’IP locale
-        ip_address = s.getsockname()[0]
-        s.close()
-        return ip_address
-    except Exception as e:
-        print(f"❌ [ERROR] Impossible de récupérer l'adresse IP privée : {e}")
-        return "127.0.0.1"  # Adresse de secours
-
-def generate_unique_device_id():
-    """Génère un ID unique basé sur l’appareil pour assurer son unicité."""
-    private_ip = get_private_ip()  # 🔍 Adresse IP locale unique
-    device_name = platform.node()  # 🔹 Nom de l'appareil
-    os_name = platform.system()  # 🔹 Type de système (Windows, Mac, Linux, Android, iOS)
-    processor = platform.processor()  # 🔹 Type de processeur
-    unique_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
-
-    return unique_id
-
-def get_user_id():
-    """Récupère un ID unique en base ou le génère si inexistant."""
+def get_user():
+    """Récupère un user_id persistant basé sur un cookie pour éviter les pertes."""
     
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
 
-    # 🔹 1️⃣ Vérifier si l'ID est déjà stocké en session (utile pour éviter les recalculs)
-    if "user_id" in st.session_state:
-        return st.session_state["user_id"]
+    # Vérifier si un user_id est stocké dans les cookies
+    if "user_id" in st.cookies:
+        user_id = st.cookies["user_id"]
+    elif "user_id" in st.session_state:
+        user_id = st.session_state["user_id"]
+    else:
+        user_id = str(uuid.uuid4())  # Génère un nouvel ID unique
 
-    user_id = generate_unique_device_id()  # Génération basée sur l’appareil
-
-    # 🔹 2️⃣ Vérifier si cet ID existe déjà en base
+    # Vérifier si cet ID existe déjà en base
     cursor.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
 
-    if row:
-        user_id = row[0]  # 🔄 Récupérer l’ID existant en base
-        print(f"✅ [DEBUG] ID récupéré depuis SQLite : {user_id}")
-    else:
-        # 🔹 Insérer l’ID si c’est un nouvel utilisateur
+    if not row:
+        # Insérer l’ID en base pour un nouvel utilisateur
         cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
         conn.commit()
         print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
 
     conn.close()
 
-    st.session_state["user_id"] = user_id  # 🔄 Stocker en session pour éviter de recalculer à chaque appel
+    # Stocker l'ID dans les cookies et en session
+    st.session_state["user_id"] = user_id
+    st.cookies["user_id"] = user_id  # Stocke l’ID dans un cookie HTTP
 
     return user_id
 
