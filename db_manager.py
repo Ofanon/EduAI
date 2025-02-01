@@ -16,6 +16,15 @@ if not os.path.exists("data"):
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
+cursor.execute("PRAGMA table_info(users)")
+columns = [column[1] for column in cursor.fetchall()]
+
+if "device_id" not in columns:
+    print("⚠️ [WARNING] La colonne `device_id` est absente. Ajout en cours...")
+    cursor.execute("ALTER TABLE users ADD COLUMN device_id TEXT UNIQUE")
+    conn.commit()
+    print("✅ [DEBUG] Colonne `device_id` ajoutée avec succès.")
+
 # ✅ Création de la table des utilisateurs si elle n'existe pas
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
@@ -28,6 +37,8 @@ cursor.execute('''
     )
 ''')
 conn.commit()
+
+conn.close()
 
 def backup_database():
     """Crée une sauvegarde automatique de la base pour éviter toute perte."""
