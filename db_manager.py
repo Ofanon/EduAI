@@ -47,7 +47,7 @@ def get_user_id():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
 
-    # Vérifier si un user_id est déjà présent dans l'URL
+    # Vérifier si un user_id est stocké dans l’URL
     if "user_id" in st.query_params:
         user_id = st.query_params["user_id"]
     elif "user_id" in st.session_state:
@@ -69,10 +69,6 @@ def get_user_id():
 
     # Stocker l'ID en session pour éviter les requêtes répétées
     st.session_state["user_id"] = user_id
-
-    # ✅ Forcer l'URL à contenir l'`user_id` si absent
-    if "user_id" not in st.query_params:
-        st.query_params["user_id"] = user_id  # 🔥 Ajoute automatiquement l’ID à l’URL
 
     return user_id
 
