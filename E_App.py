@@ -7,11 +7,6 @@ import socket
 import requests
 import hashlib
 
-def get_mac_address():
-    """Récupère l'adresse MAC de l'utilisateur."""
-    mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
-    return mac
-
 def get_public_ip():
     """Récupère l'adresse IP publique de l'utilisateur."""
     try:
@@ -21,9 +16,15 @@ def get_public_ip():
         ip = "Inconnue"
     return ip
 
-def generate_user_id(first_name, mac, ip):
-    """Génère un identifiant unique basé sur le prénom, l'adresse MAC et l'IP publique."""
-    user_id = hashlib.sha256(f"{first_name}_{mac}_{ip}".encode()).hexdigest()
+def generate_device_id():
+    """Génère un identifiant unique du périphérique stocké localement."""
+    if "device_id" not in st.session_state:
+        st.session_state["device_id"] = str(uuid.uuid4())
+    return st.session_state["device_id"]
+
+def generate_user_id(first_name, device_id, ip):
+    """Génère un identifiant unique basé sur le prénom, l'ID du périphérique et l'IP publique."""
+    user_id = hashlib.sha256(f"{first_name}_{device_id}_{ip}".encode()).hexdigest()
     return user_id
 
 # Demander le prénom lors de la première connexion
@@ -35,9 +36,9 @@ if "first_name" not in st.session_state:
 
 if "user_confirmed" in st.session_state and st.session_state["first_name"]:
     first_name = st.session_state["first_name"]
-    mac_address = get_mac_address()
+    device_id = generate_device_id()
     ip_address = get_public_ip()
-    user_id = generate_user_id(first_name, mac_address, ip_address)
+    user_id = generate_user_id(first_name, device_id, ip_address)
 
     # Vérifier si un identifiant de session existe déjà, sinon en créer un
     if "session_id" not in st.session_state:
@@ -50,7 +51,7 @@ if "user_confirmed" in st.session_state and st.session_state["first_name"]:
     st.write(f"Bonjour {first_name}!")
     st.write(f"Votre identifiant unique : `{user_id}`")
     st.write(f"Votre identifiant de session : `{session_id}`")
-    st.write(f"Votre adresse MAC : `{mac_address}`")
+    st.write(f"Votre identifiant de périphérique : `{device_id}`")
     st.write(f"Votre adresse IP publique : `{ip_address}`")
 
     # Afficher les points d'expérience et les requêtes restantes
