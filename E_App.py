@@ -7,11 +7,26 @@ import db_manager
 import streamlit as st
 import db_manager
 
-# ✅ Récupérer ou créer un `user_id` unique par appareil
-user_id = db_manager.get_or_create_user_id()
+import streamlit as st
 
 st.title("Bienvenue sur EtudIAnt 🚀")
-st.write(f"✅ Votre user_id : `{user_id}`")
+
+# 📌 JavaScript pour stocker le `user_id` dans le navigateur (localStorage)
+st.markdown("""
+<script>
+    function getOrCreateUserId() {
+        let userId = localStorage.getItem("user_id");
+        if (!userId) {
+            userId = crypto.randomUUID();  // ✅ Générer un UUID unique
+            localStorage.setItem("user_id", userId);
+        }
+        return userId;
+    }
+    const userId = getOrCreateUserId();
+    document.write(`<p style="font-size:18px">✅ Votre user_id : <strong>${userId}</strong></p>`);
+</script>
+""", unsafe_allow_html=True)
+
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db.get_requests_left()}")
