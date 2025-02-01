@@ -5,34 +5,20 @@ import streamlit as st
 import streamlit as st
 import db_manager
 
-DB_FILE = "users_data.db"
-
-def fetch_users():
-    """Récupère toutes les lignes de la table users."""
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users")
-    users = cursor.fetchall()
-    conn.close()
-    return users
-
-st.title("Affichage des utilisateurs")
-
-users = fetch_users()
-
-if users:
-    st.write("Liste des utilisateurs enregistrés :")
-    for user in users:
-        st.write(f"ID: {user[0]}, Points: {user[1]}, Requêtes: {user[2]}")
-else:
-    st.write("Aucun utilisateur enregistré.")
+import streamlit as st
+import db_manager
+import uuid
 
 # Récupérer ou créer un identifiant unique pour l'utilisateur
 user_id = db_manager.get_user_id()
+session_id = str(uuid.uuid4())  # Génère un ID de session unique
+
 st.session_state["user_id"] = user_id
+st.session_state["session_id"] = session_id
 
 st.title("Bienvenue sur l'App EtudIAnt")
 st.write(f"Votre identifiant unique : `{user_id}`")
+st.write(f"Votre identifiant de session : `{session_id}`")
 
 # Afficher les points d'expérience et les requêtes restantes
 points = db_manager.get_experience_points(user_id)
@@ -63,6 +49,7 @@ if st.button("Utiliser une requête"):
         st.rerun()
     else:
         st.error("Vous n'avez plus de requêtes disponibles.")
+
 
 
 with st.sidebar:
