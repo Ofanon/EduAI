@@ -54,8 +54,7 @@ def get_user_id():
     if "user_id" in st.session_state:
         return st.session_state["user_id"]
     
-    user_id = generate_unique_device_id()
-    users = load_users()
+    
     
     if user_id not in users:
         users[user_id] = {
@@ -65,7 +64,8 @@ def get_user_id():
             "purchased_requests": 0
         }
         save_users(users)
-    
+    user_id = generate_unique_device_id()
+    users = load_users()
     st.session_state["user_id"] = user_id
     return user_id
 
