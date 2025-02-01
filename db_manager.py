@@ -40,27 +40,44 @@ initialize_database()
 cookie_manager_instance = None
 
 def get_cookie_manager():
-    """Retourne une instance unique de CookieManager pour éviter les doublons."""
+    """Retourne une instance unique de CookieManager."""
     global cookie_manager_instance
     if cookie_manager_instance is None:
         cookie_manager_instance = stx.CookieManager()
     return cookie_manager_instance
 
 def generate_device_id():
-    """Génère un ID unique basé sur plusieurs caractéristiques de l’appareil."""
+    """Génère un ID 100% unique basé sur l’appareil et le navigateur."""
+    cookie_manager = get_cookie_manager()
+
+    # ✅ Vérifier si un `device_id` aléatoire est déjà stocké dans les cookies
+    stored_device_id = cookie_manager.get("device_id")
+
+    if stored_device_id:
+        return stored_device_id  # ✅ Réutiliser l'ID unique de l'appareil
+
+    # 📌 Récupérer des infos système
     try:
         private_ip = socket.gethostbyname(socket.gethostname())  # IP locale
         device_name = platform.node()  # Nom de l'appareil
         os_name = platform.system()  # OS (Windows, Linux, Mac, Android, iOS)
         processor = platform.processor()  # Type de processeur
 
+        # 🔍 Générer un identifiant unique basé sur ces infos
         raw_id = f"{private_ip}_{device_name}_{os_name}_{processor}"
         hashed_id = hashlib.sha256(raw_id.encode()).hexdigest()  # Hash pour anonymisation
 
-        return hashed_id
     except Exception as e:
-        print(f"❌ [ERROR] Impossible de générer un device_id : {e}")
-        return str(uuid.uuid4())  # En secours, générer un UUID aléatoire
+        print(f"❌ [ERROR] Impossible de récupérer les infos système : {e}")
+        hashed_id = str(uuid.uuid4())  # 🎯 Générer un ID aléatoire en secours
+
+    # ✅ Ajouter un identifiant aléatoire pour garantir l'unicité
+    final_device_id = f"{hashed_id}_{uuid.uuid4()}"
+
+    # ✅ Stocker l'ID dans un cookie pour être sûr qu'il reste unique
+    cookie_manager.set("device_id", final_device_id, expires_at="2034-01-01T00:00:00Z")
+
+    return final_device_id
 
 def get_or_create_user_id():
     """Récupère ou génère un `user_id` unique et le stocke en base + cookies."""
@@ -69,13 +86,9 @@ def get_or_create_user_id():
     cursor = conn.cursor()
     cookie_manager = get_cookie_manager()
 
-    # ✅ Vérifier si un `device_id` est déjà stocké dans les cookies
-    device_id = cookie_manager.get("device_id")
-
-    if not device_id:
-        device_id = generate_device_id()  # Génère un ID unique
-        print(f"🔍 [DEBUG] Génération d'un nouveau device_id : {device_id}")
-        cookie_manager.set("device_id", device_id, expires_at=datetime.now() + timedelta(days=365 * 20), key="device_id")
+    # ✅ Générer un `device_id` vraiment unique
+    device_id = generate_device_id()
+    print(f"🔍 [DEBUG] Device ID détecté : {device_id}")
 
     # ✅ Vérifier si cet appareil existe déjà en base
     cursor.execute("SELECT user_id FROM users WHERE device_id = ?", (device_id,))
@@ -96,10 +109,11 @@ def get_or_create_user_id():
 
     # ✅ Stocker l'`user_id` en session et cookie (si pas déjà défini)
     if not cookie_manager.get("user_id"):
-        cookie_manager.set("user_id", user_id, expires_at=datetime.now() + timedelta(days=365 * 20), key="user_id")
+        cookie_manager.set("user_id", user_id, expires_at="2034-01-01T00:00:00Z")
 
     st.session_state["user_id"] = user_id
     return user_id
+
 
 def get_requests_left():
     """Récupère le nombre de requêtes restantes pour l'utilisateur."""
