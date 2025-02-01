@@ -18,6 +18,7 @@ def initialize_database():
             user_id TEXT PRIMARY KEY,
             email TEXT UNIQUE,
             password TEXT,
+            device_id TEXT UNIQUE,
             experience_points INTEGER DEFAULT 0,
             requests INTEGER DEFAULT 5
         )
@@ -36,6 +37,23 @@ def get_cookie_manager():
         cookie_manager_instance = stx.CookieManager()
     return cookie_manager_instance
 
+def generate_device_id():
+    """Génère un ID unique basé sur l’appareil et le stocke en cookie."""
+    cookie_manager = get_cookie_manager()
+
+    # ✅ Vérifier si un `device_id` est déjà stocké dans les cookies
+    stored_device_id = cookie_manager.get("device_id")
+    if stored_device_id:
+        return stored_device_id  # ✅ Réutiliser l'ID existant
+
+    # 🎯 Générer un `device_id` unique basé sur un UUID aléatoire
+    device_id = str(uuid.uuid4())
+
+    # ✅ Stocker dans un cookie
+    cookie_manager.set("device_id", device_id)
+
+    return device_id
+
 # ✅ Fonction d'inscription
 def register_user(email, password):
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
@@ -53,8 +71,12 @@ def register_user(email, password):
     # Générer un `user_id` unique
     user_id = str(uuid.uuid4())
 
+    # Associer un `device_id` unique
+    device_id = generate_device_id()
+
     # Insérer l'utilisateur dans la base
-    cursor.execute("INSERT INTO users (user_id, email, password) VALUES (?, ?, ?)", (user_id, email, hashed_password))
+    cursor.execute("INSERT INTO users (user_id, email, password, device_id) VALUES (?, ?, ?, ?)", 
+                   (user_id, email, hashed_password, device_id))
     conn.commit()
     conn.close()
 
@@ -68,11 +90,17 @@ def login_user(email, password):
     # Vérifier si l'utilisateur existe
     cursor.execute("SELECT user_id, password FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
-    conn.close()
 
     if user and bcrypt.checkpw(password.encode(), user[1]):  # Vérifier le mot de passe
+        device_id = generate_device_id()  # Générer un `device_id` unique
+
+        # ✅ Mettre à jour l'appareil associé à l'utilisateur
+        cursor.execute("UPDATE users SET device_id = ? WHERE user_id = ?", (device_id, user[0]))
+        conn.commit()
+        conn.close()
         return user[0]  # Retourner l'`user_id`
     
+    conn.close()
     return None  # Connexion échouée
 
 # ✅ Fonction pour récupérer les infos utilisateur
@@ -85,21 +113,3 @@ def get_user_info(user_id):
     conn.close()
 
     return user_info if user_info else None
-
-# ✅ Fonction pour mettre à jour les points d'expérience
-def update_experience_points(user_id, points):
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-
-    cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
-    conn.commit()
-    conn.close()
-
-# ✅ Fonction pour diminuer les requêtes disponibles
-def consume_request(user_id):
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-
-    cursor.execute("UPDATE users SET requests = requests - 1 WHERE user_id = ? AND requests > 0", (user_id,))
-    conn.commit()
-    conn.close()
