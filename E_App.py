@@ -4,7 +4,7 @@ import db_manager as db
 import sqlite3
 import streamlit as st
 
-st.write(f"votre id : {db.get_user_id}")
+st.write(f"votre id : {db.generate_unique_device_id()}")
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db.get_requests_left()}")
