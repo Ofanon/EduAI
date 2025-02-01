@@ -4,17 +4,20 @@ import sqlite3
 import streamlit as st
 import streamlit as st
 import db_manager
-
 import streamlit as st
 import db_manager
 import uuid
 
 # Récupérer ou créer un identifiant unique pour l'utilisateur
 user_id = db_manager.get_user_id()
-session_id = str(uuid.uuid4())  # Génère un ID de session unique
+
+# Vérifier si un identifiant de session existe déjà, sinon en créer un
+if "session_id" not in st.session_state:
+    st.session_state["session_id"] = str(uuid.uuid4())
+
+session_id = st.session_state["session_id"]
 
 st.session_state["user_id"] = user_id
-st.session_state["session_id"] = session_id
 
 st.title("Bienvenue sur l'App EtudIAnt")
 st.write(f"Votre identifiant unique : `{user_id}`")
@@ -49,9 +52,6 @@ if st.button("Utiliser une requête"):
         st.rerun()
     else:
         st.error("Vous n'avez plus de requêtes disponibles.")
-
-
-
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db_manager.get_requests_left()}")
     pg = st.navigation([st.Page("E_Shop.py", title="🛒 Boutique"),st.Page("E_Quiz.py", title = "🎯 Quiz interactif"), st.Page("E_H.py", title = "📚 Aide aux devoirs"), st.Page("E_R.py", title = "📒 Créateur de fiches de révision"), st.Page("E_T.py", title= "📝 Créateur de contrôle"), st.Page("E_Help.py", title= "⭐💎 Aide")])
