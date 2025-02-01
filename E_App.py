@@ -2,9 +2,15 @@ import streamlit as st
 import db_manager
 import hashlib
 import sqlite3
+import os
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
+def reset_database():
+    if os.path.exists("users_data.db"):
+        os.remove("users_data.db")
+    initialize_database()
 
 def initialize_database():
     conn = sqlite3.connect("users_data.db")
