@@ -1,17 +1,33 @@
 import streamlit as st
 import db_manager
-import streamlit as st
-import db_manager
-
-# ✅ Récupérer ou créer un `user_id` unique et permanent
-user_id = db_manager.get_or_create_user_id()
 
 st.title("Bienvenue sur EtudIAnt 🚀")
-st.write(f"✅ Votre user_id : `{user_id}`")
 
-# ✅ Vérifier si l'utilisateur a encore des requêtes IA
-requests_left = db_manager.get_requests_left()
-st.write(f"⭐ Requêtes IA restantes : `{requests_left}`")
+# 📌 JavaScript pour stocker et récupérer le `device_id` depuis `localStorage`
+st.markdown("""
+<script>
+    function getOrCreateDeviceId() {
+        let deviceId = localStorage.getItem("device_id");
+        if (!deviceId) {
+            deviceId = crypto.randomUUID();  // ✅ Générer un UUID unique
+            localStorage.setItem("device_id", deviceId);
+        }
+        window.parent.postMessage({type: "device_id", value: deviceId}, "*");
+    }
+    window.onload = getOrCreateDeviceId;
+</script>
+""", unsafe_allow_html=True)
+
+# ✅ Récupérer le `device_id` envoyé par le navigateur
+device_id = st.session_state.get("device_id", None)
+
+if device_id is None:
+    device_id = st.experimental_get_query_params().get("device_id", [None])[0]
+
+if device_id:
+    st.session_state["device_id"] = device_id
+    user_id = db_manager.get_or_create_user_id(device_id)
+    st.write(f"✅ Votre user_id : `{user_id}`")
 
 
 with st.sidebar:
