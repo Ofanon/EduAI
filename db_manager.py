@@ -2,13 +2,11 @@ import sqlite3
 import os
 import uuid
 import hashlib
-import platform
-import socket
 import streamlit as st
 import extra_streamlit_components as stx
 from datetime import datetime, timedelta
 
-# 📌 Chemin de la base SQLite
+# 📌 Base de données SQLite (créée automatiquement si elle n'existe pas)
 DB_FILE = os.path.join("data", "request_logs.db")
 
 # ✅ Assurer que le dossier `data/` existe
@@ -46,20 +44,29 @@ def get_cookie_manager():
     return cookie_manager_instance
 
 def generate_device_id():
-    """Génère un ID unique basé sur l’appareil."""
-    try:
-        private_ip = socket.gethostbyname(socket.gethostname())  # IP locale
-        device_name = platform.node()  # Nom de l'appareil
-        os_name = platform.system()  # OS (Windows, Linux, Mac, Android, iOS)
-        processor = platform.processor()  # Type de processeur
+    """Génère un ID unique par appareil et le stocke dans l'URL et un cookie."""
+    cookie_manager = get_cookie_manager()
 
-        raw_id = f"{private_ip}_{device_name}_{os_name}_{processor}"
-        hashed_id = hashlib.sha256(raw_id.encode()).hexdigest()
+    # ✅ Vérifier si un `device_id` est déjà dans l'URL
+    if "device_id" in st.query_params:
+        return st.query_params["device_id"]
 
-        return hashed_id
-    except Exception as e:
-        print(f"❌ [ERROR] Impossible de récupérer les infos système : {e}")
-        return str(uuid.uuid4())
+    # ✅ Vérifier si un `device_id` est stocké en cookie
+    stored_device_id = cookie_manager.get("device_id")
+    if stored_device_id:
+        return stored_device_id
+
+    # 🎯 Générer un `device_id` unique basé sur un UUID
+    final_device_id = str(uuid.uuid4())
+
+    # ✅ Stocker dans un cookie
+    expires_at = datetime.now() + timedelta(days=365 * 20)
+    cookie_manager.set("device_id", final_device_id, expires_at=expires_at)
+
+    # ✅ Ajouter dans l'URL pour assurer l'unicité
+    st.query_params["device_id"] = final_device_id
+
+    return final_device_id
 
 def get_or_create_user_id():
     """Récupère ou génère un `user_id` unique par appareil."""
@@ -72,7 +79,7 @@ def get_or_create_user_id():
     device_id = generate_device_id()
     print(f"🔍 [DEBUG] Device ID détecté : {device_id}")
 
-    # ✅ Vérifier si le `device_id` existe déjà en base
+    # ✅ Vérifier si le `device_id` existe en base
     cursor.execute("SELECT user_id FROM users WHERE device_id = ?", (device_id,))
     row = cursor.fetchone()
 
@@ -90,10 +97,35 @@ def get_or_create_user_id():
 
     conn.close()
 
-    # ✅ Stocker l'`user_id` en session et cookie (si pas déjà défini)
-    if not cookie_manager.get("user_id"):
-        expires_at = datetime.now() + timedelta(days=365 * 20)
-        cookie_manager.set("user_id", user_id, expires_at=expires_at)
+    # ✅ Ajouter `user_id` dans l'URL pour assurer l'unicité
+    if "user_id" not in st.query_params:
+        st.query_params["user_id"] = user_id
 
+    # ✅ Stocker `user_id` en session
     st.session_state["user_id"] = user_id
+
     return user_id
+
+def get_requests_left():
+    """Récupère le nombre de requêtes restantes pour l'utilisateur."""
+    user_id = get_or_create_user_id()
+
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute("SELECT requests FROM users WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+
+    return row[0] if row else 5
+
+def consume_request():
+    """Diminue le nombre de requêtes disponibles pour l'utilisateur."""
+    user_id = get_or_create_user_id()
+
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET requests = requests - 1 WHERE user_id = ? AND requests > 0", (user_id,))
+    conn.commit()
+    conn.close()
+
+    return cursor.rowcount > 0
