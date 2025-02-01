@@ -6,10 +6,16 @@ import sqlite3
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-def create_user_table(username):
+def initialize_database():
     conn = sqlite3.connect("users_data.db")
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT)")
+    conn.commit()
+    conn.close()
+
+def create_user_table(username):
+    conn = sqlite3.connect("users_data.db")
+    cursor = conn.cursor()
     cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS user_{username} (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,10 +29,14 @@ def register_user(username, password):
     conn = sqlite3.connect("users_data.db")
     cursor = conn.cursor()
     hashed_password = hash_password(password)
-    cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
-    conn.commit()
-    conn.close()
-    create_user_table(username)
+    try:
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
+        conn.commit()
+        create_user_table(username)
+    except sqlite3.IntegrityError:
+        st.error("Ce nom d'utilisateur est déjà pris.")
+    finally:
+        conn.close()
 
 def authenticate_user(username, password):
     conn = sqlite3.connect("users_data.db")
@@ -34,9 +44,7 @@ def authenticate_user(username, password):
     cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
     row = cursor.fetchone()
     conn.close()
-    if row and row[0] == hash_password(password):
-        return True
-    return False
+    return row and row[0] == hash_password(password)
 
 def save_user_data(username, data):
     conn = sqlite3.connect("users_data.db")
@@ -53,6 +61,7 @@ def get_user_data(username):
     conn.close()
     return data
 
+initialize_database()
 st.title("Login / Sign Up")
 
 if "logged_in" not in st.session_state:
@@ -66,15 +75,8 @@ if not st.session_state["logged_in"]:
     
     if option == "Créer un compte":
         if st.button("S'inscrire"):
-            conn = sqlite3.connect("users_data.db")
-            cursor = conn.cursor()
-            cursor.execute("SELECT username FROM users WHERE username = ?", (username,))
-            if cursor.fetchone():
-                st.error("Ce nom d'utilisateur est déjà pris.")
-            else:
-                register_user(username, password)
-                st.success("Compte créé avec succès. Connectez-vous maintenant.")
-            conn.close()
+            register_user(username, password)
+            st.success("Compte créé avec succès. Connectez-vous maintenant.")
     
     elif option == "Se connecter":
         if st.button("Connexion"):
@@ -99,8 +101,6 @@ if st.session_state["logged_in"]:
             st.write(row[1])
     
     st.button("Déconnexion", on_click=lambda: st.session_state.update({"logged_in": False, "username": ""}))
-
-
 
 with st.sidebar:
     pg = st.navigation([st.Page("E_Shop.py", title="🛒 Boutique"),st.Page("E_Quiz.py", title = "🎯 Quiz interactif"), st.Page("E_H.py", title = "📚 Aide aux devoirs"), st.Page("E_R.py", title = "📒 Créateur de fiches de révision"), st.Page("E_T.py", title= "📝 Créateur de contrôle"), st.Page("E_Help.py", title= "⭐💎 Aide")])
