@@ -20,10 +20,18 @@ def get_public_ip():
         ip = "Inconnue"
     return ip
 
+def generate_device_id():
+    """Génère un identifiant unique pour chaque appareil basé sur l'adresse MAC et l'IP publique."""
+    mac = get_mac_address()
+    ip = get_public_ip()
+    device_id = hashlib.sha256(f"{mac}_{ip}".encode()).hexdigest()
+    return device_id
+
 # Récupérer ou créer un identifiant unique pour l'utilisateur
 user_id = db_manager.get_user_id()
 mac_address = get_mac_address()
 ip_address = get_public_ip()
+device_id = generate_device_id()
 
 # Vérifier si un identifiant de session existe déjà, sinon en créer un
 if "session_id" not in st.session_state:
@@ -38,6 +46,7 @@ st.write(f"Votre identifiant unique : `{user_id}`")
 st.write(f"Votre identifiant de session : `{session_id}`")
 st.write(f"Votre adresse MAC : `{mac_address}`")
 st.write(f"Votre adresse IP publique : `{ip_address}`")
+st.write(f"Votre identifiant d'appareil unique : `{device_id}`")
 
 # Afficher les points d'expérience et les requêtes restantes
 points = db_manager.get_experience_points(user_id)
@@ -68,6 +77,7 @@ if st.button("Utiliser une requête"):
         st.rerun()
     else:
         st.error("Vous n'avez plus de requêtes disponibles.")
+
 
 
 with st.sidebar:
