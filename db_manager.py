@@ -42,12 +42,12 @@ def backup_database():
 backup_database()
 
 def get_user_id():
-    """Récupère un user_id unique et persistant pour chaque utilisateur."""
+    """Récupère un `user_id` unique et persistant, et l'ajoute dans l'URL si absent."""
     
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
 
-    # Vérifier si un user_id est stocké dans les paramètres de l'URL ou les cookies
+    # Vérifier si un user_id est déjà présent dans l'URL
     if "user_id" in st.query_params:
         user_id = st.query_params["user_id"]
     elif "user_id" in st.session_state:
@@ -67,9 +67,12 @@ def get_user_id():
 
     conn.close()
 
-    # Stocker l'ID dans la session et dans les paramètres de l'URL pour le rendre persistant
+    # Stocker l'ID en session pour éviter les requêtes répétées
     st.session_state["user_id"] = user_id
-    st.query_params["user_id"] = user_id  # Stocker l’ID dans les paramètres de l’URL
+
+    # ✅ Forcer l'URL à contenir l'`user_id` si absent
+    if "user_id" not in st.query_params:
+        st.query_params["user_id"] = user_id  # 🔥 Ajoute automatiquement l’ID à l’URL
 
     return user_id
 
