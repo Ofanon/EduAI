@@ -10,10 +10,6 @@ import db_manager
 # ✅ Récupérer ou créer un `user_id` unique par appareil
 user_id = db_manager.get_or_create_user_id()
 
-# ✅ Vérifier si l'URL contient `user_id`, sinon l'ajouter
-if "user_id" not in st.experimental_get_query_params():
-    st.experimental_set_query_params(user_id=user_id)
-
 st.title("Bienvenue sur EtudIAnt 🚀")
 st.write(f"✅ Votre user_id : `{user_id}`")
 
