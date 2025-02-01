@@ -28,17 +28,17 @@ if user_id:
         ])
 
         if page == "🛒 Boutique":
-            st.experimental_set_query_params(page="E_Shop")
+            st.set_query_params(page="E_Shop.py")
         elif page == "🎯 Quiz interactif":
-            st.experimental_set_query_params(page="E_Quiz")
+            st.set_query_params(page="E_Quiz.py")
         elif page == "📚 Aide aux devoirs":
-            st.experimental_set_query_params(page="E_H")
+            st.set_query_params(page="E_H.py")
         elif page == "📒 Créateur de fiches de révision":
-            st.experimental_set_query_params(page="E_R")
+            st.set_query_params(page="E_R.py")
         elif page == "📝 Créateur de contrôle":
-            st.experimental_set_query_params(page="E_T")
+            st.set_query_params(page="E_T.py")
         elif page == "⭐💎 Aide":
-            st.experimental_set_query_params(page="E_Help")
+            st.set_query_params(page="E_Help.py")
 
         # ✅ Bouton pour se déconnecter
         if st.sidebar.button("🚪 Déconnexion"):
