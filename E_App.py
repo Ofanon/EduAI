@@ -1,18 +1,27 @@
 import streamlit as st
 import db_manager
 import uuid
-import uuid
 import re
 import os
+import socket
 
 def get_mac_address():
     """Récupère l'adresse MAC de l'utilisateur."""
     mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
     return mac
 
+def get_ip_address():
+    """Récupère l'adresse IP de l'utilisateur."""
+    try:
+        ip = socket.gethostbyname(socket.gethostname())
+    except Exception:
+        ip = "Inconnue"
+    return ip
+
 # Récupérer ou créer un identifiant unique pour l'utilisateur
 user_id = db_manager.get_user_id()
 mac_address = get_mac_address()
+ip_address = get_ip_address()
 
 # Vérifier si un identifiant de session existe déjà, sinon en créer un
 if "session_id" not in st.session_state:
@@ -26,6 +35,7 @@ st.title("Bienvenue sur l'App EtudIAnt")
 st.write(f"Votre identifiant unique : `{user_id}`")
 st.write(f"Votre identifiant de session : `{session_id}`")
 st.write(f"Votre adresse MAC : `{mac_address}`")
+st.write(f"Votre adresse IP : `{ip_address}`")
 
 # Afficher les points d'expérience et les requêtes restantes
 points = db_manager.get_experience_points(user_id)
