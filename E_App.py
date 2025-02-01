@@ -4,24 +4,26 @@ import uuid
 import re
 import os
 import socket
+import requests
 
 def get_mac_address():
     """Récupère l'adresse MAC de l'utilisateur."""
     mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
     return mac
 
-def get_ip_address():
-    """Récupère l'adresse IP de l'utilisateur."""
+def get_public_ip():
+    """Récupère l'adresse IP publique de l'utilisateur."""
     try:
-        ip = socket.gethostbyname(socket.gethostname())
-    except Exception:
+        response = requests.get("https://api64.ipify.org?format=text", timeout=5)
+        ip = response.text
+    except requests.RequestException:
         ip = "Inconnue"
     return ip
 
 # Récupérer ou créer un identifiant unique pour l'utilisateur
 user_id = db_manager.get_user_id()
 mac_address = get_mac_address()
-ip_address = get_ip_address()
+ip_address = get_public_ip()
 
 # Vérifier si un identifiant de session existe déjà, sinon en créer un
 if "session_id" not in st.session_state:
@@ -35,7 +37,7 @@ st.title("Bienvenue sur l'App EtudIAnt")
 st.write(f"Votre identifiant unique : `{user_id}`")
 st.write(f"Votre identifiant de session : `{session_id}`")
 st.write(f"Votre adresse MAC : `{mac_address}`")
-st.write(f"Votre adresse IP : `{ip_address}`")
+st.write(f"Votre adresse IP publique : `{ip_address}`")
 
 # Afficher les points d'expérience et les requêtes restantes
 points = db_manager.get_experience_points(user_id)
@@ -66,6 +68,7 @@ if st.button("Utiliser une requête"):
         st.rerun()
     else:
         st.error("Vous n'avez plus de requêtes disponibles.")
+
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db_manager.get_requests_left()}")
