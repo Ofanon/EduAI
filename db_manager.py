@@ -42,17 +42,19 @@ def backup_database():
         print(f"✅ [DEBUG] Sauvegarde effectuée : {BACKUP_FILE}")
 
 backup_database()
-
+cookie_manager_instance = None
 def get_cookie_manager():
-    """Initialise le gestionnaire de cookies."""
-    return stx.CookieManager()
+    global cookie_manager_instance
+    if cookie_manager_instance is None:
+        cookie_manager_instance = stx.CookieManager()
+    return cookie_manager_instance
 
 def get_user_id():
     """Récupère ou génère un `user_id` unique et le stocke dans un cookie longue durée."""
     
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
-    cookie_manager = get_cookie_manager()
+    cookie_manager = get_cookie_manager()  # ✅ Utilise une seule instance
 
     # ✅ Vérifier si un `user_id` est stocké dans les cookies
     user_id = cookie_manager.get("user_id")
@@ -74,9 +76,11 @@ def get_user_id():
 
     conn.close()
 
+    # ✅ Stocker l'ID en session
     st.session_state["user_id"] = user_id
-    expires_at = datetime.now() + timedelta(days=365 * 20)
 
+    # ✅ Définir une expiration longue durée (20 ans)
+    expires_at = datetime.now() + timedelta(days=365 * 20)
     cookie_manager.set("user_id", user_id, expires_at=expires_at)
 
     return user_id
