@@ -8,6 +8,7 @@ import shutil
 import platform
 import socket
 import extra_streamlit_components as stx
+from datetime import datetime, timedelta
 
 DB_FILE = os.path.join("data", "request_logs.db")
 BACKUP_FILE = DB_FILE + ".backup"
@@ -73,11 +74,10 @@ def get_user_id():
 
     conn.close()
 
-    # ✅ Stocker l'ID en session
     st.session_state["user_id"] = user_id
+    expires_at = datetime.now() + timedelta(days=365 * 20)
 
-    # ✅ Stocker l’`user_id` dans un cookie qui expire dans **20 ans**
-    cookie_manager.set("user_id", user_id, expires_at="2034-01-01T00:00:00Z")  # 🔥 Cookie longue durée
+    cookie_manager.set("user_id", user_id, expires_at=expires_at)
 
     return user_id
 
