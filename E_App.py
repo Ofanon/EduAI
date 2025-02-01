@@ -1,23 +1,18 @@
 import streamlit as st
 import db_manager
+import streamlit as st
+import db_manager
+
+# ✅ Récupérer ou créer un `user_id` unique et permanent
 user_id = db_manager.get_or_create_user_id()
 
 st.title("Bienvenue sur EtudIAnt 🚀")
 st.write(f"✅ Votre user_id : `{user_id}`")
 
-# ✅ Afficher les infos de l'utilisateur
+# ✅ Vérifier si l'utilisateur a encore des requêtes IA
 requests_left = db_manager.get_requests_left()
-experience_points = db_manager.get_experience_points()
-
 st.write(f"⭐ Requêtes IA restantes : `{requests_left}`")
-st.write(f"🎓 Points d'expérience : `{experience_points}`")
 
-# ✅ Ajouter un bouton pour utiliser une requête
-if st.button("🤖 Utiliser une requête IA"):
-    if db_manager.consume_request():
-        st.success("✅ Requête utilisée avec succès !")
-    else:
-        st.error("❌ Plus de requêtes disponibles. Achetez-en avec vos points d'expérience !")
 
 with st.sidebar:
     st.write(f"⭐ Etoiles restantes : {db_manager.get_requests_left()}")
