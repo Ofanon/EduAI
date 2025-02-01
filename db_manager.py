@@ -75,7 +75,12 @@ def generate_device_id():
     final_device_id = f"{hashed_id}_{uuid.uuid4()}"
 
     # ✅ Stocker l'ID dans un cookie pour être sûr qu'il reste unique
-    cookie_manager.set("device_id", final_device_id, expires_at="2034-01-01T00:00:00Z")
+    from datetime import datetime, timedelta
+
+# ✅ Définir une date d'expiration correcte (20 ans)
+    expires_at = datetime.now() + timedelta(days=365 * 20)
+    cookie_manager.set("device_id", final_device_id, expires_at=expires_at)
+
 
     return final_device_id
 
@@ -109,7 +114,8 @@ def get_or_create_user_id():
 
     # ✅ Stocker l'`user_id` en session et cookie (si pas déjà défini)
     if not cookie_manager.get("user_id"):
-        cookie_manager.set("user_id", user_id, expires_at="2034-01-01T00:00:00Z")
+        expires_at = datetime.now() + timedelta(days=365 * 20)
+        cookie_manager.set("user_id", user_id, expires_at=expires_at)
 
     st.session_state["user_id"] = user_id
     return user_id
