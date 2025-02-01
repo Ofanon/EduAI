@@ -4,6 +4,7 @@ import uuid
 import streamlit as st
 import extra_streamlit_components as stx
 from datetime import datetime, timedelta
+import shutil
 
 DB_FILE = os.path.join("data", "request_logs.db")
 BACKUP_FILE = DB_FILE + ".backup"
