@@ -112,49 +112,46 @@ def get_or_create_user_id():
 
     return user_id
 
-def can_user_make_request():
-    user_id = get_or_create_user_id()
-    today = datetime.now().strftime("%Y-%m-%d")
-    
+def get_or_create_user_id():
+    """Récupère ou génère un `user_id` unique et le stocke en base + cookies."""
+
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
-    
-    cursor.execute("SELECT date, requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
+    cookie_manager = get_cookie_manager()
+
+    # ✅ Vérifier si un `device_id` est déjà stocké dans les cookies
+    device_id = cookie_manager.get("device_id")
+
+    if not device_id:
+        device_id = generate_device_id()  # Génère un ID unique
+        print(f"🔍 [DEBUG] Génération d'un nouveau device_id : {device_id}")
+        cookie_manager.set("device_id", device_id, expires_at=datetime.now() + timedelta(days=365 * 20), key="device_id")
+
+    # ✅ Vérifier si ce `device_id` existe déjà en base
+    cursor.execute("SELECT user_id FROM users WHERE device_id = ?", (device_id,))
     row = cursor.fetchone()
 
-    if not row:
-        return True
-
-    date_last_request, normal_requests, purchased_requests = row
-
-    if date_last_request != today:
-        cursor.execute("UPDATE users SET date = ?, requests = 5 WHERE user_id = ?", (today, user_id))
-        conn.commit()
-        return True
-
-    return normal_requests > 0 or purchased_requests > 0
-
-def consume_request():
-    user_id = get_or_create_user_id()
-    
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT requests, purchased_requests FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-    if not row:
-        return False
-
-    normal_requests, purchased_requests = row
-
-    if purchased_requests > 0:
-        cursor.execute("UPDATE users SET purchased_requests = purchased_requests - 1 WHERE user_id = ?", (user_id,))
-    elif normal_requests > 0:
-        cursor.execute("UPDATE users SET requests = requests - 1 WHERE user_id = ?", (user_id,))
+    if row:
+        user_id = row[0]  # L'utilisateur existant garde son ID
+        print(f"✅ [DEBUG] User ID récupéré depuis SQLite : {user_id}")
     else:
-        return False
+        user_id = str(uuid.uuid4())  # Générer un nouvel ID unique
+        print(f"🔍 [DEBUG] Création d'un nouvel user_id : {user_id}")
 
-    conn.commit()
+        # ✅ INSÉRER `device_id` et `user_id` correctement
+        cursor.execute("""
+            INSERT INTO users (user_id, device_id, date, requests, experience_points, purchased_requests)
+            VALUES (?, ?, ?, 5, 0, 0)
+        """, (user_id, device_id, None))
+        conn.commit()
+        print(f"✅ [DEBUG] Enregistrement en base : {device_id} → {user_id}")
+
+    conn.close()
+
+    # ✅ Stocker en session
+    st.session_state["user_id"] = user_id
+
+    return user_id
 
 def get_requests_left():
     user_id = get_or_create_user_id()
