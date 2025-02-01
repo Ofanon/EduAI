@@ -69,8 +69,8 @@ def generate_device_id():
     return final_device_id
 
 def get_or_create_user_id():
-    """Récupère ou génère un `user_id` unique par appareil."""
-
+    """Récupère ou génère un `user_id` unique et le stocke en base + cookies."""
+    
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
     cookie_manager = get_cookie_manager()
@@ -97,7 +97,7 @@ def get_or_create_user_id():
 
     conn.close()
 
-    # ✅ Ajouter `user_id` dans l'URL pour assurer l'unicité
+    # ✅ Vérifier si `user_id` est déjà dans l'URL, sinon l'ajouter
     if "user_id" not in st.query_params:
         st.query_params["user_id"] = user_id
 
@@ -105,6 +105,7 @@ def get_or_create_user_id():
     st.session_state["user_id"] = user_id
 
     return user_id
+
 
 def get_requests_left():
     """Récupère le nombre de requêtes restantes pour l'utilisateur."""
