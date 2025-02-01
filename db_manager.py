@@ -1,88 +1,137 @@
 import os
-import uuid
-import bcrypt
+import json
+import hashlib
 import streamlit as st
-import extra_streamlit_components as stx
-from tinydb import TinyDB, Query
+from datetime import datetime
+import platform
+import socket
 
-# 📌 Base de données TinyDB (stockée en JSON)
-DB_FILE = "data/users.json"
-db = TinyDB(DB_FILE)
-Users = Query()
+DATA_DIR = "data"
+USER_DATA_FILE = os.path.join(DATA_DIR, "users.json")
 
-# ✅ Gestion des cookies pour stocker les sessions utilisateur
-cookie_manager_instance = None
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
 
-def get_cookie_manager():
-    global cookie_manager_instance
-    if cookie_manager_instance is None:
-        cookie_manager_instance = stx.CookieManager()
-    return cookie_manager_instance
+if not os.path.exists(USER_DATA_FILE):
+    with open(USER_DATA_FILE, "w") as f:
+        json.dump({}, f, indent=4)
 
-def generate_device_id():
-    """Génère un `device_id` unique basé sur l’appareil et le stocke en cookie."""
-    cookie_manager = get_cookie_manager()
+def load_users():
+    """Charge les utilisateurs depuis le fichier JSON."""
+    try:
+        with open(USER_DATA_FILE, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
 
-    # ✅ Vérifier si un `device_id` est déjà stocké dans les cookies
-    stored_device_id = cookie_manager.get("device_id")
-    if stored_device_id:
-        return stored_device_id  # ✅ Réutiliser l'ID existant
+def save_users(users):
+    """Sauvegarde les utilisateurs dans le fichier JSON."""
+    with open(USER_DATA_FILE, "w") as f:
+        json.dump(users, f, indent=4)
 
-    # 🎯 Générer un `device_id` unique basé sur un UUID aléatoire
-    device_id = str(uuid.uuid4())
+def get_private_ip():
+    """Récupère l'adresse IP privée réelle de l'appareil."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip_address = s.getsockname()[0]
+        s.close()
+        return ip_address
+    except Exception:
+        return "127.0.0.1"
 
-    # ✅ Stocker dans un cookie
-    cookie_manager.set("device_id", device_id)
+def generate_unique_device_id():
+    """Génère un ID unique basé sur l’appareil."""
+    private_ip = get_private_ip()
+    device_name = platform.node()
+    os_name = platform.system()
+    processor = platform.processor()
+    unique_id = hashlib.sha256(f"{private_ip}_{device_name}_{os_name}_{processor}".encode()).hexdigest()
+    return unique_id
 
-    return device_id
+def get_user_id():
+    """Récupère ou génère un identifiant utilisateur unique."""
+    if "user_id" in st.session_state:
+        return st.session_state["user_id"]
+    
+    user_id = generate_unique_device_id()
+    users = load_users()
+    
+    if user_id not in users:
+        users[user_id] = {
+            "date": None,
+            "requests": 5,
+            "experience_points": 0,
+            "purchased_requests": 0
+        }
+        save_users(users)
+    
+    st.session_state["user_id"] = user_id
+    return user_id
 
-# ✅ Fonction d'inscription
-def register_user(email, password):
-    """Enregistre un nouvel utilisateur avec un `user_id` unique."""
-    if db.search(Users.email == email):
-        return False  # Utilisateur déjà existant
+def can_user_make_request():
+    """Vérifie si l'utilisateur peut encore faire des requêtes aujourd'hui."""
+    user_id = get_user_id()
+    users = load_users()
+    today = datetime.now().strftime("%Y-%m-%d")
+    
+    user_data = users.get(user_id, {})
+    if user_data.get("date") != today:
+        user_data["date"] = today
+        user_data["requests"] = 5
+        save_users(users)
+        return True
+    
+    return user_data["requests"] > 0 or user_data["purchased_requests"] > 0
 
-    # Hacher le mot de passe
-    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+def consume_request():
+    """Décrémente le nombre de requêtes disponibles pour l'utilisateur."""
+    user_id = get_user_id()
+    users = load_users()
+    user_data = users.get(user_id, {})
+    
+    if user_data.get("purchased_requests", 0) > 0:
+        user_data["purchased_requests"] -= 1
+    elif user_data.get("requests", 0) > 0:
+        user_data["requests"] -= 1
+    else:
+        return False
+    
+    save_users(users)
+    return True
 
-    # Générer un `user_id` unique
-    user_id = str(uuid.uuid4())
+def purchase_requests(cost_in_experience, requests_to_add):
+    """Ajoute des requêtes à l'utilisateur en échange de points d'expérience."""
+    user_id = get_user_id()
+    users = load_users()
+    user_data = users.get(user_id, {})
+    
+    if user_data.get("experience_points", 0) >= cost_in_experience:
+        user_data["experience_points"] -= cost_in_experience
+        user_data["purchased_requests"] += requests_to_add
+        save_users(users)
+        return True
+    return False
 
-    # Associer un `device_id` unique
-    device_id = generate_device_id()
+def update_experience_points(points):
+    """Ajoute des points d'expérience à l'utilisateur."""
+    user_id = get_user_id()
+    users = load_users()
+    users[user_id]["experience_points"] += points
+    save_users(users)
 
-    # Insérer l'utilisateur dans la base
-    db.insert({
-        "user_id": user_id,
-        "email": email,
-        "password": hashed_password.decode(),
-        "device_id": device_id,
-        "experience_points": 0,
-        "requests": 5
-    })
+def get_experience_points():
+    """Retourne le nombre de points d'expérience de l'utilisateur."""
+    user_id = get_user_id()
+    users = load_users()
+    return users[user_id].get("experience_points", 0)
 
-    return True  # Inscription réussie
+def get_requests_left():
+    """Retourne le nombre de requêtes restantes pour l'utilisateur."""
+    user_id = get_user_id()
+    users = load_users()
+    user_data = users.get(user_id, {})
+    return user_data.get("requests", 0) + user_data.get("purchased_requests", 0)
 
-# ✅ Fonction de connexion
-def login_user(email, password):
-    """Connecte un utilisateur en vérifiant son `device_id`."""
-    user = db.search(Users.email == email)
-
-    if user and bcrypt.checkpw(password.encode(), user[0]["password"].encode()):  # Vérifier le mot de passe
-        device_id = generate_device_id()  # Générer un `device_id` unique
-
-        # ✅ Vérifier si l'appareil correspond à celui enregistré
-        if user[0]["device_id"] and user[0]["device_id"] != device_id:
-            return None  # Refuser la connexion si l’appareil ne correspond pas
-
-        # ✅ Mettre à jour l'appareil associé à l'utilisateur
-        db.update({"device_id": device_id}, Users.email == email)
-        return user[0]["user_id"]  # Retourner l'`user_id`
-
-    return None  # Connexion échouée
-
-# ✅ Fonction pour récupérer les infos utilisateur
-def get_user_info(user_id):
-    """Récupère les informations d'un utilisateur."""
-    user = db.search(Users.user_id == user_id)
-    return user[0] if user else None
+# Initialisation
+get_user_id()
