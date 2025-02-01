@@ -5,6 +5,7 @@ import re
 import os
 import socket
 import requests
+import hashlib
 
 def get_mac_address():
     """Récupère l'adresse MAC de l'utilisateur."""
