@@ -2,11 +2,7 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 import db_manager as db
 import sqlite3
-user_id = db.get_user_id()
 
-# ✅ Vérifier si l'URL contient `user_id`, sinon l'ajouter
-if "user_id" not in st.experimental_get_query_params():
-    st.experimental_set_query_params(user_id=user_id)
 
 
 st.write(db.get_user_id())
