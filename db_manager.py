@@ -7,46 +7,44 @@ from datetime import datetime, timedelta
 import shutil
 
 DB_FILE = os.path.join("data", "request_logs.db")
-BACKUP_FILE = DB_FILE + ".backup"
-
-# ✅ Vérifier si le dossier "data" et la base existent
-if not os.path.exists("data"):
-    os.makedirs("data")
 
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
 
+# ✅ Vérifier si la colonne `device_id` existe déjà
 cursor.execute("PRAGMA table_info(users)")
 columns = [column[1] for column in cursor.fetchall()]
 
 if "device_id" not in columns:
-    print("⚠️ [WARNING] La colonne `device_id` est absente. Ajout en cours...")
-    cursor.execute("ALTER TABLE users ADD COLUMN device_id TEXT UNIQUE")
-    conn.commit()
-    print("✅ [DEBUG] Colonne `device_id` ajoutée avec succès.")
+    print("⚠️ [WARNING] `device_id` est absent. Migration de la base...")
 
-# ✅ Création de la table des utilisateurs si elle n'existe pas
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        device_id TEXT UNIQUE,
-        date TEXT,
-        requests INTEGER DEFAULT 5,
-        experience_points INTEGER DEFAULT 0,
-        purchased_requests INTEGER DEFAULT 0
-    )
-''')
-conn.commit()
+    # ✅ Étape 1 : Créer une nouvelle table temporaire avec `device_id`
+    cursor.execute('''
+        CREATE TABLE users_new (
+            user_id TEXT PRIMARY KEY,
+            device_id TEXT UNIQUE,
+            date TEXT,
+            requests INTEGER DEFAULT 5,
+            experience_points INTEGER DEFAULT 0,
+            purchased_requests INTEGER DEFAULT 0
+        )
+    ''')
+    
+    # ✅ Étape 2 : Copier les anciennes données dans la nouvelle table
+    cursor.execute('''
+        INSERT INTO users_new (user_id, date, requests, experience_points, purchased_requests)
+        SELECT user_id, date, requests, experience_points, purchased_requests FROM users
+    ''')
+
+    # ✅ Étape 3 : Supprimer l'ancienne table et renommer la nouvelle
+    cursor.execute("DROP TABLE users")
+    cursor.execute("ALTER TABLE users_new RENAME TO users")
+
+    conn.commit()
+    print("✅ [DEBUG] Migration terminée, `device_id` ajouté.")
 
 conn.close()
 
-def backup_database():
-    """Crée une sauvegarde automatique de la base pour éviter toute perte."""
-    if os.path.exists(DB_FILE):
-        shutil.copy(DB_FILE, BACKUP_FILE)
-        print(f"✅ [DEBUG] Sauvegarde effectuée : {BACKUP_FILE}")
-
-backup_database()
 
 # ✅ Gérer une seule instance de CookieManager
 cookie_manager_instance = None
