@@ -21,6 +21,14 @@ if user_id:
         st.sidebar.write(f"🎓 Points d'expérience : `{experience_points}`")
         st.sidebar.write(f"⭐ Requêtes IA restantes : `{requests_left}`")
 
+        # ✅ Vérifier si l'appareil est bien associé à cet utilisateur
+        stored_device_id = db_manager.generate_device_id()
+        
+        if stored_device_id:
+            st.sidebar.write(f"🔒 Appareil associé : `{stored_device_id}`")
+        else:
+            st.sidebar.error("❌ Cet appareil n'est pas autorisé à accéder à ce compte.")
+        
         # ✅ Navigation entre les pages
         page = st.sidebar.radio("📂 Accès Rapide", [
             "🛒 Boutique", "🎯 Quiz interactif", "📚 Aide aux devoirs", 
@@ -39,7 +47,7 @@ if user_id:
             st.set_query_params(page="E_T.py")
         elif page == "⭐💎 Aide":
             st.set_query_params(page="E_Help.py")
-
+            
         # ✅ Bouton pour se déconnecter
         if st.sidebar.button("🚪 Déconnexion"):
             cookie_manager.delete("user_id")
@@ -50,7 +58,7 @@ if user_id:
     st.write(f"✅ Votre user_id : `{user_id}`")
 
 else:
-    # ✅ Interface Unique : Connexion / Inscription
+    # ✅ Formulaire Unique : Connexion / Inscription
     st.sidebar.subheader("Connexion ou Inscription")
     
     mode = st.sidebar.radio("Choisissez une option :", ["Se connecter", "Créer un compte"])
@@ -74,4 +82,5 @@ else:
                 st.sidebar.success("✅ Connexion réussie !")
                 st.experimental_rerun()
             else:
-                st.sidebar.error("❌ Email ou mot de passe incorrect.")
+                st.sidebar.error("❌ Email ou mot de passe incorrect ou appareil non autorisé.")
+
