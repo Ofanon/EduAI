@@ -9,3 +9,4 @@ streamlit-extras>=0.5.0
 python-docx>=1.1.2
 extra-streamlit-components>=0.1.56
 streamlit-js-eval>=0.1.7
+bcrypt
