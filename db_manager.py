@@ -13,31 +13,42 @@ def initialize_database():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
 
-    # ✅ Vérifier si `device_id` existe déjà
+    # ✅ Vérifier si la colonne `device_id` existe déjà
     cursor.execute("PRAGMA table_info(users)")
     columns = [column[1] for column in cursor.fetchall()]
 
     if "device_id" not in columns:
-        print("⚠️ [WARNING] `device_id` manquant. Ajout en cours...")
-        cursor.execute("ALTER TABLE users ADD COLUMN device_id TEXT UNIQUE")
-        conn.commit()
-        print("✅ [DEBUG] Colonne `device_id` ajoutée avec succès.")
+        print("⚠️ [WARNING] `device_id` absent. Migration de la base...")
 
-    # ✅ Vérifier et créer la table `users` si elle n'existe pas
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            user_id TEXT PRIMARY KEY,
-            email TEXT UNIQUE,
-            password TEXT,
-            experience_points INTEGER DEFAULT 0,
-            requests INTEGER DEFAULT 5
-        )
-    ''')
-    
-    conn.commit()
+        # ✅ Étape 1 : Créer une nouvelle table avec `device_id`
+        cursor.execute('''
+            CREATE TABLE users_new (
+                user_id TEXT PRIMARY KEY,
+                email TEXT UNIQUE,
+                password TEXT,
+                device_id TEXT UNIQUE,
+                experience_points INTEGER DEFAULT 0,
+                requests INTEGER DEFAULT 5
+            )
+        ''')
+        
+        # ✅ Étape 2 : Copier les anciennes données dans la nouvelle table
+        cursor.execute('''
+            INSERT INTO users_new (user_id, email, password, experience_points, requests)
+            SELECT user_id, email, password, experience_points, requests FROM users
+        ''')
+
+        # ✅ Étape 3 : Supprimer l'ancienne table et renommer la nouvelle
+        cursor.execute("DROP TABLE users")
+        cursor.execute("ALTER TABLE users_new RENAME TO users")
+
+        conn.commit()
+        print("✅ [DEBUG] Migration terminée, `device_id` ajouté.")
+
     conn.close()
 
 initialize_database()
+
 
 # ✅ Gestion des cookies pour stocker les sessions utilisateur
 cookie_manager_instance = None
