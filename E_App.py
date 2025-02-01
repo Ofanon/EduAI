@@ -9,6 +9,7 @@ def hash_password(password):
 def create_user_table(username):
     conn = sqlite3.connect("users_data.db")
     cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT)")
     cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS user_{username} (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,10 +38,26 @@ def authenticate_user(username, password):
         return True
     return False
 
+def save_user_data(username, data):
+    conn = sqlite3.connect("users_data.db")
+    cursor = conn.cursor()
+    cursor.execute(f"INSERT INTO user_{username} (data) VALUES (?)", (data,))
+    conn.commit()
+    conn.close()
+
+def get_user_data(username):
+    conn = sqlite3.connect("users_data.db")
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM user_{username}")
+    data = cursor.fetchall()
+    conn.close()
+    return data
+
 st.title("Login / Sign Up")
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
+    st.session_state["username"] = ""
 
 if not st.session_state["logged_in"]:
     option = st.selectbox("Choisissez une option", ["Se connecter", "Créer un compte"])
@@ -71,7 +88,18 @@ if not st.session_state["logged_in"]:
 
 if st.session_state["logged_in"]:
     st.write(f"Bienvenue, {st.session_state['username']} !")
-    st.button("Déconnexion", on_click=lambda: st.session_state.update({"logged_in": False, "username": None}))
+    new_data = st.text_area("Ajoutez des informations :")
+    if st.button("Sauvegarder"):
+        save_user_data(st.session_state["username"], new_data)
+        st.success("Données enregistrées avec succès !")
+    
+    if st.button("Voir mes données"):
+        data = get_user_data(st.session_state["username"])
+        for row in data:
+            st.write(row[1])
+    
+    st.button("Déconnexion", on_click=lambda: st.session_state.update({"logged_in": False, "username": ""}))
+
 
 
 with st.sidebar:
