@@ -2,12 +2,11 @@ import sqlite3
 import os
 import uuid
 import streamlit as st
-from datetime import datetime, timedelta
 
 # 📌 Base SQLite
 DB_FILE = os.path.join("data", "request_logs.db")
 
-# ✅ Vérifier et créer la base SQLite
+# ✅ Vérifier que la base de données existe
 def initialize_database():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
@@ -28,20 +27,22 @@ def initialize_database():
 initialize_database()
 
 def generate_device_id():
-    """Génère un `device_id` unique par appareil."""
+    """Génère un ID unique par appareil et stocke-le définitivement en base SQLite."""
+
+    # ✅ Si un `device_id` est déjà en session, l’utiliser
     if "device_id" in st.session_state:
         return st.session_state["device_id"]
 
-    # 🎯 Générer un `device_id` unique avec un UUID aléatoire
+    # ✅ Générer un `device_id` totalement unique
     device_id = str(uuid.uuid4())
 
-    # ✅ Stocker cet ID en session pour qu'il ne change pas tant que l’onglet est ouvert
+    # ✅ Stocker en session pour éviter les changements à chaque page
     st.session_state["device_id"] = device_id
 
     return device_id
 
 def get_or_create_user_id():
-    """Récupère ou génère un `user_id` unique par appareil et navigateur."""
+    """Récupère ou génère un `user_id` unique et le garde stable."""
 
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
@@ -50,7 +51,7 @@ def get_or_create_user_id():
     device_id = generate_device_id()
     print(f"🔍 [DEBUG] Device ID détecté : {device_id}")
 
-    # ✅ Vérifier si ce `device_id` existe en base
+    # ✅ Vérifier si le `device_id` est déjà en base
     cursor.execute("SELECT user_id FROM users WHERE device_id = ?", (device_id,))
     row = cursor.fetchone()
 
@@ -68,8 +69,9 @@ def get_or_create_user_id():
 
     conn.close()
 
-    # ✅ Stocker `user_id` en session
+    # ✅ Stocker `user_id` en session pour éviter les changements entre pages
     st.session_state["user_id"] = user_id
+
     return user_id
 
 def get_requests_left():
@@ -95,48 +97,3 @@ def consume_request():
     conn.close()
 
     return cursor.rowcount > 0
-
-def get_experience_points():
-    """Récupère les points d’expérience de l’utilisateur."""
-    user_id = get_or_create_user_id()
-
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-    cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-    conn.close()
-
-    return row[0] if row else 0
-
-def update_experience_points(points):
-    """Ajoute des points d’expérience à l’utilisateur."""
-    user_id = get_or_create_user_id()
-
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-    cursor.execute("UPDATE users SET experience_points = experience_points + ? WHERE user_id = ?", (points, user_id))
-    conn.commit()
-    conn.close()
-
-def purchase_requests(cost_in_experience, requests_to_add):
-    """Permet d'acheter des requêtes avec des points d’expérience."""
-    user_id = get_or_create_user_id()
-
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT experience_points FROM users WHERE user_id = ?", (user_id,))
-    row = cursor.fetchone()
-
-    if row and row[0] >= cost_in_experience:
-        cursor.execute("""
-            UPDATE users
-            SET experience_points = experience_points - ?, purchased_requests = purchased_requests + ?
-            WHERE user_id = ?
-        """, (cost_in_experience, requests_to_add, user_id))
-        conn.commit()
-        conn.close()
-        return True
-    
-    conn.close()
-    return False
