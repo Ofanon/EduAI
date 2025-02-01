@@ -2,30 +2,11 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 import db_manager as db
 import sqlite3
-
-# Injecter du JavaScript pour utiliser `localStorage`
-st.markdown("""
-<script>
-    // Récupérer l'user_id depuis localStorage
-    let user_id = localStorage.getItem("user_id");
-
-    // Si l'ID n'est pas stocké localement, générer un nouvel ID côté serveur
-    if (!user_id) {
-        user_id = "{user_id}";
-        localStorage.setItem("user_id", user_id);
-    }
-
-    // Vérifier si l'URL contient l'user_id, sinon l'ajouter
-    const params = new URLSearchParams(window.location.search);
-    if (!params.get("user_id")) {
-        params.set("user_id", user_id);
-        window.location.search = params.toString();
-    }
-</script>
-""".replace("{user_id}", db.get_user_id()), unsafe_allow_html=True)
-
 user_id = db.get_user_id()
-st.session_state["user_id"] = user_id
+
+# ✅ Vérifier si l'URL contient `user_id`, sinon l'ajouter
+if "user_id" not in st.experimental_get_query_params():
+    st.experimental_set_query_params(user_id=user_id)
 
 
 st.write(db.get_user_id())

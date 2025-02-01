@@ -7,6 +7,7 @@ import uuid
 import shutil
 import platform
 import socket
+import extra_streamlit_components as stx
 
 DB_FILE = os.path.join("data", "request_logs.db")
 BACKUP_FILE = DB_FILE + ".backup"
@@ -41,18 +42,24 @@ def backup_database():
 
 backup_database()
 
+def get_cookie_manager():
+    """Initialise le gestionnaire de cookies."""
+    return stx.CookieManager()
+
 def get_user_id():
-    """Récupère un `user_id` unique et persistant, et l'ajoute dans l'URL si absent."""
+    """Récupère ou génère un `user_id` unique et le stocke dans un cookie longue durée."""
     
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
+    cookie_manager = get_cookie_manager()
 
-    # Vérifier si un user_id est stocké dans l’URL
-    if "user_id" in st.query_params:
-        user_id = st.query_params["user_id"]
-    elif "user_id" in st.session_state:
+    # ✅ Vérifier si un `user_id` est stocké dans les cookies
+    user_id = cookie_manager.get("user_id")
+
+    if not user_id and "user_id" in st.session_state:
         user_id = st.session_state["user_id"]
-    else:
+
+    if not user_id:
         user_id = str(uuid.uuid4())  # Génère un nouvel ID unique
 
     # Vérifier si cet ID existe déjà en base
@@ -60,15 +67,17 @@ def get_user_id():
     row = cursor.fetchone()
 
     if not row:
-        # Insérer l’ID en base pour un nouvel utilisateur
         cursor.execute("INSERT INTO users (user_id, date, requests, experience_points, purchased_requests) VALUES (?, ?, 5, 0, 0)", (user_id, None))
         conn.commit()
         print(f"✅ [DEBUG] Nouvel ID enregistré en base : {user_id}")
 
     conn.close()
 
-    # Stocker l'ID en session pour éviter les requêtes répétées
+    # ✅ Stocker l'ID en session
     st.session_state["user_id"] = user_id
+
+    # ✅ Stocker l’`user_id` dans un cookie qui expire dans **20 ans**
+    cookie_manager.set("user_id", user_id, expires_at="2034-01-01T00:00:00Z")  # 🔥 Cookie longue durée
 
     return user_id
 
