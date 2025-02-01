@@ -14,59 +14,64 @@ st.sidebar.title("🔐 Connexion")
 if user_id:
     # ✅ Récupérer les infos utilisateur
     user_info = db_manager.get_user_info(user_id)
-    
+
     if user_info:
         email, experience_points, requests_left = user_info
         st.sidebar.success(f"Connecté en tant que : {email}")
         st.sidebar.write(f"🎓 Points d'expérience : `{experience_points}`")
         st.sidebar.write(f"⭐ Requêtes IA restantes : `{requests_left}`")
 
-        # ✅ Vérifier si l'appareil est bien associé à cet utilisateur
-        stored_device_id = db_manager.generate_device_id()
-        
-        if stored_device_id:
-            st.sidebar.write(f"🔒 Appareil associé : `{stored_device_id}`")
-        else:
-            st.sidebar.error("❌ Cet appareil n'est pas autorisé à accéder à ce compte.")
+        # ✅ Navigation entre les pages
+        page = st.sidebar.radio("📂 Accès Rapide", [
+            "🛒 Boutique", "🎯 Quiz interactif", "📚 Aide aux devoirs", 
+            "📒 Créateur de fiches de révision", "📝 Créateur de contrôle", "⭐💎 Aide"
+        ])
+
+        if page == "🛒 Boutique":
+            st.experimental_set_query_params(page="E_Shop")
+        elif page == "🎯 Quiz interactif":
+            st.experimental_set_query_params(page="E_Quiz")
+        elif page == "📚 Aide aux devoirs":
+            st.experimental_set_query_params(page="E_H")
+        elif page == "📒 Créateur de fiches de révision":
+            st.experimental_set_query_params(page="E_R")
+        elif page == "📝 Créateur de contrôle":
+            st.experimental_set_query_params(page="E_T")
+        elif page == "⭐💎 Aide":
+            st.experimental_set_query_params(page="E_Help")
 
         # ✅ Bouton pour se déconnecter
         if st.sidebar.button("🚪 Déconnexion"):
             cookie_manager.delete("user_id")
             st.sidebar.success("Déconnecté avec succès !")
             st.experimental_rerun()
-    
+
     st.title("Bienvenue sur EduAI 🚀")
     st.write(f"✅ Votre user_id : `{user_id}`")
 
 else:
-    # ✅ Formulaire d'inscription
-    st.sidebar.subheader("Créer un compte")
-    new_email = st.sidebar.text_input("Email", key="new_email")
-    new_password = st.sidebar.text_input("Mot de passe", type="password", key="new_password")
+    # ✅ Interface Unique : Connexion / Inscription
+    st.sidebar.subheader("Connexion ou Inscription")
     
-    if st.sidebar.button("📝 S'inscrire"):
-        if db_manager.register_user(new_email, new_password):
-            st.sidebar.success("✅ Inscription réussie ! Connectez-vous.")
-        else:
-            st.sidebar.error("❌ Cet email est déjà utilisé.")
+    mode = st.sidebar.radio("Choisissez une option :", ["Se connecter", "Créer un compte"])
 
-    # ✅ Formulaire de connexion
-    st.sidebar.subheader("Se connecter")
-    email = st.sidebar.text_input("Email", key="login_email")
-    password = st.sidebar.text_input("Mot de passe", type="password", key="login_password")
-    
-    if st.sidebar.button("🔑 Connexion"):
-        user_id = db_manager.login_user(email, password)
-        if user_id:
-            cookie_manager.set("user_id", user_id)
-            st.sidebar.success("✅ Connexion réussie !")
-            st.experimental_rerun()
-        else:
-            st.sidebar.error("❌ Email ou mot de passe incorrect.")
+    email = st.sidebar.text_input("Email")
+    password = st.sidebar.text_input("Mot de passe", type="password")
 
+    if mode == "Créer un compte":
+        if st.sidebar.button("📝 Créer un compte"):
+            if db_manager.register_user(email, password):
+                st.sidebar.success("✅ Compte créé avec succès ! Connectez-vous.")
+                st.experimental_rerun()
+            else:
+                st.sidebar.error("❌ Cet email est déjà utilisé.")
 
-st.write(f"⭐ Etoiles restantes : {db_manager.get_requests_left()}")
-pg = st.navigation([st.Page("E_Shop.py", title="🛒 Boutique"),st.Page("E_Quiz.py", title = "🎯 Quiz interactif"), st.Page("E_H.py", title = "📚 Aide aux devoirs"), st.Page("E_R.py", title = "📒 Créateur de fiches de révision"), st.Page("E_T.py", title= "📝 Créateur de contrôle"), st.Page("E_Help.py", title= "⭐💎 Aide")])
-
-pg.run()
-
+    else:
+        if st.sidebar.button("🔑 Se connecter"):
+            user_id = db_manager.login_user(email, password)
+            if user_id:
+                cookie_manager.set("user_id", user_id)
+                st.sidebar.success("✅ Connexion réussie !")
+                st.experimental_rerun()
+            else:
+                st.sidebar.error("❌ Email ou mot de passe incorrect.")
