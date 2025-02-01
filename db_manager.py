@@ -6,7 +6,7 @@ import streamlit as st
 # 📌 Base SQLite
 DB_FILE = os.path.join("data", "request_logs.db")
 
-# ✅ Vérifier que la base de données existe
+# ✅ Vérifier et créer la base SQLite
 def initialize_database():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
@@ -27,31 +27,31 @@ def initialize_database():
 initialize_database()
 
 def generate_device_id():
-    """Génère un ID unique par appareil et stocke-le définitivement en base SQLite."""
+    """Génère un ID unique et le stocke en base SQLite pour éviter qu'il change."""
+    
+    # ✅ Vérifier si un `device_id` est stocké dans les cookies
+    if "device_id" in st.query_params:
+        return st.query_params["device_id"]
 
-    # ✅ Si un `device_id` est déjà en session, l’utiliser
-    if "device_id" in st.session_state:
-        return st.session_state["device_id"]
-
-    # ✅ Générer un `device_id` totalement unique
+    # ✅ Générer un `device_id` unique basé sur un UUID aléatoire
     device_id = str(uuid.uuid4())
 
-    # ✅ Stocker en session pour éviter les changements à chaque page
-    st.session_state["device_id"] = device_id
+    # ✅ Stocker `device_id` dans l'URL pour persistance
+    st.query_params["device_id"] = device_id
 
     return device_id
 
 def get_or_create_user_id():
-    """Récupère ou génère un `user_id` unique et le garde stable."""
+    """Récupère ou génère un `user_id` unique et permanent basé sur le `device_id`."""
 
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
 
-    # ✅ Générer un `device_id` unique basé sur l’utilisateur
+    # ✅ Générer ou récupérer un `device_id` unique basé sur l’utilisateur
     device_id = generate_device_id()
     print(f"🔍 [DEBUG] Device ID détecté : {device_id}")
 
-    # ✅ Vérifier si le `device_id` est déjà en base
+    # ✅ Vérifier si ce `device_id` existe déjà en base
     cursor.execute("SELECT user_id FROM users WHERE device_id = ?", (device_id,))
     row = cursor.fetchone()
 
@@ -68,10 +68,6 @@ def get_or_create_user_id():
         print(f"✅ [DEBUG] Nouvel ID enregistré : {device_id} → {user_id}")
 
     conn.close()
-
-    # ✅ Stocker `user_id` en session pour éviter les changements entre pages
-    st.session_state["user_id"] = user_id
-
     return user_id
 
 def get_requests_left():
