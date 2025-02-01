@@ -36,7 +36,7 @@ if user_id:
         ])
 
         if page == "🛒 Boutique":
-            st.set_query_params(page="E_Shop.py")
+            st.Page("E_Shop.py")
         elif page == "🎯 Quiz interactif":
             st.set_query_params(page="E_Quiz.py")
         elif page == "📚 Aide aux devoirs":
@@ -47,7 +47,7 @@ if user_id:
             st.set_query_params(page="E_T.py")
         elif page == "⭐💎 Aide":
             st.set_query_params(page="E_Help.py")
-            
+
         # ✅ Bouton pour se déconnecter
         if st.sidebar.button("🚪 Déconnexion"):
             cookie_manager.delete("user_id")
