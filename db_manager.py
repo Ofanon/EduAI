@@ -8,7 +8,8 @@ import socket
 
 DATA_DIR = "data"
 USER_DATA_FILE = os.path.join(DATA_DIR, "users.json")
-
+user_id = None 
+users = None
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
@@ -53,8 +54,6 @@ def get_user_id():
     """Récupère ou génère un identifiant utilisateur unique."""
     if "user_id" in st.session_state:
         return st.session_state["user_id"]
-    user_id = None
-    users = None 
     if user_id not in users:
         users[user_id] = {
             "date": None,
