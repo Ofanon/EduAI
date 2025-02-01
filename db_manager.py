@@ -4,6 +4,7 @@ import uuid
 import streamlit as st
 import extra_streamlit_components as stx
 from datetime import datetime, timedelta
+import hashlib
 
 # 📌 Chemin de la base SQLite
 DB_FILE = os.path.join("data", "request_logs.db")
@@ -43,25 +44,28 @@ def get_cookie_manager():
     return cookie_manager_instance
 
 def generate_device_id():
-    """Génère un ID unique basé sur les cookies et un UUID aléatoire."""
+    """Génère un ID unique basé sur un UUID et le navigateur de l’utilisateur."""
     cookie_manager = get_cookie_manager()
 
     # ✅ Vérifier si un `device_id` est déjà stocké dans les cookies
     stored_device_id = cookie_manager.get("device_id")
     if stored_device_id:
-        return stored_device_id  # ✅ Réutiliser l'ID existant
+        return stored_device_id  # ✅ Réutiliser l'ID stocké
 
-    # 🎯 Générer un `device_id` totalement unique (UUID)
-    final_device_id = str(uuid.uuid4())
+    # 🔍 Récupérer un identifiant basé sur l'empreinte navigateur
+    user_agent = st.session_state.get("user_agent", str(uuid.uuid4()))
 
-    # ✅ Stocker dans un cookie
+    # 🎯 Générer un `device_id` unique
+    final_device_id = hashlib.sha256(user_agent.encode()).hexdigest()
+
+    # ✅ Stocker dans un cookie pour persistance
     expires_at = datetime.now() + timedelta(days=365 * 20)
     cookie_manager.set("device_id", final_device_id, expires_at=expires_at)
 
     return final_device_id
 
 def get_or_create_user_id():
-    """Récupère ou génère un `user_id` unique pour chaque appareil."""
+    """Récupère ou génère un `user_id` unique par appareil et navigateur."""
 
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     cursor = conn.cursor()
@@ -71,7 +75,7 @@ def get_or_create_user_id():
     device_id = generate_device_id()
     print(f"🔍 [DEBUG] Device ID détecté : {device_id}")
 
-    # ✅ Vérifier si le `device_id` existe déjà en base
+    # ✅ Vérifier si ce `device_id` existe déjà en base
     cursor.execute("SELECT user_id FROM users WHERE device_id = ?", (device_id,))
     row = cursor.fetchone()
 
