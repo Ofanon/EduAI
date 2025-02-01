@@ -1,16 +1,9 @@
 import streamlit as st
-import db_manager
-import hashlib
 import sqlite3
-import os
+import hashlib
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
-
-def reset_database():
-    if os.path.exists("users_data.db"):
-        os.remove("users_data.db")
-    initialize_database()
 
 def initialize_database():
     conn = sqlite3.connect("users_data.db")
@@ -22,12 +15,12 @@ def initialize_database():
 def create_user_table(username):
     conn = sqlite3.connect("users_data.db")
     cursor = conn.cursor()
-    cursor.execute(f'''
+    cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS user_{username} (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             data TEXT
         )
-    ''')
+    """)
     conn.commit()
     conn.close()
 
@@ -39,8 +32,9 @@ def register_user(username, password):
         cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
         conn.commit()
         create_user_table(username)
+        return True
     except sqlite3.IntegrityError:
-        st.error("Ce nom d'utilisateur est déjà pris.")
+        return False
     finally:
         conn.close()
 
@@ -68,21 +62,23 @@ def get_user_data(username):
     return data
 
 initialize_database()
-st.title("Login / Sign Up")
+st.title("Connexion / Inscription")
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
     st.session_state["username"] = ""
 
 if not st.session_state["logged_in"]:
-    option = st.selectbox("Choisissez une option", ["Se connecter", "Créer un compte"])
+    option = st.radio("Choisissez une option", ["Se connecter", "Créer un compte"])
     username = st.text_input("Nom d'utilisateur")
     password = st.text_input("Mot de passe", type="password")
     
     if option == "Créer un compte":
         if st.button("S'inscrire"):
-            register_user(username, password)
-            st.success("Compte créé avec succès. Connectez-vous maintenant.")
+            if register_user(username, password):
+                st.success("Compte créé avec succès. Connectez-vous maintenant.")
+            else:
+                st.error("Ce nom d'utilisateur est déjà pris.")
     
     elif option == "Se connecter":
         if st.button("Connexion"):
