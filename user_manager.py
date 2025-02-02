@@ -129,7 +129,7 @@ def get_experience_points():
 def get_requests_left():
     username = get_current_user()
     if not username:
-        return 0, 0  # Retourne 0 si aucun utilisateur connecté
+        return 0  # Retourne 0 si aucun utilisateur connecté
 
     users = load_users()
     user = users.get(username, {})
