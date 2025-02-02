@@ -101,7 +101,6 @@ def update_experience_points(points):
     return True, f"✅ {points} XP ajoutés avec succès et enregistrés !"
 
 def get_requests_left():
-    """ Récupère le nombre de requêtes restantes de l'utilisateur connecté """
     username = get_current_user()
     if not username:
         return 0
