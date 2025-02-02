@@ -1,10 +1,17 @@
 import streamlit as st
 from user_manager import load_users
 import user_manager
+import os
+from user_manager import USERS_FILE
 
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
-st.write("🔍 Utilisateurs en mémoire :", load_users())  # Vérifie ce qui est chargé
+
+if os.path.exists(USERS_FILE):
+    st.success(f"✅ Le fichier users.yaml existe : `{os.path.abspath(USERS_FILE)}`")
+else:
+    st.error(f"❌ Le fichier users.yaml n'existe pas ! Il devrait être dans : `{os.path.abspath(USERS_FILE)}`")
+
 
 with st.sidebar:
     pg = st.navigation([
