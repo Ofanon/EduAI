@@ -61,7 +61,7 @@ def update_user_data(key, value):
     return True, f"✅ {key} mis à jour avec succès : {value}."
 
 
-def authenticate_user(username, password):
+def authenticate(username, password):
     """ Vérifie si le nom d'utilisateur et le mot de passe sont corrects """
     users = load_users()
     user = users["users"].get(username)
