@@ -26,6 +26,39 @@ def get_current_user():
     """ Récupère l'utilisateur actuellement connecté """
     return st.session_state.get("username", None)
 
+def hash_password(password):
+    """ Hash un mot de passe avec SHA-256 """
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def initialize_user(email, password):
+    """ Initialise un utilisateur avec un mot de passe sécurisé """
+    users = load_users()
+    username = get_current_user()
+    if username in users["users"]:
+        return False, "❌ L'utilisateur existe déjà."
+
+    users["users"][username] = {
+        "email": email,
+        "password": hash_password(password),
+        "experience_points": 0,
+        "requests": 5,
+        "purchased_requests": 0,
+        "last_request_date": None
+    }
+    save_users(users)
+    return True, "✅ Compte créé avec succès !"
+
+def authenticate(password):
+    """ Vérifie si le nom d'utilisateur et le mot de passe correspondent """
+    username = get_current_user()
+    users = load_users()
+    user = users["users"].get(username)
+
+    if user and user["password"] == hash_password(password):
+        return True
+    return False
+
 def get_experience_points():
     """ Récupère les points d'expérience de l'utilisateur connecté """
     username = get_current_user()
