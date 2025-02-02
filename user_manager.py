@@ -19,17 +19,18 @@ def load_users():
     
 def save_users(updated_users):
     """ Met à jour uniquement les valeurs nécessaires sans écraser les données existantes """
-    existing_users = load_users()  # Charger l'état actuel
+    existing_users = load_users()  # Charger l'état actuel des utilisateurs
+
     for username, new_data in updated_users["users"].items():
         if username in existing_users["users"]:
-            existing_users["users"][username].update(new_data)  # Met à jour sans supprimer
+            # Mise à jour des données sans supprimer les valeurs existantes
+            existing_users["users"][username].update(new_data)
         else:
-            existing_users["users"][username] = new_data  # Ajoute un nouvel utilisateur si inexistant
+            existing_users["users"][username] = new_data  # Ajouter un nouvel utilisateur
 
     # Sauvegarde des données mises à jour
     with open(USERS_FILE, "w") as f:
         yaml.dump(existing_users, f, default_flow_style=False)
-
 
 def get_current_user():
     """ Récupère l'utilisateur actuellement connecté """
@@ -79,7 +80,7 @@ def get_experience_points():
     return users["users"].get(username, {}).get("experience_points", 0)
 
 def update_experience_points(points):
-    """ Ajoute des points d'expérience à l'utilisateur connecté """
+    """ Ajoute des points d'expérience à l'utilisateur connecté et sauvegarde correctement """
     username = get_current_user()
     if not username:
         return False, "❌ Aucun utilisateur connecté."
@@ -94,10 +95,9 @@ def update_experience_points(points):
     if "experience_points" not in user:
         user["experience_points"] = 0
 
-    user["experience_points"] += points  # Ajoute les points
-    save_users({"users": {username: user}})  # Sauvegarde uniquement les données de l'utilisateur
-    return True, f"✅ {points} XP ajoutés !"
-
+    user["experience_points"] += points  # Ajout des points d'expérience
+    save_users({"users": {username: user}})  # Sauvegarde uniquement cet utilisateur
+    return True, f"✅ {points} XP ajoutés avec succès !"
 
 
 def get_requests_left():
@@ -109,13 +109,16 @@ def get_requests_left():
     return users["users"].get(username, {}).get("requests", 0) + users["users"].get(username, {}).get("purchased_requests", 0)
 
 def consume_request():
-    """ Décrémente le nombre de requêtes de l'utilisateur connecté """
+    """ Décrémente le nombre de requêtes de l'utilisateur connecté et sauvegarde correctement """
     username = get_current_user()
     if not username:
         return False, "❌ Aucun utilisateur connecté."
 
     users = load_users()
     user = users["users"].get(username)
+
+    if not user:
+        return False, "❌ Utilisateur introuvable."
 
     if user["purchased_requests"] > 0:
         user["purchased_requests"] -= 1
@@ -124,8 +127,9 @@ def consume_request():
     else:
         return False, "❌ Plus de requêtes disponibles."
 
-    save_users(users)
+    save_users({"users": {username: user}})  # Sauvegarde correctement l'utilisateur
     return True, "✅ Requête utilisée avec succès."
+
 
 def can_user_make_request():
     """ Vérifie si l'utilisateur connecté peut encore faire une requête. """
