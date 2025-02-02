@@ -3,23 +3,16 @@ import hashlib
 import os
 import streamlit as st
 
-DATA_DIR = "data"
-USERS_FILE = os.path.join(DATA_DIR, "users.yaml")
+USERS_FILE = "users.yaml"
 
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
-
-if not os.path.exists(USERS_FILE):
-    with open(USERS_FILE, "w") as f:
-        yaml.dump({}, f)
-
+# Fonction pour charger les utilisateurs depuis le fichier YAML
 def load_users():
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, "r") as f:
             return yaml.safe_load(f) or {}
     return {}
 
-# Sauvegarder les utilisateurs
+# Fonction pour enregistrer les utilisateurs dans le fichier YAML
 def save_users(users):
     with open(USERS_FILE, "w") as f:
         yaml.dump(users, f, default_flow_style=False)
