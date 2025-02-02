@@ -61,33 +61,3 @@ if "username" in st.session_state:
     st.write(f"**Requests achetées :** {purchased_requests}")
     st.write(f"**Points d'expérience :** {experience}")
 
-    # Utiliser une requête
-    if st.button("Faire une requête"):
-        can_request, message = can_user_make_request()
-        if can_request:
-            consume_request()
-            st.success("Requête utilisée !")
-            st.rerun()
-        else:
-            st.error(message)
-
-    # Acheter des requêtes avec des points d'expérience
-    if st.button("Acheter 3 requêtes (coût : 10 XP)"):
-        success, message = purchase_requests(10, 3)
-        if success:
-            st.success(message)
-            st.rerun()
-        else:
-            st.error(message)
-
-    # Ajouter des points d'expérience
-    if st.button("Gagner 5 XP"):
-        update_experience_points(5)
-        st.success("5 points d'expérience ajoutés !")
-        st.rerun()
-
-    # Bouton de déconnexion
-    if st.button("Se déconnecter"):
-        del st.session_state["username"]
-        del st.session_state["user_data"]
-        st.rerun()
