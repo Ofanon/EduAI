@@ -48,7 +48,7 @@ def initialize_user(username, email, password):
     save_users(users)
     return True, "✅ Compte créé avec succès !"
 
-def authenticate_user(username, password):
+def authenticate(username, password):
     """ Vérifie si le nom d'utilisateur et le mot de passe sont corrects """
     users = load_users()
     user = users["users"].get(username)
