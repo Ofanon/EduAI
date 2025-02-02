@@ -14,8 +14,13 @@ def load_users():
 
 # Fonction pour enregistrer les utilisateurs dans le fichier YAML
 def save_users(users):
-    with open(USERS_FILE, "w") as f:
-        yaml.dump(users, f, default_flow_style=False)
+    """Sauvegarde les utilisateurs dans users.yaml"""
+    try:
+        with open(USERS_FILE, "w") as f:
+            yaml.dump(users, f, default_flow_style=False)
+        print(f"✅ [DEBUG] Utilisateurs enregistrés dans {USERS_FILE} : {users}")  # 🔥 Affiche ce qui est sauvegardé
+    except Exception as e:
+        print(f"❌ [ERREUR] Impossible de sauvegarder users.yaml : {e}")
 
 # Hachage du mot de passe
 def hash_password(password):
