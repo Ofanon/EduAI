@@ -7,11 +7,11 @@ if "authenticated" not in st.session_state:
 if "authenticated" in st.session_state and st.session_state["authenticated"]:
     username = st.session_state["username"]
     user_data = user_manager.load_users()["users"].get(username, {})
-
-    # Vérifier si les données existent avant d'initialiser
     if user_data:
         st.session_state["experience_points"] = user_data.get("experience_points", 0)
         st.session_state["requests"] = user_data.get("requests", 5)
+        st.session_state["purchased_requests"] = user_data.get("purchased_requests", 0)
+
 
 with st.sidebar:
     pg = st.navigation([
