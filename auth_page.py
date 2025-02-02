@@ -1,45 +1,93 @@
 import streamlit as st
-import user_manager
+from user_manager import (
+    authenticate, register_user, can_user_make_request, consume_request,
+    update_experience_points, purchase_requests, get_experience_points, get_requests_left
+)
 
-if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
+st.title("🔐 Connexion / Création de Compte")
 
-if not st.session_state.authenticated:  
-    st.title("🔑 Connexion à l'EtudIAnt")
-else:
-    st.title(f"Bienvenue {user_manager.get_current_user()} !")
-
-if not st.session_state["authenticated"]:
-    tab1, tab2 = st.tabs(["Connexion", "Inscription"])
+# Interface d'authentification
+if "username" not in st.session_state:
+    tab1, tab2 = st.tabs(["Se connecter", "S'inscrire"])
 
     with tab1:
+        st.subheader("Connexion")
         username = st.text_input("Nom d'utilisateur")
         password = st.text_input("Mot de passe", type="password")
 
         if st.button("Se connecter"):
-            if user_manager.authenticate(username, password):  
-                st.success(f"✅ Bienvenue {username} !")
-                st.session_state["authenticated"] = True
-                st.session_state["username"] = username
-                st.session_state["experience_points"] = user_manager.get_experience_points()
-                st.session_state["requests"] = user_manager.get_requests_left()
-                st.balloons()
-                st.rerun()
-
-    with tab2:
-        new_username = st.text_input("Nom d'utilisateur", key="new_user")
-        new_email = st.text_input("Email", key="new_email")
-        new_password = st.text_input("Mot de passe", type="password", key="new_password")
-
-        if st.button("Créer un compte"):
-            success, message = user_manager.initialize_user(new_username, new_email, new_password)
+            success, user_data = authenticate(username, password)
             if success:
-                st.success(message)
-                st.session_state["authenticated"] = True
-                st.session_state["username"] = new_username
-                st.session_state["experience_points"] = 0
-                st.session_state["requests"] = 5
-                st.balloons()
+                st.success(f"Bienvenue {username} ! 🎉")
+                st.session_state["username"] = username  # Stocke l'utilisateur
+                st.session_state["user_data"] = user_data  # Stocke les données utilisateur
                 st.rerun()
             else:
-                st.error(message)
+                st.error("Identifiants incorrects.")
+
+    with tab2:
+        st.subheader("Créer un compte")
+        new_username = st.text_input("Nom d'utilisateur", key="register_username")
+        new_email = st.text_input("Email", key="register_email")
+        new_password = st.text_input("Mot de passe", type="password", key="register_password")
+
+        if st.button("S'inscrire"):
+            if new_username and new_password and new_email:
+                success, message = register_user(new_username, new_password, new_email)
+                if success:
+                    st.success(message)
+                else:
+                    st.error(message)
+            else:
+                st.warning("Veuillez remplir tous les champs.")
+
+# Interface utilisateur après connexion
+if "username" in st.session_state:
+    st.subheader(f"👤 Profil de {st.session_state['username']}")
+
+    # Récupérer les infos utilisateur si elles ne sont pas déjà chargées
+    if "user_data" not in st.session_state:
+        st.session_state["user_data"] = {
+            "requests": 0,
+            "purchase_requests": 0,
+            "experience_points": 0
+        }
+
+    # Charger les données depuis le fichier utilisateur
+    requests_left, purchased_requests = get_requests_left()
+    experience = get_experience_points()
+
+    st.write(f"**Requests restantes :** {requests_left}")
+    st.write(f"**Requests achetées :** {purchased_requests}")
+    st.write(f"**Points d'expérience :** {experience}")
+
+    # Utiliser une requête
+    if st.button("Faire une requête"):
+        can_request, message = can_user_make_request()
+        if can_request:
+            consume_request()
+            st.success("Requête utilisée !")
+            st.rerun()
+        else:
+            st.error(message)
+
+    # Acheter des requêtes avec des points d'expérience
+    if st.button("Acheter 3 requêtes (coût : 10 XP)"):
+        success, message = purchase_requests(10, 3)
+        if success:
+            st.success(message)
+            st.rerun()
+        else:
+            st.error(message)
+
+    # Ajouter des points d'expérience
+    if st.button("Gagner 5 XP"):
+        update_experience_points(5)
+        st.success("5 points d'expérience ajoutés !")
+        st.rerun()
+
+    # Bouton de déconnexion
+    if st.button("Se déconnecter"):
+        del st.session_state["username"]
+        del st.session_state["user_data"]
+        st.rerun()
