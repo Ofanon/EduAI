@@ -85,7 +85,7 @@ if "started" in st.session_state:
             st.rerun()
 
     if st.session_state.started:
-        if st.session_state.question_count != 10:
+        if st.session_state.question_count < 10:
             st.write(st.session_state.question_count)
             st.progress(st.session_state.question_count/10)
 
@@ -114,7 +114,7 @@ if "started" in st.session_state:
                 if st.button("Continuer"):
                     st.session_state.verified = False
                     st.session_state.question_count += 1
-                    if st.session_state.question_count != 10:
+                    if st.session_state.question_count < 10:
                         st.session_state.current_question = st.session_state.data[st.session_state.question_count] 
                         st.session_state.question = st.session_state.current_question['question']
                         st.session_state.choices = st.session_state.current_question['choices']
