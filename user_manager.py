@@ -17,13 +17,19 @@ def load_users():
     with open(USERS_FILE, "r") as f:
         return yaml.safe_load(f)
     
-def save_users(users):
-    """ Enregistre les utilisateurs sans écraser les valeurs existantes """
-    existing_users = load_users()  # Charger l'état actuel pour ne pas perdre les données existantes
-    existing_users["users"].update(users["users"])  # Met à jour seulement les nouvelles infos
+def save_users(updated_users):
+    """ Met à jour uniquement les valeurs nécessaires sans écraser les données existantes """
+    existing_users = load_users()  # Charger les données actuelles
+    for username, new_data in updated_users["users"].items():
+        if username in existing_users["users"]:
+            existing_users["users"][username].update(new_data)  # Mise à jour partielle des données
+        else:
+            existing_users["users"][username] = new_data  # Ajouter un nouvel utilisateur si inexistant
 
+    # Sauvegarde des données mises à jour
     with open(USERS_FILE, "w") as f:
         yaml.dump(existing_users, f, default_flow_style=False)
+
 
 
 def get_current_user():
@@ -80,8 +86,9 @@ def update_experience_points(points):
         return False, "❌ Aucun utilisateur connecté."
     
     users = load_users()
-    users["users"][username]["experience_points"] += points
-    save_users(users)
+    users["experience_points"] += points
+    save_users({"users": {username: user}})
+
     return True, "✅ Points d'expérience mis à jour."
 
 def get_requests_left():
@@ -128,9 +135,9 @@ def can_user_make_request():
     # Réinitialiser les requêtes normales si la date a changé
     if user.get("last_request_date") != today:
         user["last_request_date"] = today
-        if user["requests"] < 5:  # Ne pas réinitialiser si l'utilisateur a encore des requêtes restantes
-            user["requests"] = min(user["requests"], 5)  # S'assure que ça ne dépasse jamais 5
-        save_users(users)
+        if user["requests"] < 5:  # Seule une valeur inférieure à 5 est mise à jour
+            user["requests"] = max(user["requests"], 5)  # Empêche de dépasser 5
+        save_users({"users": {username: user}})
 
 
     # Vérifier s'il reste des requêtes normales ou achetées
