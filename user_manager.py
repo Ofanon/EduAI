@@ -82,12 +82,21 @@ def update_experience_points(points):
     username = get_current_user()
     if not username:
         return False, "❌ Aucun utilisateur connecté."
-    
-    users = load_users()
-    users["experience_points"] += points
-    save_users({"users": {username: users}})
 
-    return True, "✅ Points d'expérience mis à jour."
+    users = load_users()
+    user = users["users"].get(username)
+
+    if not user:
+        return False, "❌ Utilisateur introuvable."
+
+    # Vérifier si la clé "experience_points" existe, sinon l'initialiser à 0
+    if "experience_points" not in user:
+        user["experience_points"] = 0
+
+    user["experience_points"] += points  # Ajoute les points
+    save_users({"users": {username: user}})  # Sauvegarde uniquement les données de l'utilisateur
+    return True, f"✅ {points} XP ajoutés !"
+
 
 def get_requests_left():
     """ Récupère le nombre de requêtes restantes de l'utilisateur connecté """
