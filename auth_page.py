@@ -7,7 +7,7 @@ if "authenticated" not in st.session_state:
 if not st.session_state.authenticated:  
     st.title("🔑 Connexion à l'EtudIAnt")
 else:
-    st.title(f"Bienvenue : {user_manager.get_current_user()}")
+    st.title(f"Bienvenue {user_manager.get_current_user()} !")
 
 if not st.session_state["authenticated"]:
     tab1, tab2 = st.tabs(["Connexion", "Inscription"])
