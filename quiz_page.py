@@ -53,84 +53,84 @@ with st.spinner("La page est en cours de chargement..."):
         st.session_state.points = None
 
 disable_buttons = False
+if st.session_state.authenticated:
+    if "started" in st.session_state:
 
-if "started" in st.session_state:
-
-    if not st.session_state.started:
-        st.write("**Prix : ⭐ 1 étoile**")
-        col1, col2 = st.columns(2)
-        st.session_state.can_start = False
-        with col1:
-            st.session_state.subject = st.selectbox('Sélectionne la matière du quiz : ', ["Français", "Mathématiques", "Histoire","Géographie","EMC", "Sciences et Vie de la Terre", "Physique Chimie","Technologie", "Anglais","Allemand", "Espagnol"], disabled=disable_buttons)
-            st.session_state.user_prompt = st.text_input("Le sujet du quiz (optionel) :", placeholder="Ex : sur la révolution", disabled=disable_buttons)
-        with col2:
-            st.session_state.level = st.selectbox('Sélectionne ton niveau : ', ["CP","6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"], disabled=disable_buttons)
-        
-        if st.button("Créer le quiz", disabled=st.session_state.can_start):
-            if db.can_user_make_request():
-                disable_buttons = True
-                st.session_state.can_start = True
-                st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
-            else:
-                st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
-        
-        if "data" in st.session_state and st.session_state.data:
-            db.consume_request()
-            st.session_state.current_question = st.session_state.data[st.session_state.question_count]
-            st.session_state.question = st.session_state.current_question['question']
-            st.session_state.choices = st.session_state.current_question['choices']
-            st.session_state.correct_answer = st.session_state.current_question['correct_answer']
-            st.session_state.explanation = st.session_state.current_question['explanation']
-            st.session_state.started = True
-            st.rerun()
-
-    if st.session_state.started:
-        if st.session_state.question_count != 10:
-            st.write(st.session_state.question_count)
-            st.progress(st.session_state.question_count/10)
-
-            disable_radio = st.session_state.verified
-            disable_verify = st.session_state.verified
-            st.subheader(st.session_state.question)
-            user_repsponse = st.radio("Sélectionne ta réponse :", st.session_state.choices, disabled=disable_radio)
-
-            if st.button("Verifier", disabled=disable_verify):
-                st.session_state.verified = True
-                st.rerun()
-
-            if st.session_state.verified and not st.session_state.xp_updated:
-                if user_repsponse == st.session_state.correct_answer:
-                    db.update_experience_points(points=20)
-                    st.success("Bien joué, tu as trouvé la bonne réponse !")
-                    st.session_state.correct_answers += 1
-                    st.session_state.xp_updated = True
-
+        if not st.session_state.started:
+            st.write("**Prix : ⭐ 1 étoile**")
+            col1, col2 = st.columns(2)
+            st.session_state.can_start = False
+            with col1:
+                st.session_state.subject = st.selectbox('Sélectionne la matière du quiz : ', ["Français", "Mathématiques", "Histoire","Géographie","EMC", "Sciences et Vie de la Terre", "Physique Chimie","Technologie", "Anglais","Allemand", "Espagnol"], disabled=disable_buttons)
+                st.session_state.user_prompt = st.text_input("Le sujet du quiz (optionel) :", placeholder="Ex : sur la révolution", disabled=disable_buttons)
+            with col2:
+                st.session_state.level = st.selectbox('Sélectionne ton niveau : ', ["CP","6ème","5ème","4ème","3ème","Seconde","Premiere","Terminale"], disabled=disable_buttons)
+            
+            if st.button("Créer le quiz", disabled=st.session_state.can_start):
+                if db.can_user_make_request():
+                    disable_buttons = True
+                    st.session_state.can_start = True
+                    st.session_state.data = get_questions(level=st.session_state.level, subject=st.session_state.subject, prompt=st.session_state.user_prompt)
                 else:
-
-                    st.error(f"Raté, la bonne réponse était : {st.session_state.correct_answer}")
-                st.write(st.session_state.explanation)
-
-            if st.session_state.verified == True:
-                if st.button("Continuer"):
-                    st.session_state.verified = False
-                    st.session_state.question_count += 1
-                    if st.session_state.question_count != 10:
-                        st.session_state.current_question = st.session_state.data[st.session_state.question_count] 
-                        st.session_state.question = st.session_state.current_question['question']
-                        st.session_state.choices = st.session_state.current_question['choices']
-                        st.session_state.correct_answer = st.session_state.current_question['correct_answer']
-                        st.session_state.explanation = st.session_state.current_question['explanation']
-                        st.session_state.xp_updated = False
-                        st.rerun()
-        else:
-            st.session_state.note = (st.session_state.correct_answers / 10) * 20
-            st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
-            st.subheader(f"Votre note est de {st.session_state.note}/20 !")
-            db.update_experience_points(points=50)
-            st.balloons()
-            if st.button("Refaire un autre quiz"):
-                del st.session_state.started
-                st.session_state.can_start = False
+                    st.error("Votre quota est épuisé, revenez demain pour utiliser l'EtudIAnt.")
+            
+            if "data" in st.session_state and st.session_state.data:
+                db.consume_request()
+                st.session_state.current_question = st.session_state.data[st.session_state.question_count]
+                st.session_state.question = st.session_state.current_question['question']
+                st.session_state.choices = st.session_state.current_question['choices']
+                st.session_state.correct_answer = st.session_state.current_question['correct_answer']
+                st.session_state.explanation = st.session_state.current_question['explanation']
+                st.session_state.started = True
                 st.rerun()
+
+        if st.session_state.started:
+            if st.session_state.question_count != 10:
+                st.write(st.session_state.question_count)
+                st.progress(st.session_state.question_count/10)
+
+                disable_radio = st.session_state.verified
+                disable_verify = st.session_state.verified
+                st.subheader(st.session_state.question)
+                user_repsponse = st.radio("Sélectionne ta réponse :", st.session_state.choices, disabled=disable_radio)
+
+                if st.button("Verifier", disabled=disable_verify):
+                    st.session_state.verified = True
+                    st.rerun()
+
+                if st.session_state.verified and not st.session_state.xp_updated:
+                    if user_repsponse == st.session_state.correct_answer:
+                        db.update_experience_points(points=20)
+                        st.success("Bien joué, tu as trouvé la bonne réponse !")
+                        st.session_state.correct_answers += 1
+                        st.session_state.xp_updated = True
+
+                    else:
+
+                        st.error(f"Raté, la bonne réponse était : {st.session_state.correct_answer}")
+                    st.write(st.session_state.explanation)
+
+                if st.session_state.verified == True:
+                    if st.button("Continuer"):
+                        st.session_state.verified = False
+                        st.session_state.question_count += 1
+                        if st.session_state.question_count != 10:
+                            st.session_state.current_question = st.session_state.data[st.session_state.question_count] 
+                            st.session_state.question = st.session_state.current_question['question']
+                            st.session_state.choices = st.session_state.current_question['choices']
+                            st.session_state.correct_answer = st.session_state.current_question['correct_answer']
+                            st.session_state.explanation = st.session_state.current_question['explanation']
+                            st.session_state.xp_updated = False
+                            st.rerun()
+            else:
+                st.session_state.note = (st.session_state.correct_answers / 10) * 20
+                st.subheader(f"Bravo ! Le quiz en {st.session_state.subject} est terminé !")
+                st.subheader(f"Votre note est de {st.session_state.note}/20 !")
+                db.update_experience_points(points=50)
+                st.balloons()
+                if st.button("Refaire un autre quiz"):
+                    del st.session_state.started
+                    st.session_state.can_start = False
+                    st.rerun()
 
 

@@ -59,37 +59,37 @@ def create_dynamic_word_doc(response):
 
     return doc
 
+if st.session_state.authenticated:
+    place_holder_button = st.empty()
+    can_button = st.session_state.started
+    if st.session_state.uploaded_files and len(st.session_state.uploaded_files) > 0 or st.session_state.started == True and st.session_state.chat_control != []:
+        if place_holder_button.button("Créer un contrôle sur ce cours",disabled=can_button):
+            if db.can_user_make_request():
+                images = display_images(st.session_state.uploaded_files)
+                if not st.session_state["analyze_image_finished"]:
+                    with st.spinner("L'EtudIAnt reflechit..."):
+                        place_holder_button.empty()
+                        response = model.generate_content([prompt]+ images)
+                    db.consume_request()
+                    db.update_experience_points(points=40)
+                    st.session_state.response_download = response.text
+                    st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
+                    st.session_state.started = True
+                    st.rerun()
+            else:
+                st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
 
-place_holder_button = st.empty()
-can_button = st.session_state.started
-if st.session_state.uploaded_files and len(st.session_state.uploaded_files) > 0 or st.session_state.started == True and st.session_state.chat_control != []:
-    if place_holder_button.button("Créer un contrôle sur ce cours",disabled=can_button):
-        if db.can_user_make_request():
-            images = display_images(st.session_state.uploaded_files)
-            if not st.session_state["analyze_image_finished"]:
-                with st.spinner("L'EtudIAnt reflechit..."):
-                    place_holder_button.empty()
-                    response = model.generate_content([prompt]+ images)
-                db.consume_request()
-                db.update_experience_points(points=40)
-                st.session_state.response_download = response.text
-                st.session_state["chat_control"].append({"role": "assistant", "content": response.text})
-                st.session_state.started = True
-                st.rerun()
-        else:
-            st.error("Votre quotas de requêtes par jour est terminé, revenez demain pour utiliser l'EtudIAnt.")
-
-if st.session_state.started == True:
-    doc = create_dynamic_word_doc(st.session_state.response_download)
-    buffer = BytesIO()
-    doc.save(buffer)
-    buffer.seek(0)
-    st.download_button(
-    label="Télécharger la réponse en Word (bêta)",
-    data=buffer,
-    file_name="response.docx",
-    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+    if st.session_state.started == True:
+        doc = create_dynamic_word_doc(st.session_state.response_download)
+        buffer = BytesIO()
+        doc.save(buffer)
+        buffer.seek(0)
+        st.download_button(
+        label="Télécharger la réponse en Word (bêta)",
+        data=buffer,
+        file_name="response.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
 
 if "analyze_image_finished" in st.session_state:
     for message in st.session_state["chat_control"]:
