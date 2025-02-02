@@ -19,8 +19,9 @@ if "username" not in st.session_state:
             success, user_data = authenticate(username, password)
             if success:
                 st.success(f"Bienvenue {username} ! 🎉")
-                st.session_state["username"] = username  # Stocke l'utilisateur
-                st.session_state["user_data"] = user_data  # Stocke les données utilisateur
+                st.session_state["username"] = username
+                st.session_state["user_data"] = user_data
+                st.session_state.authenticated = True
                 st.rerun()
             else:
                 st.error("Identifiants incorrects.")
@@ -35,7 +36,13 @@ if "username" not in st.session_state:
             if new_username and new_password and new_email:
                 success, message = register_user(new_username, new_password, new_email)
                 if success:
-                    st.success(message)
+                    success, user_data = authenticate(username, password)
+                    if success:
+                        st.success(f"Bienvenue {username} ! 🎉")
+                        st.session_state["username"] = username
+                        st.session_state["user_data"] = user_data
+                        st.session_state.authenticated = True
+                        st.rerun()
                 else:
                     st.error(message)
             else:
