@@ -30,8 +30,6 @@ def save_users(updated_users):
     with open(USERS_FILE, "w") as f:
         yaml.dump(existing_users, f, default_flow_style=False)
 
-
-
 def get_current_user():
     """ Récupère l'utilisateur actuellement connecté """
     return st.session_state.get("username", None)
@@ -87,7 +85,7 @@ def update_experience_points(points):
     
     users = load_users()
     users["experience_points"] += points
-    save_users({"users": {username: user}})
+    save_users({"users": {username: users}})
 
     return True, "✅ Points d'expérience mis à jour."
 
@@ -135,11 +133,9 @@ def can_user_make_request():
     # Réinitialiser les requêtes normales si la date a changé
     if user.get("last_request_date") != today:
         user["last_request_date"] = today
-        if user["requests"] < 5:  # Seule une valeur inférieure à 5 est mise à jour
-            user["requests"] = max(user["requests"], 5)  # Empêche de dépasser 5
+        if user["requests"] < 5:  # Ne pas modifier si l'utilisateur a encore des requêtes restantes
+            user["requests"] = max(0, user["requests"])  # S'assure que ça ne dépasse pas 5 et ne devient pas négatif
         save_users({"users": {username: user}})
-
-
     # Vérifier s'il reste des requêtes normales ou achetées
     if user["requests"] > 0 or user["purchased_requests"] > 0:
         return True, "✅ Vous avez encore des requêtes disponibles."

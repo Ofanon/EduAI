@@ -4,6 +4,15 @@ import user_manager
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
+if "authenticated" in st.session_state and st.session_state["authenticated"]:
+    username = st.session_state["username"]
+    user_data = user_manager.load_users()["users"].get(username, {})
+
+    # Vérifier si les données existent avant d'initialiser
+    if user_data:
+        st.session_state["experience_points"] = user_data.get("experience_points", 0)
+        st.session_state["requests"] = user_data.get("requests", 5)
+
 with st.sidebar:
     pg = st.navigation([
         st.Page("auth_page.py", title="🔑 Connexion à l'EtudIAnt"),
