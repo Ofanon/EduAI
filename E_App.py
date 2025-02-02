@@ -14,6 +14,8 @@ with st.sidebar:
         st.Page("test_page.py", title="📝 Créateur de contrôle"),
         st.Page("help_page.py", title="⭐💎 Aide")
     ])
+    st.write(f"Etoiles : {user_manager.get_requests_left()}")
+    st.write(f"Points d'experience : {user_manager.get_experience_points()}")
 
 if st.session_state.authenticated:
     if st.sidebar.button("🔴 Se déconnecter"):
