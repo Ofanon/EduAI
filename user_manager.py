@@ -127,10 +127,10 @@ def can_user_make_request():
 
     # Réinitialiser les requêtes normales si la date a changé
     if user.get("last_request_date") != today:
-    user["last_request_date"] = today
-    if user["requests"] < 5:  # Ne pas réinitialiser si l'utilisateur a encore des requêtes restantes
-        user["requests"] = min(user["requests"], 5)  # S'assure que ça ne dépasse jamais 5
-    save_users(users)
+        user["last_request_date"] = today
+        if user["requests"] < 5:  # Ne pas réinitialiser si l'utilisateur a encore des requêtes restantes
+            user["requests"] = min(user["requests"], 5)  # S'assure que ça ne dépasse jamais 5
+        save_users(users)
 
 
     # Vérifier s'il reste des requêtes normales ou achetées
