@@ -66,4 +66,11 @@ if "username" in st.session_state:
 
     st.write(f"**Requests restantes :** {requests_left}")
     st.write(f"**Points d'expérience :** {experience}")
+    
+    cheat = st.text_area("Tu es administrateur de l'EtudIAnt ? Entre ton code secret ici :")
+    if cheat:
+        if cheat == st.secrets["SECRET_CODE"]:
+            if st.button("700 points d'experience"):
+                update_experience_points(points=700)
 
+    
