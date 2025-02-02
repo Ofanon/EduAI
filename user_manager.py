@@ -20,7 +20,7 @@ def save_users(users):
     except Exception as e:
         print(f"❌ [ERREUR] Impossible de sauvegarder users.yaml : {e}")
 
-# Hachage du mot de passe
+
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
