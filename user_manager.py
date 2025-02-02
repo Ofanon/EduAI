@@ -30,9 +30,10 @@ def hash_password(password):
     """ Hash un mot de passe avec SHA-256 """
     return hashlib.sha256(password.encode()).hexdigest()
 
-def initialize_user(username, email, password):
+def initialize_user(email, password):
     """ Initialise un utilisateur avec un mot de passe sécurisé """
     users = load_users()
+    username = get_current_user()
     
     if username in users["users"]:
         return False, "❌ L'utilisateur existe déjà."
@@ -47,6 +48,18 @@ def initialize_user(username, email, password):
     }
     save_users(users)
     return True, "✅ Compte créé avec succès !"
+
+def update_user_data(key, value):
+    username= get_current_user()
+    users = load_users()
+
+    if username not in users["users"]:
+        return False, "❌ Utilisateur introuvable."
+
+    users["users"][username][key] = value  # Mise à jour de la donnée spécifique
+    save_users(users)  # Sauvegarde des changements
+    return True, f"✅ {key} mis à jour avec succès : {value}."
+
 
 def authenticate_user(username, password):
     """ Vérifie si le nom d'utilisateur et le mot de passe sont corrects """
@@ -83,6 +96,7 @@ def update_experience_points(points):
 
     user["experience_points"] += points  # Ajoute les points
     users["users"][username] = user  # Mise à jour des données de l'utilisateur
+    update_user_data(key="experience_points", value=points)
     save_users(users)  # Sauvegarde correctement tout le fichier users.yaml
     return True, f"✅ {points} XP ajoutés avec succès et enregistrés !"
 
