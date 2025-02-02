@@ -30,11 +30,10 @@ def hash_password(password):
     """ Hash un mot de passe avec SHA-256 """
     return hashlib.sha256(password.encode()).hexdigest()
 
-
-def initialize_user(email, password):
+def initialize_user(username, email, password):
     """ Initialise un utilisateur avec un mot de passe sécurisé """
     users = load_users()
-    username = get_current_user()
+    
     if username in users["users"]:
         return False, "❌ L'utilisateur existe déjà."
 
@@ -49,15 +48,18 @@ def initialize_user(email, password):
     save_users(users)
     return True, "✅ Compte créé avec succès !"
 
-def authenticate(password):
-    """ Vérifie si le nom d'utilisateur et le mot de passe correspondent """
-    username = get_current_user()
+def authenticate_user(username, password):
+    """ Vérifie si le nom d'utilisateur et le mot de passe sont corrects """
     users = load_users()
     user = users["users"].get(username)
 
-    if user and user["password"] == hash_password(password):
-        return True
-    return False
+    if not user:
+        return False, "❌ Utilisateur introuvable."
+
+    if user["password"] == hash_password(password):
+        return True, "✅ Authentification réussie !"
+    else:
+        return False, "❌ Mot de passe incorrect."
 
 def get_experience_points():
     """ Récupère les points d'expérience de l'utilisateur connecté """
@@ -71,11 +73,12 @@ def update_experience_points(points):
     """ Ajoute des points d'expérience à l'utilisateur connecté """
     username = get_current_user()
     if not username:
-        return False  
+        return False, "❌ Aucun utilisateur connecté."
+    
     users = load_users()
     users["users"][username]["experience_points"] += points
     save_users(users)
-    return True
+    return True, "✅ Points d'expérience mis à jour."
 
 def get_requests_left():
     """ Récupère le nombre de requêtes restantes de l'utilisateur connecté """
@@ -89,7 +92,8 @@ def consume_request():
     """ Décrémente le nombre de requêtes de l'utilisateur connecté """
     username = get_current_user()
     if not username:
-        return False
+        return False, "❌ Aucun utilisateur connecté."
+
     users = load_users()
     user = users["users"].get(username)
 
@@ -98,10 +102,10 @@ def consume_request():
     elif user["requests"] > 0:
         user["requests"] -= 1
     else:
-        return False  
+        return False, "❌ Plus de requêtes disponibles."
 
     save_users(users)
-    return True
+    return True, "✅ Requête utilisée avec succès."
 
 def can_user_make_request():
     """ Vérifie si l'utilisateur connecté peut encore faire une requête. """
