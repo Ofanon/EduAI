@@ -1,8 +1,10 @@
 import streamlit as st
+from user_manager import load_users
 import user_manager
 
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
+st.write("🔍 Utilisateurs en mémoire :", load_users())  # Vérifie ce qui est chargé
 
 with st.sidebar:
     pg = st.navigation([
