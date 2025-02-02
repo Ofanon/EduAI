@@ -125,13 +125,20 @@ def get_experience_points():
     users = load_users()
     return users.get(username, {}).get("experience_points", 0)
 
-# Obtenir le nombre de requêtes restantes
+
 def get_requests_left():
+    """ Retourne le nombre total de requêtes disponibles (gratuites + achetées) """
     username = get_current_user()
     if not username:
-        return 0  # Retourne 0 si aucun utilisateur connecté
+        return 0
 
     users = load_users()
-    user = users.get(username, {})
-    final_requests = user.get("requests") + user.get("purchase_requests")
+
+    if username not in users:
+        return 0
+
+    user = users[username]
+
+    final_requests = user.get("requests", 0) + user.get("purchase_requests", 0)
+    
     return final_requests
