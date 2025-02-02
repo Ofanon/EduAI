@@ -101,9 +101,9 @@ def purchase_requests(cost_in_experience, requests_to_add):
         user["experience_points"] -= cost_in_experience
         user["purchase_requests"] += requests_to_add
         save_users(users)
-        return True, f"{requests_to_add} requêtes achetées avec succès !"
+        return True
     else:
-        return False, "Pas assez de points d'expérience."
+        return False
 
 # Ajouter des points d'expérience
 def update_experience_points(points):
