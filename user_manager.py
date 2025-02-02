@@ -18,7 +18,7 @@ def load_users():
         return yaml.safe_load(f)
     
 def save_users(updated_users):
-    """ Met à jour uniquement les valeurs nécessaires sans écraser les données existantes """
+    """ Met à jour uniquement les valeurs nécessaires sans écraser les autres données """
     existing_users = load_users()  # Charger l'état actuel des utilisateurs
 
     for username, new_data in updated_users["users"].items():
@@ -31,6 +31,7 @@ def save_users(updated_users):
     # Sauvegarde des données mises à jour
     with open(USERS_FILE, "w") as f:
         yaml.dump(existing_users, f, default_flow_style=False)
+
 
 def get_current_user():
     """ Récupère l'utilisateur actuellement connecté """
@@ -80,24 +81,22 @@ def get_experience_points():
     return users["users"].get(username, {}).get("experience_points", 0)
 
 def update_experience_points(points):
-    """ Ajoute des points d'expérience à l'utilisateur connecté et sauvegarde correctement """
+    """ Ajoute des points d'expérience à l'utilisateur connecté et met à jour users.yaml """
     username = get_current_user()
     if not username:
         return False, "❌ Aucun utilisateur connecté."
 
     users = load_users()
-    user = users["users"].get(username)
-
-    if not user:
-        return False, "❌ Utilisateur introuvable."
+    user = users["users"].get(username, {})
 
     # Vérifier si la clé "experience_points" existe, sinon l'initialiser à 0
     if "experience_points" not in user:
         user["experience_points"] = 0
 
-    user["experience_points"] += points  # Ajout des points d'expérience
+    user["experience_points"] += points  # Ajoute les points
     save_users({"users": {username: user}})  # Sauvegarde uniquement cet utilisateur
-    return True, f"✅ {points} XP ajoutés avec succès !"
+    return True, f"✅ {points} XP ajoutés avec succès et enregistrés !"
+
 
 
 def get_requests_left():
@@ -115,20 +114,18 @@ def consume_request():
         return False, "❌ Aucun utilisateur connecté."
 
     users = load_users()
-    user = users["users"].get(username)
+    user = users["users"].get(username, {})
 
-    if not user:
-        return False, "❌ Utilisateur introuvable."
+    if "requests" not in user:
+        user["requests"] = 5  # Initialisation à 5 si manquant
 
-    if user["purchased_requests"] > 0:
-        user["purchased_requests"] -= 1
-    elif user["requests"] > 0:
+    if user["requests"] > 0:
         user["requests"] -= 1
+        save_users({"users": {username: user}})  # Sauvegarde correctement l'utilisateur
+        return True, "✅ Requête utilisée avec succès."
     else:
         return False, "❌ Plus de requêtes disponibles."
 
-    save_users({"users": {username: user}})  # Sauvegarde correctement l'utilisateur
-    return True, "✅ Requête utilisée avec succès."
 
 
 def can_user_make_request():
