@@ -2,7 +2,7 @@ import PIL.Image
 import google.generativeai as genai
 import PIL
 import streamlit as st
-import db_manager as db
+import user_manager as db
 
 st.title("EtudIAnt : 📚 Aide au devoirs")
 genai.configure(api_key=st.secrets["API_KEY"])

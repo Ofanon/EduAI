@@ -1,5 +1,5 @@
 import streamlit as st
-import db_manager as db
+import user_manager as db
 
 experience_points = db.get_experience_points()
 

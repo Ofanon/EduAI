@@ -1,0 +1,116 @@
+import yaml
+import os
+import hashlib
+import streamlit as st
+from datetime import datetime
+
+# Charger le chemin du fichier YAML depuis `secrets.toml`
+USERS_FILE = st.secrets["DATABASE"]["USERS_FILE"]
+
+# Vérifier si le fichier existe, sinon le créer avec une structure vide
+if not os.path.exists(USERS_FILE):
+    with open(USERS_FILE, "w") as f:
+        yaml.dump({"users": {}}, f)
+
+def load_users():
+    """ Charge les utilisateurs depuis le fichier YAML """
+    with open(USERS_FILE, "r") as f:
+        return yaml.safe_load(f)
+
+def save_users(users):
+    """ Enregistre les utilisateurs dans le fichier YAML """
+    with open(USERS_FILE, "w") as f:
+        yaml.dump(users, f, default_flow_style=False)
+
+def get_current_user():
+    """ Récupère l'utilisateur actuellement connecté """
+    return st.session_state.get("username", None)
+
+def get_experience_points():
+    """ Récupère les points d'expérience de l'utilisateur connecté """
+    username = get_current_user()
+    if not username:
+        return 0
+    users = load_users()
+    return users["users"].get(username, {}).get("experience_points", 0)
+
+def update_experience_points(points):
+    """ Ajoute des points d'expérience à l'utilisateur connecté """
+    username = get_current_user()
+    if not username:
+        return False  
+    users = load_users()
+    users["users"][username]["experience_points"] += points
+    save_users(users)
+    return True
+
+def get_requests_left():
+    """ Récupère le nombre de requêtes restantes de l'utilisateur connecté """
+    username = get_current_user()
+    if not username:
+        return 0
+    users = load_users()
+    return users["users"].get(username, {}).get("requests", 0) + users["users"].get(username, {}).get("purchased_requests", 0)
+
+def consume_request():
+    """ Décrémente le nombre de requêtes de l'utilisateur connecté """
+    username = get_current_user()
+    if not username:
+        return False
+    users = load_users()
+    user = users["users"].get(username)
+
+    if user["purchased_requests"] > 0:
+        user["purchased_requests"] -= 1
+    elif user["requests"] > 0:
+        user["requests"] -= 1
+    else:
+        return False  
+
+    save_users(users)
+    return True
+
+def can_user_make_request():
+    """ Vérifie si l'utilisateur connecté peut encore faire une requête. """
+    username = get_current_user()
+    if not username:
+        return False, "❌ Aucun utilisateur connecté."
+
+    users = load_users()
+    user = users["users"].get(username)
+
+    if not user:
+        return False, "❌ Utilisateur introuvable."
+
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    # Réinitialiser les requêtes normales si la date a changé
+    if user.get("last_request_date") != today:
+        user["last_request_date"] = today
+        user["requests"] = 5  # Remet à 5 les requêtes normales du jour
+        save_users(users)
+
+    # Vérifier s'il reste des requêtes normales ou achetées
+    if user["requests"] > 0 or user["purchased_requests"] > 0:
+        return True, "✅ Vous avez encore des requêtes disponibles."
+    return False, "❌ Plus de requêtes disponibles. Achetez-en ou attendez demain."
+
+def purchase_requests(cost_in_experience, requests_to_add):
+    """ Permet à l'utilisateur connecté d'acheter des requêtes avec ses points d'expérience. """
+    username = get_current_user()
+    if not username:
+        return False, "❌ Aucun utilisateur connecté."
+
+    users = load_users()
+    user = users["users"].get(username)
+
+    if not user:
+        return False, "❌ Utilisateur introuvable."
+
+    if user["experience_points"] >= cost_in_experience:
+        user["experience_points"] -= cost_in_experience  # Déduire les points d'expérience
+        user["purchased_requests"] += requests_to_add  # Ajouter les requêtes achetées
+        save_users(users)
+        return True, f"✅ Achat réussi ! Vous avez {user['purchased_requests']} requêtes achetées."
+    else:
+        return False, "❌ Points d'expérience insuffisants pour cet achat."

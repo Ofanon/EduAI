@@ -1,7 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
-import db_manager as db
+import user_manager as db
 from docx import Document
 from io import BytesIO
 

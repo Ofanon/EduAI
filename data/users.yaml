@@ -1,0 +1,15 @@
+users:
+  oscar:
+    email: oscarfanon@gmail.com
+    experience_points: 0
+    last_request_date: null
+    password: 31acf6bdda84e7b440ab0d05ca24109099d1a8f2f7162ae0e644c1f36ae5bfdb
+    purchased_requests: 0
+    requests: 5
+  test:
+    email: test@gmail.com
+    experience_points: 0
+    last_request_date: null
+    password: 03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4
+    purchased_requests: 0
+    requests: 5
