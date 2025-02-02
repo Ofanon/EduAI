@@ -54,10 +54,9 @@ if "username" in st.session_state:
         }
 
     # Charger les données depuis le fichier utilisateur
-    requests_left, purchased_requests = get_requests_left()
+    requests_left = get_requests_left()
     experience = get_experience_points()
 
     st.write(f"**Requests restantes :** {requests_left}")
-    st.write(f"**Requests achetées :** {purchased_requests}")
     st.write(f"**Points d'expérience :** {experience}")
 
