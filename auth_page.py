@@ -1,7 +1,7 @@
 import streamlit as st
 import user_manager
 
-st.title("🔑 Authentification sécurisée")
+st.title("🔑 Connexion à l'EtudIAnt")
 
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
@@ -20,6 +20,7 @@ if not st.session_state["authenticated"]:
                 st.session_state["username"] = username
                 st.session_state["experience_points"] = user_manager.get_experience_points(username)
                 st.session_state["requests"] = user_manager.get_requests_left(username)
+                st.balloons()
                 st.rerun()
 
     with tab2:
@@ -35,6 +36,7 @@ if not st.session_state["authenticated"]:
                 st.session_state["username"] = new_username
                 st.session_state["experience_points"] = 0
                 st.session_state["requests"] = 5
+                st.balloons()
                 st.rerun()
             else:
                 st.error(message)

@@ -6,7 +6,7 @@ if "authenticated" not in st.session_state:
 
 with st.sidebar:
     pg = st.navigation([
-        st.Page("auth_page.py", title="Connexion à l'EtudIAnt"),
+        st.Page("auth_page.py", title="🔑 Connexion à l'EtudIAnt"),
         st.Page("shop_page.py", title="🛒 Boutique"),
         st.Page("quiz_page.py", title="🎯 Quiz interactif"),
         st.Page("homework_page.py", title="📚 Aide aux devoirs"),
