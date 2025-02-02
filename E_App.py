@@ -4,6 +4,14 @@ import user_manager
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
+import user_manager
+
+if user_manager.test_yaml_write():
+    st.success("✅ Test d'écriture sur users.yaml réussi !")
+else:
+    st.error("❌ Impossible d'écrire dans users.yaml")
+
+
 if "authenticated" in st.session_state and st.session_state["authenticated"]:
     username = st.session_state["username"]
     user_data = user_manager.load_users()["users"].get(username, {})
