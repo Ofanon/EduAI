@@ -1,6 +1,5 @@
 import streamlit as st
 import google.generativeai as genai
-import db_manager as db
 import json
 import requests
 import re
