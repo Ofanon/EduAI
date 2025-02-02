@@ -5,20 +5,18 @@ import streamlit as st
 
 USERS_FILE = "users.yaml"
 
-# Fonction pour charger les utilisateurs depuis le fichier YAML
 def load_users():
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, "r") as f:
             return yaml.safe_load(f) or {}
     return {}
 
-# Fonction pour enregistrer les utilisateurs dans le fichier YAML
 def save_users(users):
     """Sauvegarde les utilisateurs dans users.yaml"""
     try:
         with open(USERS_FILE, "w") as f:
             yaml.dump(users, f, default_flow_style=False)
-        print(f"✅ [DEBUG] Utilisateurs enregistrés dans {USERS_FILE} : {users}")  # 🔥 Affiche ce qui est sauvegardé
+        st.write(f"✅ [DEBUG] Utilisateurs enregistrés dans {USERS_FILE} : {users}")  # 🔥 Affiche ce qui est sauvegardé
     except Exception as e:
         print(f"❌ [ERREUR] Impossible de sauvegarder users.yaml : {e}")
 
