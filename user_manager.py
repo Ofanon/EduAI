@@ -83,24 +83,34 @@ def get_experience_points():
     return users["users"].get(username, {}).get("experience_points", 0)
 
 def update_experience_points(points):
-    """ Ajoute des points d'expérience à l'utilisateur connecté et met à jour users.yaml """
+    """ Ajoute directement des points d'expérience à l'utilisateur connecté et enregistre immédiatement dans users.yaml """
     username = get_current_user()
     if not username:
         return False, "❌ Aucun utilisateur connecté."
 
     users = load_users()
-    user = users["users"].get(username, {})
 
-    if "experience_points" not in user:
-        user["experience_points"] = 0
+    # Vérifier si l'utilisateur existe
+    if username not in users["users"]:
+        return False, "❌ Utilisateur introuvable."
 
-    user["experience_points"] += points
-    users["users"][username] = user  # Mise à jour des données
+    # Vérifier et initialiser "experience_points" si nécessaire
+    if "experience_points" not in users["users"][username]:
+        users["users"][username]["experience_points"] = 0
 
-    success, message = save_users(users)
-    st.write(f"DEBUG: Sauvegarde de XP - {user['experience_points']} pour {username} - Succès: {success}")
-    
-    return success, f"✅ {points} XP ajoutés avec succès et enregistrés !"
+    # Ajouter les points d'expérience
+    users["users"][username]["experience_points"] += points
+
+    # Sauvegarder immédiatement dans users.yaml
+    try:
+        with open(USERS_FILE, "w") as f:
+            yaml.dump(users, f, default_flow_style=False)
+
+        print(f"DEBUG: XP mis à jour pour {username} -> {users['users'][username]['experience_points']}")
+        return True, f"✅ {points} XP ajoutés avec succès et enregistrés !"
+
+    except Exception as e:
+        return False, f"❌ Erreur lors de la sauvegarde de users.yaml : {str(e)}"
 
 
 def get_requests_left():
@@ -111,27 +121,43 @@ def get_requests_left():
     return users["users"].get(username, {}).get("requests", 0) + users["users"].get(username, {}).get("purchased_requests", 0)
 
 def consume_request():
-    """ Décrémente le nombre de requêtes de l'utilisateur connecté et sauvegarde correctement """
+    """ Décrémente directement le nombre de requêtes de l'utilisateur connecté et enregistre immédiatement dans users.yaml """
     username = get_current_user()
     if not username:
         return False, "❌ Aucun utilisateur connecté."
 
     users = load_users()
-    user = users["users"].get(username, {})
 
-    if "requests" not in user:
-        user["requests"] = 5  # Initialisation à 5 si manquant
+    # Vérifier si l'utilisateur existe
+    if username not in users["users"]:
+        return False, "❌ Utilisateur introuvable."
 
-    if user["requests"] > 0:
-        user["requests"] -= 1
-        users["users"][username] = user  # Mise à jour des données
-        
-        success, message = save_users(users)
-        st.write(f"DEBUG: Sauvegarde de Requests - {user['requests']} pour {username} - Succès: {success}")
-        
-        return success, "✅ Requête utilisée avec succès."
+    # Vérifier et initialiser "requests" si nécessaire
+    if "requests" not in users["users"][username]:
+        users["users"][username]["requests"] = 5  # Valeur par défaut
+
+    # Vérifier et initialiser "purchased_requests" si nécessaire
+    if "purchased_requests" not in users["users"][username]:
+        users["users"][username]["purchased_requests"] = 0
+
+    # Consommer une requête
+    if users["users"][username]["purchased_requests"] > 0:
+        users["users"][username]["purchased_requests"] -= 1
+    elif users["users"][username]["requests"] > 0:
+        users["users"][username]["requests"] -= 1
     else:
         return False, "❌ Plus de requêtes disponibles."
+
+    # Sauvegarder immédiatement dans users.yaml
+    try:
+        with open(USERS_FILE, "w") as f:
+            yaml.dump(users, f, default_flow_style=False)
+
+        print(f"DEBUG: Requests mis à jour pour {username} -> {users['users'][username]['requests']}")
+        return True, "✅ Requête utilisée avec succès."
+
+    except Exception as e:
+        return False, f"❌ Erreur lors de la sauvegarde de users.yaml : {str(e)}"
 
 
 def can_user_make_request():
