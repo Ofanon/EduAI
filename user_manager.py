@@ -16,11 +16,15 @@ def load_users():
     """ Charge les utilisateurs depuis le fichier YAML """
     with open(USERS_FILE, "r") as f:
         return yaml.safe_load(f)
-
+    
 def save_users(users):
-    """ Enregistre les utilisateurs dans le fichier YAML """
+    """ Enregistre les utilisateurs sans écraser les valeurs existantes """
+    existing_users = load_users()  # Charger l'état actuel pour ne pas perdre les données existantes
+    existing_users["users"].update(users["users"])  # Met à jour seulement les nouvelles infos
+
     with open(USERS_FILE, "w") as f:
-        yaml.dump(users, f, default_flow_style=False)
+        yaml.dump(existing_users, f, default_flow_style=False)
+
 
 def get_current_user():
     """ Récupère l'utilisateur actuellement connecté """
