@@ -18,8 +18,8 @@ if not st.session_state["authenticated"]:
                 st.success(f"✅ Bienvenue {username} !")
                 st.session_state["authenticated"] = True
                 st.session_state["username"] = username
-                st.session_state["experience_points"] = user_manager.get_experience_points(username)
-                st.session_state["requests"] = user_manager.get_requests_left(username)
+                st.session_state["experience_points"] = user_manager.get_experience_points()
+                st.session_state["requests"] = user_manager.get_requests_left()
                 st.balloons()
                 st.rerun()
 
