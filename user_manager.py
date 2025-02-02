@@ -13,9 +13,6 @@ if not os.path.exists(USERS_FILE):
     with open(USERS_FILE, "w") as f:
         yaml.dump({}, f)
 
-
-
-# Charger les utilisateurs
 def load_users():
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, "r") as f:
