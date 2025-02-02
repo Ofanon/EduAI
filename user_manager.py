@@ -94,11 +94,14 @@ def update_experience_points(points):
     if "experience_points" not in user:
         user["experience_points"] = 0
 
-    user["experience_points"] += points  # Ajoute les points
-    users["users"][username] = user  # Mise à jour des données de l'utilisateur
-    update_user_data(key="experience_points", value=points)
-    save_users(users)  # Sauvegarde correctement tout le fichier users.yaml
-    return True, f"✅ {points} XP ajoutés avec succès et enregistrés !"
+    user["experience_points"] += points
+    users["users"][username] = user  # Mise à jour des données
+
+    success, message = save_users(users)
+    st.write(f"DEBUG: Sauvegarde de XP - {user['experience_points']} pour {username} - Succès: {success}")
+    
+    return success, f"✅ {points} XP ajoutés avec succès et enregistrés !"
+
 
 def get_requests_left():
     username = get_current_user()
@@ -122,10 +125,14 @@ def consume_request():
     if user["requests"] > 0:
         user["requests"] -= 1
         users["users"][username] = user  # Mise à jour des données
-        save_users(users)  # Sauvegarde correctement l'utilisateur
-        return True, "✅ Requête utilisée avec succès."
+        
+        success, message = save_users(users)
+        st.write(f"DEBUG: Sauvegarde de Requests - {user['requests']} pour {username} - Succès: {success}")
+        
+        return success, "✅ Requête utilisée avec succès."
     else:
         return False, "❌ Plus de requêtes disponibles."
+
 
 def can_user_make_request():
     """ Vérifie si l'utilisateur connecté peut encore faire une requête sans triche. """
