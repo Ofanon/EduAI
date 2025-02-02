@@ -133,4 +133,4 @@ def get_requests_left():
 
     users = load_users()
     user = users.get(username, {})
-    return user.get("requests", 0), user.get("purchase_requests", 0)
+    return user.get("requests"), user.get("purchase_requests")
