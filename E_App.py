@@ -4,23 +4,6 @@ import user_manager
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 
-import user_manager
-
-if user_manager.test_yaml_write():
-    st.success("✅ Test d'écriture sur users.yaml réussi !")
-else:
-    st.error("❌ Impossible d'écrire dans users.yaml")
-
-
-if "authenticated" in st.session_state and st.session_state["authenticated"]:
-    username = st.session_state["username"]
-    user_data = user_manager.load_users()["users"].get(username, {})
-    if user_data:
-        st.session_state["experience_points"] = user_data.get("experience_points", 0)
-        st.session_state["requests"] = user_data.get("requests", 5)
-        st.session_state["purchased_requests"] = user_data.get("purchased_requests", 0)
-
-
 with st.sidebar:
     pg = st.navigation([
         st.Page("auth_page.py", title="🔑 Connexion à l'EtudIAnt"),
