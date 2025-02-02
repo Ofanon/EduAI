@@ -9,6 +9,7 @@ if not os.path.exists(DATA_DIR):
 
 USERS_FILE = os.path.join(DATA_DIR, "users.yaml")  # 🔒 Fichier sécurisé dans data/
 
+# Charger les utilisateurs
 def load_users():
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, "r") as f:
