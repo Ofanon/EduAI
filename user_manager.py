@@ -1,36 +1,21 @@
 import yaml
 import hashlib
 import os
-import streamlit as st
+import streamlit as st  # Pour accéder à la session utilisateur
 
-DATA_DIR = "data"
-USERS_FILE = os.path.join(DATA_DIR, "users.yaml")
+USERS_FILE = "users.yaml"
 
-# Vérifier que le dossier "data" existe
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
-
-# Vérifier que le fichier users.yaml existe
-if not os.path.exists(USERS_FILE):
-    with open(USERS_FILE, "w") as f:
-        yaml.dump({}, f)  # Créer un fichier YAML vide
-    print(f"✅ [DEBUG] users.yaml a été créé automatiquement !")  # 🔥 Debug
-
-
+# Charger les utilisateurs
 def load_users():
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, "r") as f:
             return yaml.safe_load(f) or {}
     return {}
 
+# Sauvegarder les utilisateurs
 def save_users(users):
-    """Sauvegarde les utilisateurs dans users.yaml"""
-    try:
-        with open(USERS_FILE, "w") as f:
-            yaml.dump(users, f, default_flow_style=False)
-        st.write(f"✅ [DEBUG] Utilisateurs enregistrés dans {USERS_FILE} : {users}")  # 🔥 Affiche ce qui est sauvegardé
-    except Exception as e:
-        print(f"❌ [ERREUR] Impossible de sauvegarder users.yaml : {e}")
+    with open(USERS_FILE, "w") as f:
+        yaml.dump(users, f, default_flow_style=False)
 
 # Hachage du mot de passe
 def hash_password(password):
@@ -42,23 +27,19 @@ def get_current_user():
 
 # Création d'un utilisateur
 def register_user(username, password, email):
-    """Ajoute un nouvel utilisateur à users.yaml"""
-    users = load_users()  # Charge les utilisateurs existants
-    
+    users = load_users()
     if username in users:
         return False, "L'utilisateur existe déjà."
 
     users[username] = {
         "password": hash_password(password),
         "email": email,
-        "requests": 5,  # Départ avec 5 requêtes gratuites
-        "purchase_requests": 0,  
-        "experience_points": 0  
+        "requests": 5,
+        "purchase_requests": 0,
+        "experience_points": 0
     }
-
-    save_users(users)  # 🔹 Sauvegarde les modifications !
+    save_users(users)
     return True, "Compte créé avec succès !"
-
 
 # Authentification
 def authenticate(username, password):
@@ -116,9 +97,9 @@ def purchase_requests(cost_in_experience, requests_to_add):
         user["experience_points"] -= cost_in_experience
         user["purchase_requests"] += requests_to_add
         save_users(users)
-        return True
+        return True, f"{requests_to_add} requêtes achetées avec succès !"
     else:
-        return False
+        return False, "Pas assez de points d'expérience."
 
 # Ajouter des points d'expérience
 def update_experience_points(points):
@@ -140,20 +121,12 @@ def get_experience_points():
     users = load_users()
     return users.get(username, {}).get("experience_points", 0)
 
-
+# Obtenir le nombre de requêtes restantes
 def get_requests_left():
-    """ Retourne le nombre total de requêtes disponibles (gratuites + achetées) """
     username = get_current_user()
     if not username:
-        return 0
+        return 0, 0  # Retourne 0 si aucun utilisateur connecté
 
     users = load_users()
-
-    if username not in users:
-        return 0
-
-    user = users[username]
-
-    final_requests = user.get("requests", 0) + user.get("purchase_requests", 0)
-    
-    return final_requests
+    user = users.get(username, {})
+    return user.get("requests", 0), user.get("purchase_requests", 0)
