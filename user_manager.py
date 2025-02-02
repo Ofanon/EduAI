@@ -31,19 +31,23 @@ def get_current_user():
 
 # Création d'un utilisateur
 def register_user(username, password, email):
-    users = load_users()
+    """Ajoute un nouvel utilisateur à users.yaml"""
+    users = load_users()  # Charge les utilisateurs existants
+    
     if username in users:
         return False, "L'utilisateur existe déjà."
 
     users[username] = {
         "password": hash_password(password),
         "email": email,
-        "requests": 5,
-        "purchase_requests": 0,
-        "experience_points": 0
+        "requests": 5,  # Départ avec 5 requêtes gratuites
+        "purchase_requests": 0,  
+        "experience_points": 0  
     }
-    save_users(users)
+
+    save_users(users)  # 🔹 Sauvegarde les modifications !
     return True, "Compte créé avec succès !"
+
 
 # Authentification
 def authenticate(username, password):
