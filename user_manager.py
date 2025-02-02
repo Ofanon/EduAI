@@ -18,21 +18,9 @@ def load_users():
         return yaml.safe_load(f)
 
 def save_users(users):
-    """ Sauvegarde correctement les utilisateurs dans users.yaml et vérifie immédiatement si la modification est prise en compte """
-    try:
-        with open(USERS_FILE, "w") as f:
-            yaml.dump(users, f, default_flow_style=False)
-            f.flush()  # Assure que les données sont écrites immédiatement
-
-        # Vérification immédiate après écriture
-        with open(USERS_FILE, "r") as f:
-            users_after = yaml.safe_load(f)
-
-        print(f"DEBUG: users.yaml mis à jour avec succès ! Contenu après sauvegarde : {users_after}")
-        return True
-    except Exception as e:
-        print(f"❌ Erreur lors de la sauvegarde de users.yaml : {str(e)}")
-        return False
+    """ Sauvegarde correctement toutes les données des utilisateurs """
+    with open(USERS_FILE, "w") as f:
+        yaml.dump(users, f, default_flow_style=False)
 
 def get_current_user():
     """ Récupère l'utilisateur actuellement connecté """
@@ -73,7 +61,7 @@ def update_user_data(key, value):
     return True, f"✅ {key} mis à jour avec succès : {value}."
 
 
-def authenticate(username, password):
+def authenticate_user(username, password):
     """ Vérifie si le nom d'utilisateur et le mot de passe sont corrects """
     users = load_users()
     user = users["users"].get(username)
@@ -95,51 +83,25 @@ def get_experience_points():
     return users["users"].get(username, {}).get("experience_points", 0)
 
 def update_experience_points(points):
-    """ Ajoute directement des points d'expérience à l'utilisateur connecté et enregistre immédiatement dans users.yaml """
+    """ Ajoute des points d'expérience à l'utilisateur connecté et met à jour users.yaml """
     username = get_current_user()
     if not username:
         return False, "❌ Aucun utilisateur connecté."
 
     users = load_users()
+    user = users["users"].get(username, {})
 
-    if username not in users["users"]:
-        return False, "❌ Utilisateur introuvable."
+    if "experience_points" not in user:
+        user["experience_points"] = 0
 
-    if "experience_points" not in users["users"][username]:
-        users["users"][username]["experience_points"] = 0
-
-    users["users"][username]["experience_points"] += points
-
-    success = save_users(users)
-
-    # Relecture immédiate pour vérifier si le changement a été pris en compte
-    with open(USERS_FILE, "r") as f:
-        updated_data = yaml.safe_load(f)
-    print(f"DEBUG: Après ajout XP, contenu de users.yaml : {updated_data}")
-
-    return success, f"✅ {points} XP ajoutés avec succès et enregistrés !"
-
-
-def test_yaml_write():
-    """ Teste si users.yaml peut être modifié """
-    try:
-        test_data = {"test": "écriture réussie"}
-        
-        # Test d'écriture
-        with open(USERS_FILE, "w") as f:
-            yaml.dump(test_data, f, default_flow_style=False)
-        
-        # Test de lecture
-        with open(USERS_FILE, "r") as f:
-            read_data = yaml.safe_load(f)
-
-        st.write(f"DEBUG: Test d'écriture réussi, contenu du fichier : {read_data}")
-        return True
-    except Exception as e:
-        st.write(f"❌ Erreur lors du test d'écriture : {str(e)}")
-        return False
+    user["experience_points"] += points  # Ajoute les points
+    users["users"][username] = user  # Mise à jour des données de l'utilisateur
+    update_user_data(key="experience_points", value=points)
+    save_users(users)  # Sauvegarde correctement tout le fichier users.yaml
+    return True, f"✅ {points} XP ajoutés avec succès et enregistrés !"
 
 def get_requests_left():
+    """ Récupère le nombre de requêtes restantes de l'utilisateur connecté """
     username = get_current_user()
     if not username:
         return 0
@@ -147,34 +109,24 @@ def get_requests_left():
     return users["users"].get(username, {}).get("requests", 0) + users["users"].get(username, {}).get("purchased_requests", 0)
 
 def consume_request():
-    """ Décrémente directement le nombre de requêtes de l'utilisateur connecté et enregistre immédiatement dans users.yaml """
+    """ Décrémente le nombre de requêtes de l'utilisateur connecté et sauvegarde correctement """
     username = get_current_user()
     if not username:
         return False, "❌ Aucun utilisateur connecté."
 
     users = load_users()
+    user = users["users"].get(username, {})
 
-    if username not in users["users"]:
-        return False, "❌ Utilisateur introuvable."
+    if "requests" not in user:
+        user["requests"] = 5  # Initialisation à 5 si manquant
 
-    if "requests" not in users["users"][username]:
-        users["users"][username]["requests"] = 5
-
-    if users["users"][username]["requests"] > 0:
-        users["users"][username]["requests"] -= 1
+    if user["requests"] > 0:
+        user["requests"] -= 1
+        users["users"][username] = user  # Mise à jour des données
+        save_users(users)  # Sauvegarde correctement l'utilisateur
+        return True, "✅ Requête utilisée avec succès."
     else:
         return False, "❌ Plus de requêtes disponibles."
-
-    success = save_users(users)
-
-    # Relecture immédiate pour vérifier si le changement a été pris en compte
-    with open(USERS_FILE, "r") as f:
-        updated_data = yaml.safe_load(f)
-    print(f"DEBUG: Après consommation requête, contenu de users.yaml : {updated_data}")
-
-    return success, "✅ Requête utilisée avec succès."
-
-
 
 def can_user_make_request():
     """ Vérifie si l'utilisateur connecté peut encore faire une requête sans triche. """
