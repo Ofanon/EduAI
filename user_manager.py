@@ -3,7 +3,19 @@ import hashlib
 import os
 import streamlit as st
 
-USERS_FILE = "users.yaml"
+DATA_DIR = "data"
+USERS_FILE = os.path.join(DATA_DIR, "users.yaml")
+
+# Vérifier que le dossier "data" existe
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+
+# Vérifier que le fichier users.yaml existe
+if not os.path.exists(USERS_FILE):
+    with open(USERS_FILE, "w") as f:
+        yaml.dump({}, f)  # Créer un fichier YAML vide
+    print(f"✅ [DEBUG] users.yaml a été créé automatiquement !")  # 🔥 Debug
+
 
 def load_users():
     if os.path.exists(USERS_FILE):
@@ -20,7 +32,7 @@ def save_users(users):
     except Exception as e:
         print(f"❌ [ERREUR] Impossible de sauvegarder users.yaml : {e}")
 
-
+# Hachage du mot de passe
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
