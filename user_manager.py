@@ -112,6 +112,24 @@ def update_experience_points(points):
     except Exception as e:
         return False, f"❌ Erreur lors de la sauvegarde de users.yaml : {str(e)}"
 
+def test_yaml_write():
+    """ Teste si users.yaml peut être modifié """
+    try:
+        test_data = {"test": "écriture réussie"}
+        
+        # Test d'écriture
+        with open(USERS_FILE, "w") as f:
+            yaml.dump(test_data, f, default_flow_style=False)
+        
+        # Test de lecture
+        with open(USERS_FILE, "r") as f:
+            read_data = yaml.safe_load(f)
+
+        st.write(f"DEBUG: Test d'écriture réussi, contenu du fichier : {read_data}")
+        return True
+    except Exception as e:
+        st.write(f"❌ Erreur lors du test d'écriture : {str(e)}")
+        return False
 
 def get_requests_left():
     username = get_current_user()
