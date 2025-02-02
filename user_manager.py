@@ -1,19 +1,18 @@
 import yaml
 import hashlib
 import os
-import streamlit as st  # Pour accéder à la session utilisateur
+import streamlit as st
 
 DATA_DIR = "data"
 USERS_FILE = os.path.join(DATA_DIR, "users.yaml")
 
-# Vérifier que le dossier "data" existe, sinon le créer
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
-# Vérifier que le fichier users.yaml existe, sinon le créer avec un dictionnaire vide
 if not os.path.exists(USERS_FILE):
     with open(USERS_FILE, "w") as f:
-        yaml.dump({}, f)  # 🔹 Crée un fichier YAML vide pour éviter les erreurs
+        yaml.dump({}, f)
+
 
 
 # Charger les utilisateurs
