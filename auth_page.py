@@ -19,8 +19,8 @@ if "username" not in st.session_state:
             success, user_data = authenticate(username, password)
             if success:
                 st.success(f"Bienvenue {username} ! 🎉")
-                st.session_state["username"] = username
-                st.session_state["user_data"] = user_data
+                st.session_state["username"] = username  # Stocke l'utilisateur
+                st.session_state["user_data"] = user_data  # Stocke les données utilisateur
                 st.session_state.authenticated = True
                 st.rerun()
             else:
@@ -36,13 +36,8 @@ if "username" not in st.session_state:
             if new_username and new_password and new_email:
                 success, message = register_user(new_username, new_password, new_email)
                 if success:
-                    success, user_data = authenticate(username, password)
-                    if success:
-                        st.success(f"Bienvenue {username} ! 🎉")
-                        st.session_state["username"] = username
-                        st.session_state["user_data"] = user_data
-                        st.session_state.authenticated = True
-                        st.rerun()
+                    st.success(message)
+                    st.session_state.authenticated = True
                 else:
                     st.error(message)
             else:
@@ -66,11 +61,4 @@ if "username" in st.session_state:
 
     st.write(f"**Requests restantes :** {requests_left}")
     st.write(f"**Points d'expérience :** {experience}")
-    
-    cheat = st.text_input("Tu es administrateur de l'EtudIAnt ? Entre ton code secret ici :")
-    if cheat:
-        if cheat == st.secrets["SECRET_CODE"]:
-            if st.button("700 points d'experience"):
-                update_experience_points(points=700)
 
-    
